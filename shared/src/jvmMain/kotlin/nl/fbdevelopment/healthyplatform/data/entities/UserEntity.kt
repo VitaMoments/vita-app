@@ -1,0 +1,18 @@
+package nl.fbdevelopment.healthyplatform.data.entities
+
+import nl.fbdevelopment.healthyplatform.data.tables.UsersTable
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.dao.UUIDEntity
+import org.jetbrains.exposed.v1.dao.UUIDEntityClass
+import java.util.UUID
+
+class UserEntity(id: EntityID<UUID>) : UUIDEntity(id) {
+    companion object : UUIDEntityClass<UserEntity>(UsersTable)
+    var email by UsersTable.email
+    var password by UsersTable.password
+    var createdAt by UsersTable.createdAt
+    var updatedAt by UsersTable.updatedAt
+    var deletedAt by UsersTable.deletedAt
+    var imageUrl by UsersTable.imageUrl
+}
+

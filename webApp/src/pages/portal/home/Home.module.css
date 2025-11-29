@@ -1,0 +1,9 @@
+.error {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(239, 68, 68, 0.06);        /* rood zacht */
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+  font-size: 0.9rem;
+}

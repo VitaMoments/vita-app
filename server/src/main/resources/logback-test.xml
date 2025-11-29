@@ -1,0 +1,24 @@
+<configuration>
+    <property name="PROFILE" value="${LOG_PROFILE:-dev}"/>
+
+    <appender name="CONSOLE_DEV" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%X{callId:-}] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE_PROD" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{callId:-}] %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <if condition='property("PROFILE").equals("prod")'>
+        <then>
+            <root level="INFO"><appender-ref ref="CONSOLE_PROD"/></root>
+        </then>
+        <else>
+            <root level="DEBUG"><appender-ref ref="CONSOLE_DEV"/></root>
+        </else>
+    </if>
+</configuration>

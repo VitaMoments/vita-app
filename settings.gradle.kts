@@ -1,4 +1,4 @@
-rootProject.name = "HealthyPlatform"
+rootProject.name = "VitaMoments"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

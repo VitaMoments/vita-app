@@ -90,7 +90,7 @@ kotlin {
 }
 
 android {
-    namespace = "nl.fbdevelopment.healthyplatform.shared"
+    namespace = "eu.vitamoments.app.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -111,7 +111,7 @@ abstract class GenerateBuildConfig : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        val pkg = "nl.fbdevelopment.healthyplatform.config"
+        val pkg = "eu.vitamoments.app.config"
         val envValue = environment.get() // dev / test / acc / demo / prod
 
         val file = outputDir.get().file("BuildConfig.kt").asFile

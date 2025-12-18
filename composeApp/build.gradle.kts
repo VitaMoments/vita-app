@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -48,11 +47,11 @@ kotlin {
 }
 
 android {
-    namespace = "nl.fbdevelopment.healthyplatform"
+    namespace = "eu.vitamoments.app"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "nl.fbdevelopment.healthyplatform"
+        applicationId = "eu.vitamoments.app"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

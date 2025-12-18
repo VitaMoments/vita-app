@@ -10,6 +10,7 @@ import { TimelinePostCard } from "../../../components/timeline/TimelinePostCard"
 import { TimelineInput } from "../../../components/input/TimelineInput"
 import { TimelineButtonBar } from "../../../components/buttons/TimelineButtonBar"
 import { Button } from "../../../components/buttons/Button"
+import { ErrorBanner, WarningBanner, InfoBanner } from "../../../components/banner/InfoBanner"
 
 const LABELS = ["Following","Self", "Groups", "Discovery"] as const;
 const LIMIT = 20;
@@ -19,12 +20,14 @@ const Home: React.FC = () => {
     const [posts, setPosts] = useState<TimeLinePost[]>([]);
     const [loading, setLoading] = useState(false)
     const {user, logout} = useAuth()
-    const [error, setError] = useState("")
+    const [error, setError] = useState<string | null>(null);
+    const [warning, setWarning] = useState<string | null>(null);
+    const [info, setInfo] = useState<string | null>(null);
     const navigate = useNavigate()
 
     const loadPosts = async (index: number) => {
         const label = LABELS[index];
-        const offset = 0; // hier kun je eventueel per tab andere offset gebruiken
+        const offset = 0;
 
         try {
           setLoading(true);
@@ -58,7 +61,9 @@ const Home: React.FC = () => {
    if (loading) return (<div><p>loading...</p></div>);
    return (
        <div className="timeline">
-        {error && <p style={{ color: "red" }}>{error}</p>}
+         <ErrorBanner message={error} />
+         <WarningBanner message={warning} />
+         <InfoBanner message={info} />
          <TimelineInput />
          <TimelineButtonBar
            activeIndex={activeIndex}

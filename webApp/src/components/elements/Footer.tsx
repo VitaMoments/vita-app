@@ -5,8 +5,8 @@ const Footer = () => {
     <footer className={styles.footer}>
       <div className={styles.footerInner}>
         <div className={styles.footerLeft}>
-          <span className={styles.footerBrand}>HealtyProduct</span>
-          <span>© {new Date().getFullYear()} • Preventie & vitaliteit</span>
+          <span className={styles.footerBrand}>Vita Moments</span>
+          <span>© {new Date().getFullYear()}</span>
         </div>
         <div className={styles.footerRight}>
           <a href="/privacy" className={styles.link}>Privacy</a>

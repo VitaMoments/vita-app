@@ -42,7 +42,7 @@ const Header = ({ user }: HeaderProps) => {
     return (
         <header ref={headerRef} className={styles.header}>
             <Link to="/" className={styles.logoLink} onClick={()=> setOpen(false) }>
-                <h1 className={styles.logo}> Healthy Socials </h1>
+                <h1 className={styles.logo}>Vita Moments</h1>
             </Link>
             <nav className={`${styles.nav} ${open ? styles.open : ""}`}>
 

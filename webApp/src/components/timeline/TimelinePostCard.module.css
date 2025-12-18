@@ -1,0 +1,74 @@
+/* TimelinePostCard.module.css */
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 4px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.email {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Optioneel: styling voor rich text vanuit TipTap */
+.content p {
+  margin: 0.2rem 0;
+}
+
+.content strong {
+  font-weight: 600;
+}
+
+.content em {
+  font-style: italic;
+}
+
+.content u {
+  text-decoration: underline;
+}
+
+.content ul,
+.content ol {
+  list-style: style-type;
+  padding-left: 0;
+  margin: 0.25rem 0;
+}
+
+.content li::marker {
+  content: "";
+}

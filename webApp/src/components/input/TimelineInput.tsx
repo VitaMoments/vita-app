@@ -15,7 +15,7 @@ import api from "../../api/axios";
 import styles from "./TimelineInput.module.css";
 
 type TimelineInputProps = {
-  onPosted?: () => void; // optioneel: refresh timeline na submit
+  onPosted?: () => void;
 };
 
 export function TimelineInput({ onPosted }: TimelineInputProps) {

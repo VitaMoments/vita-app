@@ -1,0 +1,32 @@
+.error {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+  font-size: 0.9rem;
+}
+
+.avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #e5e7eb;
+  display: block;
+}
+
+.content{
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.logoutBtn{
+  margin-top: auto;
+  width: 100%;
+  max-width: 320px;
+}

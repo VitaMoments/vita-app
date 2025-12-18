@@ -39,6 +39,5 @@ private fun Routing.apiRoutes() {
             userRoutes()
             timelineRoutes()
         }
-
     }
 }

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import {Link, useNavigate} from "react-router-dom";
+import { MdGroup, MdOutlineAccountCircle } from "react-icons/md"
 import { User } from "../../data/user/userType"
+import HeaderLink from "./HeaderLink";
 
 import { useAuth } from "../../auth/AuthContext";
 import styles from "./Header.module.css"
@@ -39,14 +41,20 @@ const Header = ({ user }: HeaderProps) => {
 
     return (
         <header ref={headerRef} className={styles.header}>
-            <h1 className={styles.logo}>Health APK Header</h1>
+            <Link to="/" className={styles.logoLink} onClick={()=> setOpen(false) }>
+                <h1 className={styles.logo}> Healthy Socials </h1>
+            </Link>
             <nav className={`${styles.nav} ${open ? styles.open : ""}`}>
-                <Link
-                    to="/"
-                    className={styles.link}
-                    onClick={() => setOpen(false)}> Home </Link>
+
 
                 {!user ? (
+                    <>
+                    <Link
+                        to="/"
+                        className={styles.link}
+                        onClick={() => setOpen(false)}>
+                            Home
+                    </Link>
                     <Link
                         to="/login"
                         className={styles.link}
@@ -54,16 +62,21 @@ const Header = ({ user }: HeaderProps) => {
                     >
                         Login
                     </Link>
+                    </>
                 ) : (
                     <>
-
-                    <Link
-                        to="/portal/profile"
-                        className={styles.link}
-                        onClick={() => setOpen(false)}
-                    >
-                        Profile
-                    </Link>
+                        <HeaderLink
+                          to="/portal/friends"
+                          icon={MdGroup}
+                          text="Friends"
+                          onClick={() => setOpen(false)}
+                        />
+                        <HeaderLink
+                          to="/portal/profile"
+                          icon={ MdOutlineAccountCircle }
+                          text="Profile"
+                          onClick={() => setOpen(false)}
+                        />
                     </>
                 )}
             </nav>

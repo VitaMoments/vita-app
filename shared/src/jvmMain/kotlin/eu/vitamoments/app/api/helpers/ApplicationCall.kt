@@ -71,7 +71,7 @@ fun ApplicationCall.setAuthCookies(session: AuthSession) {
         key = "refresh_token",
         value = session.refreshToken.token,
         maxAge = jwtConfig.refreshExpirationSeconds,
-        path = "/api/auth/refresh"
+        path = "/api/auth"
     )
 }
 

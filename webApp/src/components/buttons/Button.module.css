@@ -25,3 +25,22 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* Primary (geselecteerd) */
+.selected {
+  background: var(--color-primary, #2563eb);
+  color: white;
+  border: 1px solid var(--color-primary, #2563eb);
+}
+
+/* Outlined (niet geselecteerd) */
+.unselected {
+  background: transparent;
+  color: var(--color-primary, #2563eb);
+  border: 1px solid var(--color-primary, #2563eb);
+}
+
+.bar {
+  display: flex;
+  gap: 0.5rem;
+}

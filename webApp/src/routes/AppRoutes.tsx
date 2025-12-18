@@ -6,10 +6,13 @@ import { ProtectedRoute, AuthRoute } from "./ProtectedRoute";
 import PublicHome from "../pages/public/home/Home";
 import Registration from "../pages/public/auth/Registration";
 import Login from "../pages/public/auth/Login";
+import Privacy from "../pages/public/privacy/Privacy"
+import Terms from "../pages/public/terms/Terms"
 
 // Private
 import Home from "../pages/portal/home/Home";
 import Profile from "../pages/portal/profile/Profile";
+import Friends from "../pages/portal/friends/Friends";
 
 export default function AppRoutes() {
   return (
@@ -23,8 +26,11 @@ export default function AppRoutes() {
           <Route path="/portal" element={<ProtectedRoute />}>
             <Route index element={<Home />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="friends" element={<Friends />} />
           </Route>
 
+          <Route path="/privacy" element={<Privacy /> } />
+          <Route path="/terms" element={<Terms /> } />
           <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

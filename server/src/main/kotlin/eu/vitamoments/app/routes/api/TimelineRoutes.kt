@@ -36,7 +36,11 @@ fun Route.timelineRoutes() {
         }
 
         get {
+            val params = call.pathParameters
+            val userId: Uuid = call.requireUserId()
 
+            val result: RepositoryResponse<List<TimeLinePost>> = timeLineRepo.getTimeLine(userId, params["limit"]?.toInt() ?: 100, params["offset"]?.toLong() ?: 0)
+            call.respondRepositoryResponse(result, HttpStatusCode.OK) { list -> list.map { it.toDto() }}
         }
 
         delete {

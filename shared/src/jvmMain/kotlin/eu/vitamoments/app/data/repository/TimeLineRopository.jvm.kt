@@ -37,7 +37,8 @@ class JVMTimeLineRepository() : TimeLineRepository {
         limit: Int,
         offset: Long
     ): RepositoryResponse<List<TimeLinePost>> = dbQuery{
-        RepositoryResponse.Success(emptyList())
+        val postsEntities = TimeLinePostEntity.all()
+        RepositoryResponse.Success(postsEntities.map { it.toDomain() })
     }
 
 }

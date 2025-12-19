@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { useEditor, useEditorState, EditorContent } from "@tiptap/react";
+import { TimelineService } from "../../api/service/TimelineService";
 
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -16,13 +17,15 @@ import styles from "./TimelineInput.module.css";
 
 type TimelineInputProps = {
   onPosted?: () => void;
+  onError?: (message: string, rawError?: unknown) => void;
+  onClearError?: () => void;
 };
 
-export function TimelineInput({ onPosted }: TimelineInputProps) {
-  const [isPosting, setIsPosting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export function TimelineInput({ onPosted, onError, onClearError }: TimelineInputProps) {
+    const [isPosting, setIsPosting] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
-  const editor = useEditor({
+    const editor = useEditor({
     extensions: [
       Document,
       Paragraph,
@@ -41,13 +44,17 @@ export function TimelineInput({ onPosted }: TimelineInputProps) {
         "aria-label": "Timeline bericht invoer",
       },
     },
-    onUpdate: () => {
-      if (error) setError(null);
+    onFocus: () => setIsFocused(true),
+    onBlur: ({ editor }) => {
+        const hasText = editor.getText().trim().length > 0;
+        if (!hasText) setIsFocused(false);
     },
-  });
+    onUpdate: () => {
+      onClearError?.();
+    },
+    });
 
-  // 🔥 Dit zorgt voor rerenders wanneer selectie/marks veranderen
-  const { isBold, isItalic, isUnderline, textLen } = useEditorState({
+    const { isBold, isItalic, isUnderline, textLen } = useEditorState({
     editor,
     selector: ({ editor }) => ({
       isBold: editor.isActive("bold"),
@@ -55,13 +62,13 @@ export function TimelineInput({ onPosted }: TimelineInputProps) {
       isUnderline: editor.isActive("underline"),
       textLen: editor.getText().trim().length,
     }),
-  });
+    });
 
-  const canSubmit = useMemo(() => {
+    const canSubmit = useMemo(() => {
     return !!editor && textLen > 0 && !isPosting;
-  }, [editor, textLen, isPosting]);
+    }, [editor, textLen, isPosting]);
 
-  const toggle = useCallback(
+    const toggle = useCallback(
     (action: "bold" | "italic" | "underline") => {
       if (!editor) return;
       const chain = editor.chain().focus();
@@ -70,7 +77,11 @@ export function TimelineInput({ onPosted }: TimelineInputProps) {
       if (action === "underline") chain.toggleUnderline().run();
     },
     [editor]
-  );
+    );
+
+    const keepEditorFocus = (e: React.MouseEvent) => {
+      e.preventDefault();
+    };
 
     const sendPost = useCallback(async () => {
       if (!editor) return;
@@ -79,84 +90,89 @@ export function TimelineInput({ onPosted }: TimelineInputProps) {
       if (!plain || isPosting) return;
 
       setIsPosting(true);
-      setError(null);
+      onClearError?.();
 
       try {
-        const contentJson = editor.getJSON();
-        await api.post("/timeline", { content: contentJson }); // let op: /timeline (geen /api want baseURL heeft die al)
+        await TimelineService.postContent(editor.getJSON());
         editor.commands.clearContent(true);
         onPosted?.();
       } catch (e: any) {
-        setError(e?.response?.data?.message ?? "Plaatsen mislukt. Probeer het opnieuw.");
+          const msg =
+            e?.response?.data?.message ??
+            e?.message ??
+            "Error posting content. Please try again..";
+          onError?.(msg, e);
       } finally {
         setIsPosting(false);
       }
-    }, [editor, isPosting, onPosted]);
+    }, [editor, isPosting, onPosted, onError, onClearError]);
 
-  if (!editor) return null;
+    if (!editor) return null;
 
-  return (
+    return (
     <div className={styles.wrapper}>
-      <div className={styles.toolbar}>
-        <button
-          type="button"
-          className={`${styles.toolBtn} ${isBold ? styles.active : ""}`}
-          onClick={() => toggle("bold")}
-          aria-pressed={isBold}
-          title="Vet (Ctrl+B)"
-        >
-          <span className={styles.iconBold} aria-hidden="true">
-            B
-          </span>
-        </button>
+      {isFocused && (
+        <div className={styles.toolbar} onMouseDown={keepEditorFocus}>
+            <button
+              type="button"
+              className={`${styles.toolBtn} ${isBold ? styles.active : ""}`}
+              onClick={() => toggle("bold")}
+              aria-pressed={isBold}
+              title="Vet (Ctrl+B)"
+            >
+              <span className={styles.iconBold} aria-hidden="true">
+                B
+              </span>
+            </button>
 
-        <button
-          type="button"
-          className={`${styles.toolBtn} ${isItalic ? styles.active : ""}`}
-          onClick={() => toggle("italic")}
-          aria-pressed={isItalic}
-          title="Cursief (Ctrl+I)"
-        >
-          <span className={styles.iconItalic} aria-hidden="true">
-            I
-          </span>
-        </button>
+            <button
+              type="button"
+              className={`${styles.toolBtn} ${isItalic ? styles.active : ""}`}
+              onClick={() => toggle("italic")}
+              aria-pressed={isItalic}
+              title="Cursief (Ctrl+I)"
+            >
+              <span className={styles.iconItalic} aria-hidden="true">
+                I
+              </span>
+            </button>
 
-        <button
-          type="button"
-          className={`${styles.toolBtn} ${isUnderline ? styles.active : ""}`}
-          onClick={() => toggle("underline")}
-          aria-pressed={isUnderline}
-          title="Onderstrepen (Ctrl+U)"
-        >
-          <span className={styles.iconUnderline} aria-hidden="true">
-            U
-          </span>
-        </button>
+            <button
+              type="button"
+              className={`${styles.toolBtn} ${isUnderline ? styles.active : ""}`}
+              onClick={() => toggle("underline")}
+              aria-pressed={isUnderline}
+              title="Onderstrepen (Ctrl+U)"
+            >
+              <span className={styles.iconUnderline} aria-hidden="true">
+                U
+              </span>
+            </button>
 
-        <div className={styles.spacer} />
+            <div className={styles.spacer} />
 
-        <button
-          type="button"
-          className={styles.submitBtn}
-          onClick={sendPost}
-          disabled={!canSubmit}
-        >
-          {isPosting ? "Plaatsen…" : "Plaatsen"}
-        </button>
-      </div>
+            <button
+              type="button"
+              className={styles.submitBtn}
+              onClick={sendPost}
+              disabled={!canSubmit}
+            >
+              {isPosting ? "Plaatsen…" : "Plaatsen"}
+            </button>
+        </div>
+    )}
 
       <div className={styles.editorBox}>
         <EditorContent editor={editor} />
       </div>
 
-      <div className={styles.meta}>
-        <span>Enter = nieuwe paragraaf</span>
-        <span className={styles.dot}>•</span>
-        <span>Shift+Enter = nieuwe regel</span>
-      </div>
-
-      {error ? <div className={styles.error}>{error}</div> : null}
+       {isFocused && (
+                <div className={styles.meta}>
+                  <span>Enter = nieuwe paragraaf</span>
+                  <span className={styles.dot}>•</span>
+                  <span>Shift+Enter = nieuwe regel</span>
+                </div>
+              )}
     </div>
-  );
+    );
 }

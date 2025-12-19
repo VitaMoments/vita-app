@@ -3,6 +3,7 @@ import {Link, useNavigate} from "react-router-dom";
 import { MdGroup, MdOutlineAccountCircle } from "react-icons/md"
 import { User } from "../../data/user/userType"
 import HeaderLink from "./HeaderLink";
+import logoUrl from "../../assets/logo.png";
 
 import { useAuth } from "../../auth/AuthContext";
 import styles from "./Header.module.css"
@@ -42,7 +43,8 @@ const Header = ({ user }: HeaderProps) => {
     return (
         <header ref={headerRef} className={styles.header}>
             <Link to="/" className={styles.logoLink} onClick={()=> setOpen(false) }>
-                <h1 className={styles.logo}>Vita Moments</h1>
+                <img src={logoUrl} className={styles.logo} alt="Logo" />
+                <h1 className={styles.appname}>Vita Moments</h1>
             </Link>
             <nav className={`${styles.nav} ${open ? styles.open : ""}`}>
 

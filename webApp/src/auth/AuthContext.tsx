@@ -1,4 +1,3 @@
-// src/auth/AuthContext.tsx
 import {
   createContext,
   useContext,
@@ -6,15 +5,10 @@ import {
   useState,
   ReactNode,
 } from "react";
-import {
-  login as apiLogin,
-  register as apiRegister,
-  fetchSession,
-  logoutRequest,
-  UserDto,
-} from "../api/authApi";
+import { AuthService } from "../api/service/AuthService"
+import { userDto } from "../api/types/userType"
 
-export type User = UserDto; // of je eigen User type
+export type User = UserDto;
 
 type AuthContextValue = {
   user: User | null;
@@ -33,7 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const sessionUser = await fetchSession();
+        const sessionUser = await AuthService.fetchSession();
         setUser(sessionUser);
       } catch (err: any) {
         if (err?.response?.status !== 401) {
@@ -49,17 +43,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const user = await apiLogin(email, password);
+    const user = await AuthService.login(email, password);
     setUser(user);
   };
 
   const logout = async () => {
-      await logoutRequest();
+      await AuthService.logout();
       setUser(null)
   };
 
   const register = async (email: string, password, string) => {
-      const user = await apiRegister(email, password);
+      const user = await AuthService.register(email, password);
       setUser(user)
   };
 

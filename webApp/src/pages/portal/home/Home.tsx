@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { User } from "../../../data/user/userType"
 import { useAuth } from "../../../auth/AuthContext";
 import styles from "./Home.module.css";
+
+import { TimelineService } from "../../../api/service/TimelineService"
+
 import { TimeListPost } from "../../../api/types/timelinePostType"
 import { fetchTimelinePosts } from "../../../api/requests/timelineRequest";
 import { TimelinePostCard } from "../../../components/timeline/TimelinePostCard";
@@ -33,7 +36,7 @@ const Home: React.FC = () => {
           setLoading(true);
           setError(null);
 
-          const data = await fetchTimelinePosts({
+          const data = await TimelineService.fetchTimelinePosts({
             label,
             offset,
             limit: LIMIT,
@@ -48,7 +51,6 @@ const Home: React.FC = () => {
         }
       };
 
-
     const handleTabChange = (index: number) => {
         setActiveIndex(index);
         void loadPosts(index);
@@ -60,25 +62,29 @@ const Home: React.FC = () => {
 
    if (loading) return (<div><p>loading...</p></div>);
    return (
-       <div className="timeline">
-         <ErrorBanner message={error} />
-         <WarningBanner message={warning} />
-         <InfoBanner message={info} />
-         <TimelineInput />
-         <TimelineButtonBar
-           activeIndex={activeIndex}
-           onChange={handleTabChange}
-           labels={[...LABELS]}
-         />
-         {loading && <p>Loading…</p>}
-        <ul className="timeline-list">
-          {posts.map((post) => (
-            <li key={post.uuid}>
-              <TimelinePostCard post={post} />
-            </li>
-          ))}
-        </ul>
-       </div>
+        <div className="timeline">
+            <ErrorBanner message={error} />
+            <WarningBanner message={warning} />
+            <InfoBanner message={info} />
+            <TimelineInput
+             onPosted={() => { handleTabChange(activeIndex) }}
+             onError={(msg) => setError(msg)}
+             onClearError={() => setError(null)}
+            />
+            <TimelineButtonBar
+            activeIndex={activeIndex}
+            onChange={handleTabChange}
+            labels={[...LABELS]}
+            />
+            {loading && <p>Loading…</p>}
+            <ul className="timeline-list">
+              {posts.map((post) => (
+                <li key={post.uuid}>
+                  <TimelinePostCard post={post} />
+                </li>
+              ))}
+            </ul>
+        </div>
      );
 }
 

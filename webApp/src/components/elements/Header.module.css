@@ -40,13 +40,20 @@
 }
 
 .logoLink {
-    text-decoration: none;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .logo {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--color-primary);
+  height: 50px;
+}
+
+.appname {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 .nav {

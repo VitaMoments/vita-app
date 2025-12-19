@@ -50,6 +50,7 @@ fun Application.configureHTTP() {
         allowHost("localhost:5174", schemes=listOf("http"))
         allowHost("localhost:5175", schemes=listOf("http"))
         allowHost("localhost:5176", schemes=listOf("http"))
+        anyHost()
 
         // Eventueel voor productie:
         // val frontendHost = System.getenv("FRONTEND_HOST") // bijv. "app.healthyproduct.nl"

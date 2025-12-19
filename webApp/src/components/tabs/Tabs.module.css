@@ -1,0 +1,118 @@
+/* wrapper */
+.tabs {
+  width: 100%;
+}
+
+.tabList {
+  display: inline-flex;
+  gap: 1.5rem;
+  align-items: center;
+  width: 100%;
+}
+
+.tab {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+}
+
+.tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary);
+  transition: width 0.2s ease;
+}
+
+.tab:hover::after {
+  width: 100%;
+}
+
+.activeTab {
+  color: var(--color-primary);
+}
+
+.activeTab::after {
+  width: 100%;
+}
+
+.tabIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabIcon svg {
+  width: 32px;
+  height: auto;
+  color: inherit;
+}
+
+.tab:hover .tabIcon svg {
+  fill: var(--color-primary);
+  font-weight: bold;
+}
+
+.tabLabel {
+  font-size: 0.95rem;
+  line-height: 1.1;
+}
+
+.mobileSelectWrap {
+  display: none;
+}
+
+.mobileLabel {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+  margin-bottom: 6px;
+}
+
+.mobileSelect {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.panels {
+  margin-top: 1rem;
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .tabList {
+    display: none;
+  }
+
+  .mobileSelectWrap {
+    display: block;
+  }
+}

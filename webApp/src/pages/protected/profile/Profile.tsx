@@ -3,13 +3,30 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../../components/buttons/Button"
 import { User } from "../../../data/user/userType"
 import { useAuth } from "../../../auth/AuthContext";
+import Tabs, { TabItem }  from "../../../components/tabs/Tabs"
+
 import styles from "./Profile.module.css";
+
+type ProfileTab = "info" | "friends" | "groups" | "settings";
 
 const Profile: React.FC = () => {
     const [loading, setLoading] = useState(false)
     const {user, logout} = useAuth()
     const [error, setError] = useState("")
     const navigate = useNavigate()
+    const tabs: TabItem<ProfileTab>[] = [
+        { value: "info", label: "Info", content: <div>Info content</div> },
+        { value: "friends", label: "Friends", content: <div>Friends content</div> },
+        { value: "groups", label: "Groups", content: <div>Groups content</div> },
+        { value: "settings", label: "Settings", content: <div>
+            <Button type="submit"
+            className={styles.logoutBtn}
+            disabled={loading}
+            onClick={ ()=>handleLogout()}>
+                  {loading ? "loading..." : "Logout"}
+              </Button>
+            </div> },
+    ];
 
     const handleLogout = async (e) => {
             setLoading(true)
@@ -30,7 +47,6 @@ const Profile: React.FC = () => {
         <div>
             <div className={styles.content}>
                 {error && <p style={{ color: "red" }}>{error}</p>}
-                <h1>Profile</h1>
                 {user.imageUrl ? (
                     <img
                       src={user.imageUrl}
@@ -40,10 +56,8 @@ const Profile: React.FC = () => {
                     <div className={styles.avatar} />
                   )}
                 <h4>{user.email}</h4>
-                    {error && <div className={styles.error}>{error}</div>}
-                <Button type="submit" className={styles.logoutBtn} disabled={loading} onClick={ ()=>handleLogout()}>
-                    {loading ? "loading..." : "Logout"}
-                </Button>
+                <hr />
+                <Tabs tabs={tabs} defaultValue="info" ariaLabel="Profile tabs" />
             </div>
         </div>
     );

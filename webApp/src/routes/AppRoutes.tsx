@@ -11,9 +11,9 @@ import Privacy from "../pages/public/privacy/Privacy"
 import Terms from "../pages/public/terms/Terms"
 
 // Private
-import Home from "../pages/portal/home/Home";
-import Profile from "../pages/portal/profile/Profile";
-import Friends from "../pages/portal/friends/Friends";
+import Home from "../pages/protected/home/Home";
+import Profile from "../pages/protected/profile/Profile";
+import Friends from "../pages/protected/friends/Friends";
 
 function RootGate() {
     const { user, loading } = useAuth();

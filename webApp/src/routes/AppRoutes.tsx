@@ -1,6 +1,7 @@
 // src/routes/AppRoutes.tsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute, AuthRoute } from "./ProtectedRoute";
+import { useAuth } from "../auth/AuthContext";
 
 // Public
 import PublicHome from "../pages/public/home/Home";
@@ -14,24 +15,30 @@ import Home from "../pages/portal/home/Home";
 import Profile from "../pages/portal/profile/Profile";
 import Friends from "../pages/portal/friends/Friends";
 
+function RootGate() {
+    const { user, loading } = useAuth();
+    if (loading) return <div>Loading... </div>;
+    return user ? <Home /> : <PublicHome />;
+}
+
 export default function AppRoutes() {
   return (
     <Routes>
-        <Route element={<AuthRoute />}>
-            <Route index element={<PublicHome />} />
-            <Route path="/registration" element={<Registration />} />
-            <Route path="/login" element={<Login />} />
-          </Route>
+      <Route path="/" element={<RootGate />} />
 
-          <Route path="/portal" element={<ProtectedRoute />}>
-            <Route index element={<Home />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="friends" element={<Friends />} />
-          </Route>
+      <Route element={<AuthRoute />}>
+        <Route path="/registration" element={<Registration />} />
+        <Route path="/login" element={<Login />} />
+      </Route>
 
-          <Route path="/privacy" element={<Privacy /> } />
-          <Route path="/terms" element={<Terms /> } />
-          <Route path="*" element={<Navigate to="/" replace />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/friends" element={<Friends />} />
+      </Route>
+
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

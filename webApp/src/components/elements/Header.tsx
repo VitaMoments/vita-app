@@ -47,8 +47,6 @@ const Header = ({ user }: HeaderProps) => {
                 <h1 className={styles.appname}>Vita Moments</h1>
             </Link>
             <nav className={`${styles.nav} ${open ? styles.open : ""}`}>
-
-
                 {!user ? (
                     <>
                     <Link
@@ -68,13 +66,13 @@ const Header = ({ user }: HeaderProps) => {
                 ) : (
                     <>
                         <HeaderLink
-                          to="/portal/friends"
+                          to="/friends"
                           icon={MdGroup}
                           text="Friends"
                           onClick={() => setOpen(false)}
                         />
                         <HeaderLink
-                          to="/portal/profile"
+                          to="/profile"
                           icon={ MdOutlineAccountCircle }
                           text="Profile"
                           onClick={() => setOpen(false)}

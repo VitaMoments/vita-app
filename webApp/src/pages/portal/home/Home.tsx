@@ -60,7 +60,6 @@ const Home: React.FC = () => {
         void loadPosts(0);
     }, []);
 
-   if (loading) return (<div><p>loading...</p></div>);
    return (
         <div className="timeline">
             <ErrorBanner message={error} />

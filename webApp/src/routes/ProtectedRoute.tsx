@@ -14,8 +14,8 @@ export const ProtectedRoute = () => {
 export const AuthRoute = () => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Even laden...</div>;
-  if (user) return <Navigate to="/portal" replace />;
+  if (loading) return <div />;
+  if (user) return <Navigate to="/" replace />;
 
   return <Outlet />;
 };

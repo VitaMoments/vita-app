@@ -27,4 +27,11 @@ class UserRepositoryImpl(private val service: UserService) : UserRepository {
         return response.toRepositoryResponse<UserDto, User> { dto -> dto.toDomain() }
     }
 
+    override suspend fun updateImageUrl(
+        userId: Uuid,
+        url: String
+    ): RepositoryResponse<User> {
+        TODO("Don't use this on the server side.")
+    }
+
 }

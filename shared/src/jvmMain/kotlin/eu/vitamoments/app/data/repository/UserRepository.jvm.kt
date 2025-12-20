@@ -44,4 +44,24 @@ class JVMUserRepository() : UserRepository {
         }
     }
 
+    override suspend fun updateImageUrl(
+        userId: Uuid,
+        url: String
+    ): RepositoryResponse<User> = dbQuery {
+        val entity = UserEntity.findByIdAndUpdate(id = userId.toJavaUuid()) {
+            it.updatedAt = LocalDateTime.nowUtc()
+            it.imageUrl = url
+        }
+
+        if (entity == null) {
+            RepositoryResponse.Error.NotFound(
+                message = "User with id $userId not found"
+            )
+        } else {
+            RepositoryResponse.Success(
+                body = entity.toDomain()
+            )
+        }
+    }
+
 }

@@ -3,6 +3,7 @@ import React from "react";
 import { generateHTML } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import type { TimeLinePost } from "../../api/types/timelinePostType";
+import { toAbsoluteUrl } from "../../utils/urls";
 import styles from "./TimelinePostCard.module.css";
 
 type TimelinePostCardProps = {

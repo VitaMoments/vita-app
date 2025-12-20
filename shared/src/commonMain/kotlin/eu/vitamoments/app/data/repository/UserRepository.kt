@@ -9,4 +9,5 @@ import kotlin.uuid.Uuid
 interface UserRepository {
     suspend fun getUserById(uuid: Uuid) : RepositoryResponse<User>
     suspend fun updateUser(user: User) : RepositoryResponse<User>
+    suspend fun updateImageUrl(userId: Uuid, url: String) : RepositoryResponse<User>
 }

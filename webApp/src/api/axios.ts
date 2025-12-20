@@ -42,7 +42,7 @@ api.interceptors.response.use(
 
     isRefreshing = true;
     try {
-      await api.post("/auth/refresh"); // server zet nieuwe access_token cookie
+      await api.post("/auth/refresh");
       notify(true);
       return api(originalRequest);
     } catch (refreshErr) {
@@ -55,32 +55,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
-// // src/api/axios.ts
-// import axios from "axios";
-//
-// const api = axios.create({
-//   baseURL: "http://localhost:8080/api",
-//   withCredentials: true
-// });
-//
-//
-// api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
-//
-//     if (error.response?.status === 401 && !originalRequest._retry) {
-//       originalRequest._retry = true;
-//       try {
-//         const response = await api.post("/auth/refresh");
-//         return api(originalRequest);
-//       } catch (error) {
-//         return Promise.reject(error);
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );
-//
-// export default api;

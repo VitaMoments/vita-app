@@ -11,16 +11,15 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import eu.vitamoments.app.routes.api.authRoutes
+import eu.vitamoments.app.routes.api.profileRoutes
 import eu.vitamoments.app.routes.api.timelineRoutes
 import eu.vitamoments.app.routes.api.userRoutes
 import java.io.File
 
 fun Application.configureRouting() {
     routing {
-        staticFiles(
-            remotePath = "/assets/avatars",
-            dir = File("uploads/avatars")
-        )
+        val uploadsDir = System.getenv("UPLOADS_DIR") ?: "uploads"
+        staticFiles("/uploads", File(uploadsDir))
 
         get("/") {
             application.log.info("route hit")
@@ -37,6 +36,7 @@ private fun Routing.apiRoutes() {
 
         authenticate("cookie-jwt-authentication") {
             userRoutes()
+            profileRoutes()
             timelineRoutes()
         }
     }

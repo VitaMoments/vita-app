@@ -6,15 +6,14 @@ import {
   ReactNode,
 } from "react";
 import { AuthService } from "../api/service/AuthService"
-import { userDto } from "../api/types/userType"
-
-export type User = UserDto;
+import { User } from "../api/types/userType"
 
 type AuthContextValue = {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
+  refreshSession: () => Promise<void>
   logout: () => Promise<void>;
 };
 
@@ -52,10 +51,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null)
   };
 
-  const register = async (email: string, password, string) => {
+  const register = async (email: string, password: string) => {
       const user = await AuthService.register(email, password);
       setUser(user)
   };
+
+  const refreshSession = async () => {
+      const user = await AuthService.refreshSession();
+      setUser(user)
+  }
 
   const value: AuthContextValue = {
     user,
@@ -63,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     register,
     login,
     logout,
+    refreshSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

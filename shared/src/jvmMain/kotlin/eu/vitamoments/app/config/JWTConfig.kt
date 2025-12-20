@@ -22,7 +22,7 @@ data class JWTConfig(
     val audience: String,
     val realm: String = "access",
     val secret: String,
-    val jwtExpirationSeconds: Long = 3600,
+    val jwtExpirationSeconds: Long = 300,
     val refreshExpirationSeconds: Long = 604800
 ) {
     companion object {

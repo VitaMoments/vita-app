@@ -13,6 +13,7 @@ import kotlin.uuid.ExperimentalUuidApi
 fun User.toDto() : UserDto = UserDto(
     uuid = this.uuid,
     email = this.email,
+    imageUrl = this.imageUrl,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
     deletedAt = this.deletedAt
@@ -34,6 +35,7 @@ fun User.toPublicUser() : PublicUser = PublicUser(
 fun UserDto.toDomain(): User = User(
     uuid = this.uuid,
     email = this.email,
+    imageUrl = this.imageUrl,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
     deletedAt = this.deletedAt

@@ -1,20 +1,26 @@
 import api from "../axios";
-import { UserDto } from "../types/userType"
+import { UserDto, mapUserDtoToUser } from "../types/userType"
 
 export const AuthService = {
-    async login(email: string, password: string): Promise<UserDto> {
+    async login(email: string, password: string): Promise<User> {
       const res = await api.post<UserDto>("/auth/login", { email, password });
-      return res.data;
+      return mapUserDtoToUser(res.data);
     },
 
-    async register(email: string, password: string): Promise<UserDto> {
+    async register(email: string, password: string): Promise<User> {
       const res = await api.post<UserDto>("/auth/register", { email, password });
-      return res.data;
+      return mapUserDtoToUser(res.data);
     },
 
-    async fetchSession(): Promise<UserDto> {
+    async fetchSession(): Promise<User> {
       const res = await api.get<UserDto>("/auth/session");
-      return res.data;
+      return mapUserDtoToUser(res.data);
+    },
+
+    async refreshSession(): Promise<User> {
+        const res = await api.post<UserDto>("/auth/refresh")  ;
+        console.log(mapUserDtoToUser(res.data))
+        return mapUserDtoToUser(res.data);
     },
 
     async logout(): Promise<Boolean> {

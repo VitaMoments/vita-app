@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../../components/buttons/Button"
+import BaseDialog from "../../../components/dialog/BaseDialog"
 import { User } from "../../../data/user/userType"
 import { useAuth } from "../../../auth/AuthContext";
 import Tabs, { TabItem }  from "../../../components/tabs/Tabs"
+import ProfilePhotoUploader from "../../../components/image/ProfilePhotoUploader";
 import Info from "./Info"
 
 import styles from "./Profile.module.css";
@@ -11,9 +13,11 @@ import styles from "./Profile.module.css";
 type ProfileTab = "info" | "friends" | "groups" | "settings";
 
 const Profile: React.FC = () => {
-    const [loading, setLoading] = useState(false)
-    const {user, logout} = useAuth()
-    const [error, setError] = useState("")
+    const [ loading, setLoading ] = useState(false)
+    const { user, logout, refreshSession } = useAuth()
+    const [ error, setError ] = useState("")
+    const [ showEditImageDialog, setShowEditImageDialog ] = useState(false)
+
     const navigate = useNavigate()
     const tabs: TabItem<ProfileTab>[] = [
         { value: "info", label: "Info", content: <Info /> },
@@ -48,15 +52,37 @@ const Profile: React.FC = () => {
         <div>
             <div className={styles.content}>
                 {error && <p style={{ color: "red" }}>{error}</p>}
-                {user.imageUrl ? (
-                    <img
-                      src={user.imageUrl}
-                      alt={user.email}
-                      className={styles.avatar}/>
-                  ) : (
-                    <div className={styles.avatar} />
-                  )}
-                <p>{user.imageUrl}</p>
+
+                 <BaseDialog
+                        open={showEditImageDialog}
+                        onClose={() => setShowEditImageDialog(false)}
+                        title="Edit Image"
+                        description=""
+                        footer={<div />}
+                      >
+                        <ProfilePhotoUploader
+                            avatarSize={512}
+                            onUpdatedUser={
+                                (u) => {
+                                    refreshSession();
+                                    setShowEditImageDialog(false);
+                                }
+                            }
+                        />
+                      </BaseDialog>
+                <div className={styles.imageContainer}>
+                    {user.imageUrl ? (
+                        <img
+                          src={user.imageUrl}
+                          alt={user.email}
+                          className={styles.avatar}/>
+                      ) : (
+                          <div className={styles.avatar} />
+                      )}
+                    <div className={styles.middle}>
+                        <div className={styles.text} onClick={() => setShowEditImageDialog(true)}>John Doe</div>
+                    </div>
+                </div>
                 <h4>{user.email}</h4>
                 <hr />
                 <Tabs tabs={tabs} defaultValue="info" ariaLabel="Profile tabs" />

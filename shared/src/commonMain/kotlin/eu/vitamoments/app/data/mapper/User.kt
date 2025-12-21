@@ -12,7 +12,11 @@ import kotlin.uuid.ExperimentalUuidApi
 
 fun User.toDto() : UserDto = UserDto(
     uuid = this.uuid,
+    username = this.username,
     email = this.email,
+    role = this.role,
+    bio = this.bio,
+    alias = this.alias,
     imageUrl = this.imageUrl,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
@@ -22,19 +26,31 @@ fun User.toDto() : UserDto = UserDto(
 
 fun User.toPublicDto() : PublicUserDto = PublicUserDto(
     uuid = this.uuid,
+    username = this.username,
     email = this.email,
+    role = this.role,
+    bio = this.bio,
+    alias = this.alias,
     imageUrl = this.imageUrl
 )
 
 fun User.toPublicUser() : PublicUser = PublicUser(
     uuid = this.uuid,
+    username = this.username,
     email = this.email,
+    role = this.role,
+    bio = this.bio,
+    alias = this.alias,
     imageUrl = this.imageUrl
 )
 
 fun UserDto.toDomain(): User = User(
     uuid = this.uuid,
+    username = this.username,
     email = this.email,
+    role = this.role,
+    bio = this.bio,
+    alias = this.alias,
     imageUrl = this.imageUrl,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
@@ -43,12 +59,20 @@ fun UserDto.toDomain(): User = User(
 
 fun PublicUser.toDto() : PublicUserDto = PublicUserDto(
     uuid = this.uuid,
+    username = this.username,
     email = this.email,
+    role = this.role,
+    bio = this.bio,
+    alias = this.alias,
     imageUrl = this.imageUrl
 )
 
 fun PublicUserDto.toDomain() : PublicUser = PublicUser(
     uuid = this.uuid,
+    username = this.username,
     email = this.email,
+    role = this.role,
+    bio = this.bio,
+    alias = this.alias,
     imageUrl = this.imageUrl
 )

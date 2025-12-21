@@ -1,4 +1,9 @@
 /* Auth.module.css */
+.logo {
+    width: 150px;
+    height: auto;
+    margin: auto;
+}
 
 .container {
   max-width: 420px;
@@ -8,6 +13,8 @@
   border-radius: 1.25rem;
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
   border: 1px solid var(--color-border);       /* #E5E7EB */
+  display: flex;
+  flex-direction: column;
 }
 
 .title {

@@ -20,9 +20,9 @@ object Config {
         }
 
     private val devConfig = AppConfig(
-        appName = "HealthyProduct DEV",
-        apiBaseUrl = "https://api-dev.healthyproduct.nl",
-        dbName = "health_portal_development",
+        appName = "VitaMoments DEV",
+        apiBaseUrl = "https://api-dev.vitamoments.eu",
+        dbName = "vita_development",
         theme = ThemeConfig(
             primaryColorHex = "#4CAF50",
             secondaryColorHex = "#8BC34A",
@@ -32,9 +32,9 @@ object Config {
     )
 
     private val testConfig = AppConfig(
-        appName = "HealthyProduct TEST",
-        apiBaseUrl = "https://api-test.healthyproduct.nl",
-        dbName = "healthy_test",
+        appName = "VitaMoments TEST",
+        apiBaseUrl = "https://api-test.vitamoments.eu",
+        dbName = "vita_test",
         theme = ThemeConfig(
             primaryColorHex = "#3F51B5",
             secondaryColorHex = "#2196F3",
@@ -44,9 +44,9 @@ object Config {
     )
 
     private val accConfig = AppConfig(
-        appName = "HealthyProduct ACC",
-        apiBaseUrl = "https://api-acc.healthyproduct.nl",
-        dbName = "healthy_acceptatie",
+        appName = "VitaMoments ACC",
+        apiBaseUrl = "https://api-acc.vitamoments.eu",
+        dbName = "vita_accept",
         theme = ThemeConfig(
             primaryColorHex = "#FF9800",
             secondaryColorHex = "#FFC107",
@@ -56,9 +56,9 @@ object Config {
     )
 
     private val demoConfig = AppConfig(
-        appName = "HealthyProduct DEMO",
-        apiBaseUrl = "https://api-demo.healthyproduct.nl",
-        dbName = "healthy_demo",
+        appName = "VitaMoments DEMO",
+        apiBaseUrl = "https://api-demo.vitamoments.neu",
+        dbName = "vita_demo",
         theme = ThemeConfig(
             primaryColorHex = "#9C27B0",
             secondaryColorHex = "#E91E63",
@@ -68,9 +68,9 @@ object Config {
     )
 
     private val prodConfig = AppConfig(
-        appName = "HealthyProduct",
-        apiBaseUrl = "https://api.healthyproduct.nl",
-        dbName = "healthy_prod",
+        appName = "VitaMoments",
+        apiBaseUrl = "https://api.vitamoments.eu",
+        dbName = "vita_prod",
         theme = ThemeConfig(
             primaryColorHex = "#00A86B",
             secondaryColorHex = "#007A4D",

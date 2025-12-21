@@ -34,7 +34,7 @@ fun Route.authRoutes() {
     route("/auth") {
         post("/register") {
             val registrationDto : RegistrationDto = call.receive()
-            val result: RepositoryResponse<AuthSession> = authRepo.register(email = registrationDto.email, password = registrationDto.password)
+            val result: RepositoryResponse<AuthSession> = authRepo.register(username = registrationDto.username, email = registrationDto.email, password = registrationDto.password)
 
             when (result) {
                 is RepositoryResponse.Success -> {

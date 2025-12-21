@@ -10,7 +10,11 @@ import kotlin.uuid.toKotlinUuid
 
 fun UserEntity.toDomain() : User = User(
     uuid = this.id.value.toKotlinUuid(),
+    username = this.username,
     email = this.email,
+    alias = this.alias,
+    bio = this.bio,
+    role = this.role,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
     deletedAt = this.deletedAt,
@@ -19,6 +23,10 @@ fun UserEntity.toDomain() : User = User(
 
 fun UserEntity.toPublicDomain() : PublicUser = PublicUser(
     uuid = this.id.value.toKotlinUuid(),
+    username = this.username,
     email = this.email,
+    alias = this.alias,
+    bio = this.bio,
+    role = this.role,
     imageUrl = this.imageUrl
 )

@@ -4,10 +4,10 @@ plugins {
     application
 }
 
-group = "nl.fbdevelopment.healthyplatform"
+group = "eu.vitamoments.app"
 version = "1.0.0"
 application {
-    mainClass.set("nl.fbdevelopment.healthyplatform.ApplicationKt")
+    mainClass.set("eu.vitamoments.app.ApplicationKt")
     
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")

@@ -5,7 +5,10 @@ import { Link, useNavigate } from "react-router-dom"
 
 import { Button } from "../../../components/buttons/Button"
 
+import logoUrl from "../../../assets/logo.png";
+
 const Registration: React.FC = () => {
+    const [username, setUsername] = useState("")
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -20,7 +23,6 @@ const Registration: React.FC = () => {
 
     function validatePassword(pw: string, confirmPw: string): string[] {
       const errors: string[] = [];
-
       if (pw.length < 6) errors.push("Wachtwoord moet minimaal 6 tekens lang zijn.");
       if (!/[A-Z]/.test(pw)) errors.push("Wachtwoord moet minstens 1 hoofdletter bevatten.");
       if (!/[0-9]/.test(pw)) errors.push("Wachtwoord moet minstens 1 cijfer bevatten.");
@@ -55,7 +57,7 @@ const Registration: React.FC = () => {
 
       setLoading(true);
       try {
-        await register(email, password);
+        await register(username, email, password);
         navigate("/portal");
       } catch (err: any) {
         console.error(err);
@@ -67,10 +69,10 @@ const Registration: React.FC = () => {
 
   return (
     <div className={styles.container}>
+    <img src={logoUrl} className={styles.logo} alt="Logo" />
       <h2 className={styles.title}>Account aanmaken</h2>
       <p className={styles.subtitle}>
-        Maak een account aan om toegang te krijgen tot je persoonlijke
-        health-portal.
+        Maak een account aan om toegang te krijgen tot je persoonlijke vita account.
       </p>
       {error && <div className={styles.error}>{error}</div>}
       {pwError?.length ? (
@@ -84,6 +86,16 @@ const Registration: React.FC = () => {
       ) : null}
 
       <form onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
+            <label>Username</label>
+            <input
+              type="username"
+              value={username}
+              autoComplete="username"
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+        </div>
         <div className={styles.formGroup}>
           <label>Email</label>
           <input
@@ -124,7 +136,6 @@ const Registration: React.FC = () => {
       </form>
 
       <hr className={styles.divider} />
-
       <div className={styles.link}>
         <Link to="/login">
           Al een account? Log hier in

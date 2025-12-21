@@ -12,7 +12,7 @@ type AuthContextValue = {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string) => Promise<void>;
   refreshSession: () => Promise<void>
   logout: () => Promise<void>;
 };
@@ -51,8 +51,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null)
   };
 
-  const register = async (email: string, password: string) => {
-      const user = await AuthService.register(email, password);
+  const register = async (username: string, email: string, password: string) => {
+      const user = await AuthService.register(username, email, password);
       setUser(user)
   };
 

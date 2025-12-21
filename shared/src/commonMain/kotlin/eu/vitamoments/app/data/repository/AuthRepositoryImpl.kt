@@ -27,10 +27,12 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun register(
+        username: String,
         email: String,
         password: String
     ): RepositoryResponse<User> {
         val dto = RegistrationDto(
+            username = username,
             email = email,
             password = password
         )

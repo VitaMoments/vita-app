@@ -19,8 +19,6 @@ fun Application.configureDatabase() {
 object DatabaseFactory {
     private val env by lazy {
         val rootDir = findProjectRoot()
-        println("Loading .env from: ${rootDir.absolutePath}") // mag je later weghalen
-
         dotenv {
             directory = rootDir.absolutePath
             filename = ".env"

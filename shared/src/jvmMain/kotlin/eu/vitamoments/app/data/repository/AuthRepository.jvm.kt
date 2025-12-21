@@ -43,13 +43,16 @@ class JVMAuthRepository() : ServerAuthRepository {
     }
 
     override suspend fun register(
+        username: String,
         email: String,
         password: String
     ): RepositoryResponse<AuthSession> = dbQuery {
-        if (emailExists(email)) return@dbQuery RepositoryResponse.Error.Conflict(key = "email", "email already exists")
+        if (usernameExists(username)) return@dbQuery RepositoryResponse.Error.Conflict(key = "username", "Username already exists")
+        if (emailExists(email)) return@dbQuery RepositoryResponse.Error.Conflict(key = "email", "Email already exists")
 
         val hashedPassword = PasswordHasher.hashPassword(password)
         val userEntity = UserEntity.new {
+            this.username = username
             this.email = email
             this.password = hashedPassword
         }
@@ -115,6 +118,7 @@ class JVMAuthRepository() : ServerAuthRepository {
         } ?: return@dbQuery null
 
     }
+    suspend fun usernameExists(username: String) : Boolean = dbQuery { UserEntity.find { UsersTable.username eq username }.singleOrNull() != null  }
     suspend fun emailExists(email: String) : Boolean = dbQuery { UserEntity.find { UsersTable.email eq email }.singleOrNull() != null }
     suspend fun findUserByCredentials(email: String, password: String) : UserEntity? = dbQuery {
         UserEntity.find { UsersTable.email eq email }

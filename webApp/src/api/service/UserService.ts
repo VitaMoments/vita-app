@@ -19,25 +19,36 @@ const postImage = async ({ file, fields = {} }: PostImageOptions): Promise<UserD
 };
 
 export const UserService = {
-  async uploadProfilePhoto(args: {
-    file: File;
-    cropX: number;
-    cropY: number;
-    cropW: number;
-    cropH: number;
-    avatarSize?: number;
-  }): Promise<UserDto> {
+    async uploadProfilePhoto(args: {
+        file: File;
+        cropX: number;
+        cropY: number;
+        cropW: number;
+        cropH: number;
+        avatarSize?: number;
+    }): Promise<UserDto> {
     const { file, cropX, cropY, cropW, cropH, avatarSize } = args;
 
     return await postImage({
-      file,
-      fields: {
-        cropX: String(Math.round(cropX)),
-        cropY: String(Math.round(cropY)),
-        cropW: String(Math.round(cropW)),
-        cropH: String(Math.round(cropH)),
-        ...(avatarSize ? { avatarSize: String(Math.round(avatarSize)) } : {}),
-      },
+        file,
+        fields: {
+            cropX: String(Math.round(cropX)),
+            cropY: String(Math.round(cropY)),
+            cropW: String(Math.round(cropW)),
+            cropH: String(Math.round(cropH)),
+            ...(avatarSize ? { avatarSize: String(Math.round(avatarSize)) } : {}),
+        },
     });
-  },
+    },
+
+    async fetchNewFriends(params: {
+        query: string;
+        offset: number;
+        limit: number;
+    }): Promise<TimeLinePost[]> {
+        const response = await api.get<PublicUserDto[]>("/friends/search", {
+        params
+    });
+        return mapPublicUsersDtoListToPublicUserList(response.data);
+    }
 };

@@ -2,16 +2,15 @@
 
 package eu.vitamoments.app.data.models.domain.user
 
-import eu.vitamoments.app.data.enums.UserRole
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+/**
+ * PublicUser is the user provided when searching users etc.
+ */
 data class PublicUser(
-    val uuid: Uuid,
-    val username: String,
-    val alias: String? = null,
-    val bio: String? = null,
-    val role: UserRole = UserRole.User,
-    val email: String,
-    val imageUrl: String? = null
-)
+    override val uuid: Uuid,
+    override val alias: String,
+    override val bio: String? = null,
+    override val imageUrl: String? = null
+) : User

@@ -79,7 +79,7 @@ fun Route.authRoutes() {
         authenticate("cookie-jwt-authentication") {
             get("/session") {
                 val userId : Uuid = call.requireUserId()
-                val result: RepositoryResponse<User> = userRepo.getUserById(uuid = userId)
+                val result: RepositoryResponse<User> = userRepo.getMyAccount(userId = userId)
                 call.respondRepositoryResponse(result) { user -> user.toDto() }
             }
         }

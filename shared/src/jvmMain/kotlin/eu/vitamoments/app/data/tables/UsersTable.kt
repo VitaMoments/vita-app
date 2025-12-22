@@ -11,7 +11,7 @@ object UsersTable : UUIDTable("users") {
     val username = varchar("username", 100).uniqueIndex()
     val alias = varchar("alias", 100).nullable()
     val bio = varchar("bio", 255).nullable()
-    val role = enumerationByName<UserRole>("role", 10).default(UserRole.User)
+    val role = enumerationByName<UserRole>("role", 10).default(UserRole.USER)
     val password = varchar("password", 255)
     val createdAt = datetime("created_at").clientDefault { LocalDateTime.nowUtc() }
     val updatedAt = datetime("updated_at").clientDefault { LocalDateTime.nowUtc() }

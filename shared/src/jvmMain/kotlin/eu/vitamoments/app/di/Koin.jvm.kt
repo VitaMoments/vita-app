@@ -33,6 +33,7 @@ private val jvmRepositoryModule = module {
 private val networkModule = module {
     single {
         val json = Json {
+            classDiscriminator = "type";
             ignoreUnknownKeys = true
             isLenient = true
             prettyPrint = false

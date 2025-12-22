@@ -54,3 +54,7 @@ export const mapUserDtoToUser = (dto: UserDto): User => {
         imageUrl: dto.imageUrl
         }
     }
+
+export const mapPublicUsersDtoListToPublicUserList = (
+  dtos: PublicUserDto[]
+): User[] => dtos.map(mapPublicUserDtoToUser)

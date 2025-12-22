@@ -21,6 +21,7 @@ fun Application.configureSerialization() {
     install(ContentNegotiation) {
         json(
             Json {
+                classDiscriminator = "type";
                 ignoreUnknownKeys = true
                 isLenient = true
                 encodeDefaults = true

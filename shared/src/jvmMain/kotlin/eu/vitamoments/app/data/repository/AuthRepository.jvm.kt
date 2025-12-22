@@ -8,6 +8,7 @@ import eu.vitamoments.app.config.JWTConfigLoader
 import eu.vitamoments.app.data.entities.RefreshTokenEntity
 import eu.vitamoments.app.data.entities.UserEntity
 import eu.vitamoments.app.data.mapper.enitity.fromAuthToken
+import eu.vitamoments.app.data.mapper.enitity.toAccountDomain
 import eu.vitamoments.app.data.mapper.enitity.toDomain
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.models.domain.AuthSession
@@ -28,7 +29,7 @@ class JVMAuthRepository() : ServerAuthRepository {
     ): RepositoryResponse<AuthSession> = dbQuery {
         val userEntity = findUserByCredentials(email, password) ?: return@dbQuery RepositoryResponse.Error.Unauthorized("email / password combination not found")
 
-        val accessToken = jwtConfig.generateAccessToken(userEntity.toDomain())
+        val accessToken = jwtConfig.generateAccessToken(userEntity.toAccountDomain())
         val refreshToken = jwtConfig.generateRefreshToken()
 
         RefreshTokenEntity.fromAuthToken(refreshToken, userEntity)
@@ -37,7 +38,7 @@ class JVMAuthRepository() : ServerAuthRepository {
             body = AuthSession(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
-                user = userEntity.toDomain()
+                user = userEntity.toAccountDomain()
             )
         )
     }
@@ -56,7 +57,7 @@ class JVMAuthRepository() : ServerAuthRepository {
             this.email = email
             this.password = hashedPassword
         }
-        val user = userEntity.toDomain()
+        val user = userEntity.toAccountDomain()
 
         val refreshToken = jwtConfig.generateRefreshToken()
         val accessToken = jwtConfig.generateAccessToken(user)
@@ -90,7 +91,7 @@ class JVMAuthRepository() : ServerAuthRepository {
 
         refreshTokenEntity.revokedAt = LocalDateTime.nowUtc()
 
-        val accessToken = jwtConfig.generateAccessToken(userEntity.toDomain())
+        val accessToken = jwtConfig.generateAccessToken(userEntity.toAccountDomain())
         val refreshToken = jwtConfig.generateRefreshToken()
         RefreshTokenEntity.fromAuthToken(refreshToken, userEntity)
 
@@ -98,7 +99,7 @@ class JVMAuthRepository() : ServerAuthRepository {
             body = AuthSession(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
-                user = userEntity.toDomain()
+                user = userEntity.toAccountDomain()
             )
         )
     }

@@ -119,7 +119,7 @@ fun Route.profileRoutes() {
                 )
                 file.delete()
 
-                val result = userRepo.updateImageUrl(userId, url)
+                val result = userRepo.updateMyProfileImage(userId, url)
 
                 call.respondRepositoryResponse(result = result) { user -> user.toDto() }
             } catch (e: HttpStatusException) {

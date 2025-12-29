@@ -1,29 +1,29 @@
 [versions]
-agp = "8.13.1"
+agp = "8.13.2"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-androidx-activity = "1.11.0"
+androidx-activity = "1.12.2"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.17.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.9.5"
+androidx-lifecycle = "2.9.6"
 androidx-testExt = "1.3.0"
 bcrypt = "0.10.2"
-composeMultiplatform = "1.9.1"
+composeMultiplatform = "1.9.3"
 dotenvKotlin = "6.5.1"
-exposed = "1.0.0-rc-3"
+exposed = "1.0.0-rc-4"
 h2 = "2.4.240"
 janino = "3.1.12"
 junit = "4.13.2"
-junitJupiter = "5.11.4"
+junitJupiter = "6.0.1"
 koin = "4.1.1"
 koinTestJunit5 = "5.11.4"
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 kotlinx-serialization = "1.9.0"
 kotlinxDatetime = "0.7.1"
-ktor = "3.3.2"
-logback = "1.5.21"
+ktor = "3.3.3"
+logback = "1.5.23"
 postgresql = "42.7.8"
 thumbnailator = "0.4.21"
 
@@ -100,6 +100,7 @@ thumbnailator = { module = "net.coobird:thumbnailator", version.ref = "thumbnail
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

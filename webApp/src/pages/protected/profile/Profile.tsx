@@ -7,6 +7,7 @@ import { useAuth } from "../../../auth/AuthContext";
 import Tabs, { TabItem }  from "../../../components/tabs/Tabs"
 import ProfilePhotoUploader from "../../../components/image/ProfilePhotoUploader";
 import Info from "./Info"
+import Friends from "./Friends"
 
 import styles from "./Profile.module.css";
 
@@ -21,7 +22,7 @@ const Profile: React.FC = () => {
     const navigate = useNavigate()
     const tabs: TabItem<ProfileTab>[] = [
         { value: "info", label: "Info", content: <Info /> },
-        { value: "friends", label: "Friends", content: <div>Friends content</div> },
+        { value: "friends", label: "Friends", content: <Friends /> },
         { value: "groups", label: "Groups", content: <div>Groups content</div> },
         { value: "settings", label: "Settings", content: <div>
             <Button type="submit"

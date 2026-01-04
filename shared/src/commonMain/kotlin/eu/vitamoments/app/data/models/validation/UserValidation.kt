@@ -5,7 +5,6 @@ import eu.vitamoments.app.data.models.domain.user.AccountUser
 import eu.vitamoments.app.data.models.domain.user.User
 import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 fun AccountUser.validate(): List<ValidationError> = buildList {
     // Whitespace aan begin/eind expliciet afkeuren
     if (email != email.trim()) {

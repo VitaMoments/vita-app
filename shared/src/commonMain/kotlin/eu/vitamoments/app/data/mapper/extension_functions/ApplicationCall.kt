@@ -48,6 +48,10 @@ suspend inline fun <Domain, reified Dto : Any> ApplicationCall.respondRepository
                 mapOf("message" to (result.message))
             )
         }
+
+        is RepositoryResponse.Error.RequestLimitReached -> {
+            respond(HttpStatusCode.TooManyRequests, mapOf("message" to result.message))
+        }
     }
 }
 

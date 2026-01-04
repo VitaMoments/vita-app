@@ -1,6 +1,4 @@
-@file:OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
-
-package eu.vitamoments.app.data.mapper.enitity
+package eu.vitamoments.app.data.mapper.entity
 
 import eu.vitamoments.app.data.entities.FriendshipEntity
 import eu.vitamoments.app.data.entities.UserEntity
@@ -10,8 +8,6 @@ import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.models.domain.user.AcceptedFriendship
 import eu.vitamoments.app.data.models.domain.user.Friendship
 import eu.vitamoments.app.data.models.domain.user.PendingFriendship
-import kotlin.time.ExperimentalTime
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toKotlinUuid
 
@@ -43,6 +39,6 @@ fun FriendshipEntity.toAcceptedDomain(userId: Uuid) : AcceptedFriendship {
     )
 }
 
-private fun FriendshipEntity.isRequestedBy(userId: Uuid) : Boolean = this.requesterId.value.toKotlinUuid() == userId
+private fun FriendshipEntity.isRequestedBy(userId: Uuid) : Boolean = this.fromUserId.value.toKotlinUuid() == userId
 private fun FriendshipEntity.directionFor(userId: Uuid) : FriendshipDirection = if (isRequestedBy(userId)) FriendshipDirection.OUTGOING else FriendshipDirection.INCOMING
-private fun FriendshipEntity.friendEntity(userId: Uuid) : UserEntity = if (isRequestedBy(userId)) this.receiver else this.requester
+private fun FriendshipEntity.friendEntity(userId: Uuid) : UserEntity = if (isRequestedBy(userId)) this.pairB else this.pairA

@@ -1,0 +1,17 @@
+.userCardList {
+  list-style-type: none;
+  margin: 1rem 0 0;
+  padding: 0;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* laptop/desktop: 2 kolommen */
+@media (min-width: 1024px) {
+  .userCardList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+

@@ -1,5 +1,7 @@
 import api from "../axios";
-import { UserDto } from "../types/userType";
+import type { UserDto } from "../types/user/userDto";
+import type { User } from "../types/user/userDomain";
+import { mapAccountUserDtoToAccountUser, mapUsersDtoListToUsers } from "../types/user/mapUserDtoToUser";
 
 type PostImageOptions = {
   file: File;
@@ -19,6 +21,16 @@ const postImage = async ({ file, fields = {} }: PostImageOptions): Promise<UserD
 };
 
 export const UserService = {
+    async searchUsers(params: {
+        query?: string;
+        offset: number;
+        limit: number;
+    }): Promise<User[]> {
+        const res = await api.get<UserDto[]>("/users/search", { params });
+        console.log(res)
+        return mapUsersDtoListToUsers(res.data);
+    },
+
     async uploadProfilePhoto(args: {
         file: File;
         cropX: number;

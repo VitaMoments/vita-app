@@ -22,6 +22,7 @@ import eu.vitamoments.app.data.repository.RepositoryResponse
 import eu.vitamoments.app.data.repository.ServerAuthRepository
 import eu.vitamoments.app.data.repository.UserRepository
 import io.ktor.server.http.content.staticFiles
+import jdk.internal.vm.ScopedValueContainer.call
 import org.koin.ktor.ext.inject
 import java.io.File
 import java.io.InputStream
@@ -38,6 +39,7 @@ fun Route.userRoutes() {
     val userRepo: UserRepository by inject()
 
     route("/users") {
+
 
     }
 }

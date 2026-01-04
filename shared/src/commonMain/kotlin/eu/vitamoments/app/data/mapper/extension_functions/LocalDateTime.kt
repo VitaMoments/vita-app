@@ -1,12 +1,13 @@
-@file:OptIn(ExperimentalTime::class)
-
 package eu.vitamoments.app.data.mapper.extension_functions
 
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -18,6 +19,17 @@ fun LocalDateTime.toInstant() : Instant = this.toInstant(TimeZone.UTC)
 fun LocalDateTime.nowUtc() : LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.UTC)
 
 fun LocalDateTime.Companion.nowUtc() : LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+
+fun LocalDateTime.minusDays(days: Int): LocalDateTime =
+    this.toInstant(TimeZone.UTC)
+        .minus(days.toLong(), DateTimeUnit.DAY, TimeZone.UTC)
+        .toLocalDateTime(TimeZone.UTC)
+
+fun LocalDateTime.minus(duration: Duration): LocalDateTime =
+    this.toInstant(TimeZone.UTC)
+        .minus(duration)
+        .toLocalDateTime(TimeZone.UTC)
+
 
 fun LocalDateTime.Companion.nowPlusSeconds(
     seconds: Long,

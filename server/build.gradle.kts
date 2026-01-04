@@ -14,6 +14,7 @@ application {
 }
 
 dependencies {
+
     implementation(projects.shared)
     implementation(libs.logback)
 
@@ -90,4 +91,13 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     environment("APP_ENV", "test")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-opt-in=kotlin.uuid.ExperimentalUuidApi",
+            "-opt-in=kotlin.time.ExperimentalTime",
+        )
+    }
 }

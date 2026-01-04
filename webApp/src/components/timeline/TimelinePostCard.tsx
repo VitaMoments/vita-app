@@ -12,8 +12,9 @@ type TimelinePostCardProps = {
 
 export function TimelinePostCard({ post }: TimelinePostCardProps) {
     const created = new Date(post.createdAt);
-
     const html = generateHTML(post.content, [StarterKit]);
+
+    console.log(post)
 
     return (
         <article className={styles.card}>
@@ -29,7 +30,7 @@ export function TimelinePostCard({ post }: TimelinePostCardProps) {
             )}
 
             <div className={styles.meta}>
-              <span className={styles.email}>{post.user.email}</span>
+              <span className={styles.email}>{post.user.displayName} </span>
               <span className={styles.date}>
                 {created.toLocaleDateString("nl-NL", {
                   day: "2-digit",

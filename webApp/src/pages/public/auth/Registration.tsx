@@ -4,6 +4,7 @@ import styles from "./Auth.module.css";
 import { Link, useNavigate } from "react-router-dom"
 
 import { Button } from "../../../components/buttons/Button"
+import Input, { PasswordInput } from "../../../components/input/Input"
 
 import logoUrl from "../../../assets/logo.png";
 
@@ -85,54 +86,37 @@ const Registration: React.FC = () => {
            </div>
       ) : null}
 
-      <form onSubmit={handleSubmit}>
-        <div className={styles.formGroup}>
-            <label>Username</label>
-            <input
-              type="username"
-              value={username}
-              autoComplete="username"
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-        </div>
-        <div className={styles.formGroup}>
-          <label>Email</label>
-          <input
+    <form onSubmit={handleSubmit}>
+        <Input
+            placeholder="Username"
+            name="Username"
+            value={username}
+            autoComplete="username"
+            onChange={(e) => setUsername(e.target.value)}
+            required/>
+        <Input
+            placeholder="Email"
             type="email"
+            name="email"
             value={email}
             autoComplete="email"
             onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label>Wachtwoord</label>
-          <input
+            required/>
+        <PasswordInput
             type="password"
             value={password}
-            autoComplete="new-password"
+            placeholder="Password"
             onChange={onPasswordChange}
-            required
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label>Herhaal wachtwoord</label>
-          <input
+            required />
+        <PasswordInput
             type="password"
             value={confirmPassword}
-            autoComplete="new-password"
+            placeholder="Repeat password"
             onChange={onPasswordRepeatChange}
-            required
-          />
-        </div>
-
+            required />
         <Button type="submit" disabled={loading || ((pwError?.length ?? 0) > 0 || !hasBothPasswords ) }>
           {loading ? "Bezig met registreren..." : "Account aanmaken"}
         </Button>
-
       </form>
 
       <hr className={styles.divider} />

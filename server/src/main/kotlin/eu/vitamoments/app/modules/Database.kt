@@ -6,11 +6,19 @@ import eu.vitamoments.app.config.Config
 import eu.vitamoments.app.data.tables.RefreshTokensTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.config.helpers.findProjectRoot
+import eu.vitamoments.app.data.enums.UserRole.ADMIN
+import eu.vitamoments.app.data.enums.UserRole.USER
+import eu.vitamoments.app.data.tables.FriendshipEventTable
+import eu.vitamoments.app.data.tables.FriendshipsTable
 import eu.vitamoments.app.data.tables.TimeLinePostsTable
+import eu.vitamoments.app.dbHelpers.PasswordHasher
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.net.URI
+import java.util.UUID
 
 fun Application.configureDatabase() {
     DatabaseFactory.init()
@@ -77,15 +85,53 @@ object DatabaseFactory {
         val tables = listOf(
             UsersTable,
             RefreshTokensTable,
-            TimeLinePostsTable
+            TimeLinePostsTable,
+            FriendshipsTable,
+            FriendshipEventTable,
         )
 
         transaction(database) {
             SchemaUtils.create(*tables.toTypedArray())
             SchemaUtils.createMissingTablesAndColumns(*tables.toTypedArray())
+
+            seed()
         }
 
         database
+    }
+
+    private fun seed() {
+        val hasAnyUser = UsersTable
+            .selectAll()
+            .limit(1)
+            .any()
+
+        if (hasAnyUser) return
+
+        UsersTable.insert {
+            it[id] = UUID.randomUUID()
+            it[username] = "paccie"
+            it[email] = "falcoberendhaus@gmail.com"
+            it[alias] = "Falco"
+            it[bio] = "Hello, I am Falco"
+            it[imageUrl] = null
+            it[role] = ADMIN
+            it[password] = PasswordHasher.hashPassword("Falco123!")
+        }
+
+        for (i in 1..100) {
+            UsersTable.insert {
+                it[id] = UUID.randomUUID()
+                it[username] = "user_$i"
+                it[email] = "user_$i@vitamoments.eu"
+                it[alias] = "User $i"
+                it[bio] = "Hello, I am a Demo User $i. Welcome to my profile"
+                it[imageUrl] = null
+                it[role] = USER
+                it[password] = PasswordHasher.hashPassword("User123!$i")
+            }
+        }
+
     }
 
     fun init(): Database = db

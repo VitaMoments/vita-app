@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.data.models.domain.message
 
 import kotlinx.serialization.json.JsonObject
@@ -8,6 +6,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import eu.vitamoments.app.data.models.domain.user.PublicUser
+import eu.vitamoments.app.data.models.domain.user.User
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
@@ -18,7 +17,7 @@ data class TimeLinePost(
     val createdAt: Instant,
     val updatedAt: Instant,
     val deletedAt: Instant? = null,
-    val createdBy: PublicUser,
+    val createdBy: User,
     val content: JsonObject
 ) {
     val plainText: String

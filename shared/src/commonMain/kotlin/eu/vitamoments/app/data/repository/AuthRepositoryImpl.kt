@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.data.repository
 
 import eu.vitamoments.app.api.service.AuthService
@@ -9,7 +7,6 @@ import eu.vitamoments.app.data.models.domain.user.User
 import eu.vitamoments.app.data.models.dto.auth.AuthSessionDto
 import eu.vitamoments.app.data.models.dto.auth.LoginDto
 import eu.vitamoments.app.data.models.dto.auth.RegistrationDto
-import kotlin.uuid.ExperimentalUuidApi
 
 class AuthRepositoryImpl(
     private val service: AuthService

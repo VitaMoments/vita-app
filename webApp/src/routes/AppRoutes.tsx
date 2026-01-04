@@ -13,7 +13,7 @@ import Terms from "../pages/public/terms/Terms"
 // Private
 import Home from "../pages/protected/home/Home";
 import Profile from "../pages/protected/profile/Profile";
-import Friends from "../pages/protected/friends/Friends";
+import FriendsPage from "../pages/protected/friends/FriendsPage";
 
 function RootGate() {
     const { user, loading } = useAuth();
@@ -33,7 +33,7 @@ export default function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/profile" element={<Profile />} />
-        <Route path="/friends" element={<Friends />} />
+        <Route path="/friends" element={<FriendsPage />} />
       </Route>
 
       <Route path="/privacy" element={<Privacy />} />

@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import eu.vitamoments.app.config.JWTConfigLoader
 import eu.vitamoments.app.data.entities.RefreshTokenEntity
 import eu.vitamoments.app.data.entities.UserEntity
-import eu.vitamoments.app.data.mapper.enitity.toDomain
+import eu.vitamoments.app.data.mapper.entity.toDomain
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.models.domain.AuthSession
 import eu.vitamoments.app.data.models.domain.user.User

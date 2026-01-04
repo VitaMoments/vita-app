@@ -41,6 +41,13 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            languageSettings.apply {
+                optIn("kotlin.uuid.ExperimentalUuidApi")
+                optIn("kotlin.time.ExperimentalTime")
+            }
+        }
+
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.serialization.json)

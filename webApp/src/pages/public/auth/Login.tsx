@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Auth.module.css";
 
+import Input, { PasswordInput } from "../../../components/input/Input";
+
 import { Button } from "../../../components/buttons/Button";
 import { useAuth } from "../../../auth/AuthContext";
 
@@ -46,26 +48,20 @@ const Login: React.FC = () => {
       {error && <div className={styles.error}>{error}</div>}
 
       <form onSubmit={handleSubmit}>
-        <div className={styles.formGroup}>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+        <Input
             placeholder="email"
-            required
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label>Password</label>
-          <input
+            type="email"
+            name="email"
+            value={email}
+            autoComplete="email"
+            onChange={(e) => setEmail(e.target.value)}
+            required/>
+        <PasswordInput
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+            placeholder="password"
+            onChange={(e)=> setPassword(e.target.value)}
+            required />
 
         <Button type="submit" disabled={loading}>
           {loading ? "loading..." : "Login"}

@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.di
 
 import io.ktor.client.HttpClient
@@ -11,7 +9,9 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import eu.vitamoments.app.config.JWTConfigLoader
+import eu.vitamoments.app.data.repository.FriendRepository
 import eu.vitamoments.app.data.repository.JVMAuthRepository
+import eu.vitamoments.app.data.repository.JVMFriendRepository
 import eu.vitamoments.app.data.repository.JVMTimeLineRepository
 import eu.vitamoments.app.data.repository.JVMUserRepository
 import eu.vitamoments.app.data.repository.ServerAuthRepository
@@ -21,22 +21,23 @@ import eu.vitamoments.app.data.serializer.LocalDateTimeAsLongSerializer
 import eu.vitamoments.app.data.serializer.UuidSerializer
 import org.koin.core.context.GlobalContext
 import org.koin.dsl.module
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 private val jvmRepositoryModule = module {
     single<ServerAuthRepository> { JVMAuthRepository() }
     single<UserRepository> { JVMUserRepository() }
     single<TimeLineRepository> { JVMTimeLineRepository()  }
+    single<FriendRepository> { JVMFriendRepository() }
 }
 
 private val networkModule = module {
     single {
         val json = Json {
-            classDiscriminator = "type";
+            classDiscriminator = "type"
             ignoreUnknownKeys = true
             isLenient = true
             prettyPrint = false
+            explicitNulls = false
 
             serializersModule = SerializersModule {
                 contextual(Uuid::class, UuidSerializer)

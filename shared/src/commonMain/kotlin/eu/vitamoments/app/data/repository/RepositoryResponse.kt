@@ -4,6 +4,7 @@ sealed class RepositoryResponse<out T> {
     data class Success<T>(val body: T) : RepositoryResponse<T>()
 
     sealed class Error(open val message: String) : RepositoryResponse<Nothing>() {
+        data class RequestLimitReached(override val message: String = "Too many requests"): Error(message)
 
         data class Conflict(val key: String, override val message: String) : Error(message)
 

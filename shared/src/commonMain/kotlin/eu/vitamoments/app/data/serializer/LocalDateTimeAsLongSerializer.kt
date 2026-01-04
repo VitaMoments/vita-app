@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalTime::class)
-
 package eu.vitamoments.app.data.serializer
 
 import kotlinx.datetime.LocalDateTime
@@ -12,7 +10,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 object LocalDateTimeAsLongSerializer : KSerializer<LocalDateTime> {

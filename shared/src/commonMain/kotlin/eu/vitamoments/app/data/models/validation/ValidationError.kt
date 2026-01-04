@@ -2,7 +2,6 @@ package eu.vitamoments.app.data.models.validation
 
 import eu.vitamoments.app.data.repository.RepositoryResponse
 
-
 sealed class ValidationError(open val key: String, open val message: String) {
     data class InvalidData(
         override val key: String,

@@ -1,10 +1,6 @@
-@file:OptIn(ExperimentalJsExport::class, ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.data.repository
 
 import eu.vitamoments.app.data.models.domain.user.User
-import kotlin.js.ExperimentalJsExport
-import kotlin.uuid.ExperimentalUuidApi
 
 interface AuthRepository<TAuth> {
     suspend fun login(email: String, password: String) : RepositoryResponse<TAuth>

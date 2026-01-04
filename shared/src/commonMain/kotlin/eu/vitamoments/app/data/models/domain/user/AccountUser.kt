@@ -1,11 +1,7 @@
-@file:OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
-
 package eu.vitamoments.app.data.models.domain.user
 
 import eu.vitamoments.app.data.enums.UserRole
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 /**

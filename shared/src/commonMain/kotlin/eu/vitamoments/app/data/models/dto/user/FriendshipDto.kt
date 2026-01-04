@@ -1,12 +1,9 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.data.models.dto.user
 
 import eu.vitamoments.app.data.enums.FriendshipDirection
 import eu.vitamoments.app.data.enums.FriendshipStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Serializable

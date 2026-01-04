@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.data.repository
 
 import kotlinx.datetime.LocalDateTime
@@ -7,9 +5,9 @@ import eu.vitamoments.app.config.JWTConfig
 import eu.vitamoments.app.config.JWTConfigLoader
 import eu.vitamoments.app.data.entities.RefreshTokenEntity
 import eu.vitamoments.app.data.entities.UserEntity
-import eu.vitamoments.app.data.mapper.enitity.fromAuthToken
-import eu.vitamoments.app.data.mapper.enitity.toAccountDomain
-import eu.vitamoments.app.data.mapper.enitity.toDomain
+import eu.vitamoments.app.data.mapper.entity.fromAuthToken
+import eu.vitamoments.app.data.mapper.entity.toAccountDomain
+import eu.vitamoments.app.data.mapper.entity.toDomain
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.models.domain.AuthSession
 import eu.vitamoments.app.data.tables.RefreshTokensTable
@@ -17,8 +15,6 @@ import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.dbHelpers.PasswordHasher
 import eu.vitamoments.app.dbHelpers.dbQuery
 import org.jetbrains.exposed.v1.core.eq
-import kotlin.time.ExperimentalTime
-import kotlin.uuid.ExperimentalUuidApi
 
 
 class JVMAuthRepository() : ServerAuthRepository {

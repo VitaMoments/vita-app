@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.api
 
 import io.ktor.client.HttpClient
@@ -11,7 +9,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import eu.vitamoments.app.data.serializer.LocalDateTimeAsLongSerializer
 import eu.vitamoments.app.data.serializer.UuidSerializer
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 actual fun createHttpClient(): HttpClient = HttpClient(OkHttp) {

@@ -1,15 +1,12 @@
 package eu.vitamoments.app.dbHelpers
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
-suspend fun <T> dbQuery(block: suspend () -> T): T =
-    newSuspendedTransaction(Dispatchers.IO) { block() }
+import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 
-//suspend fun <T> dbQuery(block: suspend () -> T): T =
-//    suspendTransaction { block() }
-
-//suspend fun <T> dbQuery(block: () -> T): T =
-//    withContext(Dispatchers.IO) {
-//        transaction { block() }
-//    }
+suspend fun <T> dbQuery(coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO, block: suspend () -> T): T =
+    withContext(coroutineDispatcher) {
+        suspendTransaction { block() }
+    }
 

@@ -4,7 +4,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: "/api",
   withCredentials: true,
 });
 

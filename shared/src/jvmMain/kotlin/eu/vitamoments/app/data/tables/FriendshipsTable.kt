@@ -6,18 +6,22 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
 import org.jetbrains.exposed.v1.datetime.datetime
-
 object FriendshipsTable : UUIDTable("friendships") {
-    val requesterId = reference("requester_id", UsersTable, onDelete = ReferenceOption.CASCADE)
-    val receiverId = reference("receiver_id", UsersTable, onDelete = ReferenceOption.CASCADE)
+    val fromUserId = reference("from_user_id", UsersTable, onDelete = ReferenceOption.CASCADE)
+    val toUserId = reference("to_user_id", UsersTable, onDelete = ReferenceOption.CASCADE)
+
+    val pairA = reference("pair_a", UsersTable, onDelete = ReferenceOption.CASCADE)
+    val pairB = reference("pair_b", UsersTable, onDelete = ReferenceOption.CASCADE)
+
     val status = enumerationByName<FriendshipStatus>("status", 16).default(FriendshipStatus.PENDING)
 
     val createdAt = datetime("created_at").clientDefault { LocalDateTime.nowUtc() }
     val updatedAt = datetime("updated_at").clientDefault { LocalDateTime.nowUtc() }
-    val deletedAt = datetime("deleted_at").nullable()
-    val deletedBy = reference("deleted_by", UsersTable, onDelete = ReferenceOption.CASCADE).nullable()
 
     init {
-        uniqueIndex(requesterId, receiverId)
+        uniqueIndex(pairA, pairB)
+        index(false, fromUserId)
+        index(false, toUserId)
+        index(false, status)
     }
 }

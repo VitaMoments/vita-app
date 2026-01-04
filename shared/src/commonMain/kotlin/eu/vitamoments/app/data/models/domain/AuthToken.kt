@@ -1,11 +1,8 @@
-@file:OptIn(ExperimentalTime::class)
-
 package eu.vitamoments.app.data.models.domain
 
 import kotlinx.datetime.LocalDateTime
 import eu.vitamoments.app.data.enums.AuthTokenType
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 data class AuthToken(

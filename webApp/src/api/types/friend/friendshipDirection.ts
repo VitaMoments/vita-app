@@ -1,0 +1,1 @@
+export type FriendshipDirection = "INCOMING " | "OUTGOING" | "BOTH"

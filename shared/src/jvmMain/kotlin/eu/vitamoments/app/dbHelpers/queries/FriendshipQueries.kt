@@ -5,14 +5,21 @@ import eu.vitamoments.app.data.records.FriendshipRecord
 import eu.vitamoments.app.data.tables.FriendshipsTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.dbHelpers.canonicalPair
+import org.jetbrains.exposed.v1.core.Case
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Exists
+import org.jetbrains.exposed.v1.core.Expression
+import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
+import org.jetbrains.exposed.v1.core.Join
+import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.exists
 import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.intLiteral
+import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -50,6 +57,37 @@ fun hasFriendshipExpr(
             .limit(1)
     return exists(existsQuery)
 }
+
+fun joinFriendships(
+    me: UUID,
+    activeStatuses: Iterable<FriendshipStatus> = FriendshipStatus.entries,
+): Join {
+    val meRef = EntityID(me, UsersTable)
+
+    return UsersTable.join(
+        otherTable = FriendshipsTable,
+        joinType = JoinType.INNER,
+        additionalConstraint = {
+            (
+                    ((FriendshipsTable.pairA eq meRef) and (FriendshipsTable.pairB eq UsersTable.id)) or
+                            ((FriendshipsTable.pairA eq UsersTable.id) and (FriendshipsTable.pairB eq meRef))
+                    ) and (FriendshipsTable.status inList activeStatuses)
+        }
+    )
+}
+
+fun incomingRequestsFirst(
+    me: UUID
+): ExpressionWithColumnType<Int> {
+    val meRef = EntityID(me, UsersTable)
+    return Case()
+        .When(
+            (FriendshipsTable.toUserId eq meRef) and (FriendshipsTable.fromUserId neq meRef),
+            intLiteral(0)
+        )
+        .Else(intLiteral(1))
+}
+
 
 fun getAcceptedFriendIds(viewerUuid: UUID): List<UUID> {
     val rows = FriendshipsTable

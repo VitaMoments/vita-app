@@ -1,100 +1,101 @@
-import React, { useState, useEffect, useCallback } from "react";
-import styles from "./SearchNewFriendsTab.module.css";
+import React, { useCallback, useEffect, useState } from "react";
+import styles from "./FriendsPage.module.css";
+
+import Input from "../../../components/input/Input";
+import { Card } from "../../../components/card/card"
 
 import { FriendService } from "../../../api/service/FriendService";
 import type { User } from "../../../api/types/user/userDomain";
 
-import Input from "../../../components/input/Input";
-import { UserCard } from "../../../components/user_cards/UserCard";
+import { PagedList } from "../../../components/pagination/PagedList";
+
+import { MdPersonAdd, MdPersonRemove } from "react-icons/md";
+
 
 const LIMIT = 20;
+const TAB_KEY = "friends-new";
 
-const SearchNewFriendsTab: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
-  const [offset, setOffset] = useState(0);
+type Props = { isActive: boolean }
 
-  const loadUsers = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
-    setError(null);
+const SearchNewFriendsTab: React.FC<Props> = ({ isActive }) => {
+    const [query, setQuery] = useState("");
+    const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+    const [reloadToken, setReloadToken] = useState(0);
 
-    try {
-      console.log("loadUsers start", { query, offset });
+    useEffect(() => {
+        if (isActive) setReloadToken((x) => x + 1);
+    }, [isActive]);
 
-      const data = await FriendService.searchNewFriends({
-        query: query.trim() || undefined,
-        offset,
-        limit: LIMIT,
-      });
+    const fetchPage = useCallback(
+        ({ limit, offset, signal }: { limit: number; offset: number; signal?: AbortSignal }) =>
+        FriendService.searchNewFriends({
+            query: query.trim() || undefined,
+            limit,
+            offset,
+            signal
+        }),
+        [query]
+    );
 
-      console.log("loadUsers data", data);
+    const inviteUser = useCallback(async (uuid: string) => {
+        setActionLoadingId(uuid);
+        try {
+            await FriendService.invite(uuid);
+            setReloadToken(x => x + 1);
+        } finally {
+            setActionLoadingId(null);
+        }
+    }, []);
 
-      if (signal?.aborted) return;
-      setUsers(data);
-    } catch (e: any) {
-      console.error("loadUsers error", e);
-      if (signal?.aborted) return;
-      setError(e?.message ?? "Failed to load users");
-    } finally {
-      if (signal?.aborted) return;
-      setLoading(false);
-    }
-  }, [query, offset]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    void loadUsers(controller.signal);
-    return () => controller.abort();
-  }, [loadUsers]);
-
-  const onAddUser = useCallback(async (uuid: string) => {
-    setActionLoadingId(uuid);
-    setError(null);
-
-    try {
-      await FriendService.invite(uuid);
-      await loadUsers();
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to send invite");
-    } finally {
-      setActionLoadingId(null);
-    }
-  }, [loadUsers]);
-
-  const onDeleteUser = useCallback((uuid: string) => {
-    console.log("onDeleteUser:", uuid);
-  }, []);
+    const listInstanceKey = `${TAB_KEY}:${query}:${reloadToken}`;
 
   return (
-    <div>
-      <Input
-        name="query"
-        value={query}
-        onChange={(e) => { setQuery(e.target.value); setOffset(0); }}
-        placeholder="Search..."
-      />
+    <PagedList<User>
+      limit={LIMIT}
+      resetKey={listInstanceKey}
+      fetchPage={fetchPage}
+      listClassName={styles.userCardList}
+        empty={<p className={styles.emptyText}>No users found</p>}
+      getKey={(u) => u.uuid}
+      controls={({ refresh }) => (
+        <Input
+          name="query"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search..."
+          // TIP: als je na invite wil herladen: roep refresh() aan
+          // dit is bv. handig als je een 'Refresh' knop wil
+        />
+      )}
+      renderItem={(user) => (
+        <Card>
+            <div className={styles.cardContent}>
+                {user.imageUrl ? (
+                <img src={user.imageUrl} alt="profile image" className={styles.avatar} />
+                ) : (
+                <div className={styles.avatar} />
+                )}
 
-      {loading && <p>Loading…</p>}
-      {error && <p>{error}</p>}
+                <div className={styles.userInfo}>
+                  <span className={styles.displayName}>{user.displayName}</span>
+                  {user.bio ? <span className={styles.bio}>{user.bio}</span> : null}
+                </div>
 
-      <p>Users size: {users.length}</p>
-
-      <ul className={styles.userCardList}>
-        {users.filter(Boolean).map((user) => (
-          <li key={user.uuid}>
-            <UserCard
-              user={user}
-              onAddUser={onAddUser}
-              onDeleteUser={onDeleteUser}
-              loading={actionLoadingId === user.uuid}
-            />
-          </li>
-        ))}
-      </ul>
-    </div>
+                <div className={styles.actionButtonBar}>
+                    <button
+                      type="button"
+                      disabled={actionLoadingId === user.uuid}
+                      onClick={() => inviteUser(user.uuid)}
+                      aria-busy={actionLoadingId === user.uuid}
+                      aria-label="Add friend"
+                    >
+                      <MdPersonAdd className={styles.colorPrimary} />
+                    </button>
+                </div>
+            </div>
+        </Card>
+      )}
+    />
   );
 };
 

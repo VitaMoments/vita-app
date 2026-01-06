@@ -49,3 +49,10 @@ data class AccountUserDto(
     val deletedAt: Long?,
     override val imageUrl: String? = null
 ) : UserDto
+
+@Serializable
+@SerialName("CONTEXT")
+data class UserWithContextDto(
+    val user: UserDto,
+    val friendship: FriendshipDto? = null,
+) : UserDto by user

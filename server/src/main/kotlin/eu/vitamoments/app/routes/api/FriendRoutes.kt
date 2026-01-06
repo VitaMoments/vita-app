@@ -3,11 +3,13 @@ package eu.vitamoments.app.routes.api
 import eu.vitamoments.app.api.helpers.requireUserId
 import eu.vitamoments.app.data.mapper.extension_functions.respondRepositoryResponse
 import eu.vitamoments.app.data.mapper.toDto
+import eu.vitamoments.app.data.mapper.utils.toDto
 import eu.vitamoments.app.data.models.dto.user.AcceptFriendInviteDto
 import eu.vitamoments.app.data.models.dto.user.DeclineFriendInviteDto
 import eu.vitamoments.app.data.models.dto.user.FriendInviteDto
 import eu.vitamoments.app.data.models.dto.user.RemoveFriendshipDto
 import eu.vitamoments.app.data.repository.FriendRepository
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -26,14 +28,16 @@ fun Route.friendRoutes() {
             val safeLimit = (call.request.queryParameters["limit"]?.toIntOrNull() ?: 20).coerceIn(1, 50)
             val safeOffset = (call.request.queryParameters["offset"]?.toIntOrNull() ?: 0).coerceAtLeast(0)
 
-            val result = friendRepo.searchFriends(
+            val page = friendRepo.searchFriends(
                 userId = userId,
                 query = query,
                 limit = safeLimit,
                 offset = safeOffset
             )
 
-            call.respondRepositoryResponse(result) { list -> list.map { it.toDto() } }
+            call.respondRepositoryResponse(page, HttpStatusCode.OK) { result ->
+                result.toDto { it.toDto() }
+            }
         }
 
         get("/new") {
@@ -43,14 +47,16 @@ fun Route.friendRoutes() {
             val limit = (call.request.queryParameters["limit"]?.toIntOrNull() ?: 20).coerceIn(1, 50)
             val offset = (call.request.queryParameters["offset"]?.toIntOrNull() ?: 0).coerceAtLeast(0)
 
-            val result = friendRepo.searchNewFriends(
+            val page = friendRepo.searchNewFriends(
                 userId = userId,
                 query = query,
                 limit = limit,
                 offset = offset
             )
 
-            call.respondRepositoryResponse(result) { list -> list.map { it.toDto() } }
+            call.respondRepositoryResponse(page, HttpStatusCode.OK) { result ->
+                result.toDto { it.toDto() }
+            }
         }
 
         post("/invite") {
@@ -69,7 +75,7 @@ fun Route.friendRoutes() {
             call.respondRepositoryResponse(result) { it.toDto() }
         }
 
-        post("/decline") {
+        post("/reject") {
             val userId = call.requireUserId()
             val dto: DeclineFriendInviteDto = call.receive()
 
@@ -77,7 +83,7 @@ fun Route.friendRoutes() {
             call.respondRepositoryResponse(result) { it.toDto() }
         }
 
-        post("/delete") {
+        post("/revoke") {
             val userId = call.requireUserId()
             val dto: RemoveFriendshipDto = call.receive()
 
@@ -85,16 +91,23 @@ fun Route.friendRoutes() {
             call.respondRepositoryResponse(result) { it.toDto() }
         }
 
-        get("/invites/incoming") {
+        get("/invites") {
             val userId = call.requireUserId()
-            val result = friendRepo.incomingRequests(userId)
-            call.respondRepositoryResponse(result) { list-> list.map { it.toDto() } }
-        }
 
-        get("/invites/outgoing") {
-            val userId = call.requireUserId()
-            val result = friendRepo.outgoingRequests(userId)
-            call.respondRepositoryResponse(result) { list-> list.map { it.toDto() } }
+            val query = call.request.queryParameters["query"]?.trim()?.takeIf { it.isNotBlank() } ?: ""
+            val safeLimit = (call.request.queryParameters["limit"]?.toIntOrNull() ?: 20).coerceIn(1, 50)
+            val safeOffset = (call.request.queryParameters["offset"]?.toIntOrNull() ?: 0).coerceAtLeast(0)
+
+            val page = friendRepo.friendRequests(
+                userId = userId,
+                query = query,
+                limit = safeLimit,
+                offset = safeOffset
+            )
+
+            call.respondRepositoryResponse(page, HttpStatusCode.OK) { result ->
+                result.toDto { it.toDto() }
+            }
         }
     }
 }

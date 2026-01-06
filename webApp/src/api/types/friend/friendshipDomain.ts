@@ -1,12 +1,22 @@
-import { FriendshipStatus } from "./friendshipStatus"
-import { FriendshipDirection } from "./friendshipDirection"
-import { User } from "../user/userDomain"
+import type { FriendshipStatus } from "./friendshipStatus";
+import type { FriendshipDirection } from "./friendshipDirection";
 
-export type Friendship = {
-    type = "PENDING" | "ACCEPTED" | "BLOCKED" | "REVOKED";
-    uuid: string;
-    status: FriendshipStatus;
-    direction: FriendshipDirection;
-    createdAt: number;
-    updatedAt: number;
+export type Friendship = PendingFriendship | AcceptedFriendship;
+
+interface BaseFriendship {
+  uuid: string;
+  status: FriendshipStatus;
+  createdAt: number;
+  updatedAt: number;
+  otherUserId: string; // in domain is dit duidelijker dan friendId
+}
+
+export type PendingFriendship = BaseFriendship & {
+  type: "PENDING";
+  direction: FriendshipDirection;
+};
+
+export type AcceptedFriendship = BaseFriendship & {
+  type: "ACCEPTED";
+  acceptedAt: number;
 };

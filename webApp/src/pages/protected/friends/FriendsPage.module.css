@@ -1,0 +1,121 @@
+/* Avatar links */
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  flex: 0 0 44px;
+  object-fit: cover;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.cardContent {
+  display: flex;
+  gap: 14px;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 4px;
+}
+
+/* Info midden (displayName boven bio) */
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0; /* belangrijk voor ellipsis */
+  flex: 1 1 auto;
+}
+
+.displayName {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bio {
+  font-size: 13px;
+  line-height: 1.2;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Button rechts */
+.actionButtonBar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.actionButtonBar button {
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: var(--color-bg);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--color-primary);
+  margin: 5px;
+}
+
+.actionButtonBar button .colorPrimary{
+  color: var(--color-primary);
+}
+.actionButtonBar button .colorError{
+  color: var(--color-error);
+}
+
+.actionButtonBar button:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.actionButtonBar button:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.actionButtonBar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loadingDot {
+  display: inline-block;
+  margin-left: 8px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.7;
+  animation: loadingDotPulse 1s ease-in-out infinite;
+}
+
+.actionButtonBar button.acceptButton {
+  color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.actionButtonBar button.acceptButton:hover {
+  color: var(--color-surface);
+  background: var(--color-primary);
+}
+
+.actionButtonBar button.declineButton {
+  color: var(--color-error);
+  background: var(--color-surface);
+}
+
+.actionButtonBar button.declineButton:hover {
+  color: var(--color-surface);
+  background: var(--color-error);
+}
+
+
+@keyframes loadingDotPulse {
+  0%   { opacity: 0.25; transform: translateY(0); }
+  50%  { opacity: 0.85; transform: translateY(-1px); }
+  100% { opacity: 0.25; transform: translateY(0); }
+}

@@ -1,17 +1,27 @@
+/* File: src/pages/friends/tabs/SearchNewFriendsTab.module.css */
+
 .userCardList {
-  list-style-type: none;
-  margin: 1rem 0 0;
+  list-style: none;
   padding: 0;
-
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
+  margin: 12px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* laptop/desktop: 2 kolommen */
-@media (min-width: 1024px) {
-  .userCardList {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.metaText {
+  margin: 8px 0 0 0;
+  opacity: 0.8;
 }
 
+.errorText {
+  margin: 8px 0 0 0;
+}
+
+.emptyText {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  opacity: 0.8;
+  text-align: center;
+}

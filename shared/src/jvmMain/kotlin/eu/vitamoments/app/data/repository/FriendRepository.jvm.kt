@@ -3,15 +3,21 @@ package eu.vitamoments.app.data.repository
 import eu.vitamoments.app.data.entities.FriendshipEntity
 import eu.vitamoments.app.data.entities.UserEntity
 import eu.vitamoments.app.data.enums.FriendInviteEventType
+import eu.vitamoments.app.data.enums.FriendshipDirection
 import eu.vitamoments.app.data.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.entity.rowToPrivateResult
 import eu.vitamoments.app.data.mapper.entity.rowToPublicResult
 import eu.vitamoments.app.data.mapper.entity.toDomain
 import eu.vitamoments.app.data.mapper.extension_functions.minus
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
+import eu.vitamoments.app.data.mapper.extension_functions.toInstant
+import eu.vitamoments.app.data.models.domain.user.AcceptedFriendship
 import eu.vitamoments.app.data.models.domain.user.Friendship
+import eu.vitamoments.app.data.models.domain.user.PendingFriendship
 import eu.vitamoments.app.data.models.domain.user.PrivateUser
 import eu.vitamoments.app.data.models.domain.user.PublicUser
+import eu.vitamoments.app.data.models.domain.user.UserWithContext
+import eu.vitamoments.app.data.models.domain.utils.PagedResult
 import eu.vitamoments.app.data.tables.FriendshipEventTable
 import eu.vitamoments.app.data.tables.FriendshipsTable
 import eu.vitamoments.app.data.tables.UsersTable
@@ -19,8 +25,12 @@ import eu.vitamoments.app.dbHelpers.canonicalPair
 import eu.vitamoments.app.dbHelpers.dbQuery
 import eu.vitamoments.app.dbHelpers.queries.findFriendshipByPair
 import eu.vitamoments.app.dbHelpers.queries.hasFriendshipExpr
+import eu.vitamoments.app.dbHelpers.queries.incomingRequestsFirst
+import eu.vitamoments.app.dbHelpers.queries.joinFriendships
 import eu.vitamoments.app.dbHelpers.queries.searchPredicate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
+import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -39,6 +49,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.days
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
 
 class JVMFriendRepository() : FriendRepository {
     override suspend fun searchNewFriends(
@@ -46,7 +57,7 @@ class JVMFriendRepository() : FriendRepository {
         query: String?,
         limit: Int,
         offset: Int
-    ): RepositoryResponse<List<PublicUser>> = dbQuery {
+    ): RepositoryResponse<PagedResult<PublicUser>> = dbQuery {
         val me = userId.toJavaUuid()
         val needle = query?.trim()?.takeIf { it.isNotBlank() }
         val safeLimit = limit.coerceIn(1, 50)
@@ -55,7 +66,26 @@ class JVMFriendRepository() : FriendRepository {
         val hasFriendship = hasFriendshipExpr(me, UsersTable.id, FriendshipStatus.activeEntries)
 
         val whereExpr = UsersTable.searchPredicate(me, needle) and (hasFriendship neq Op.TRUE)
-        val result = UsersTable
+
+        val total: Long = UsersTable
+            .select(UsersTable.id)
+            .where { whereExpr }
+            .count()
+
+        if (total == 0L) {
+            return@dbQuery RepositoryResponse.Success(
+                PagedResult(
+                    items = emptyList(),
+                    limit = safeLimit,
+                    offset = safeOffset,
+                    total = 0,
+                    hasMore = false,
+                    nextOffset = null
+                )
+            )
+        }
+
+        val items = UsersTable
             .selectAll()
             .where { whereExpr }
             .orderBy(UsersTable.username to SortOrder.ASC)
@@ -63,8 +93,20 @@ class JVMFriendRepository() : FriendRepository {
             .offset(safeOffset)
             .toList()
             .map { it.rowToPublicResult() }
-        println(result)
-        RepositoryResponse.Success(result)
+
+        val hasMore = safeOffset + safeLimit < total
+        val nextOffset = if (hasMore) safeOffset + safeLimit else null
+
+        RepositoryResponse.Success(
+            PagedResult(
+                items = items,
+                limit = safeLimit,
+                offset = safeOffset,
+                total = total,
+                hasMore = hasMore,
+                nextOffset = nextOffset
+            )
+        )
     }
 
     override suspend fun searchFriends(
@@ -72,25 +114,127 @@ class JVMFriendRepository() : FriendRepository {
         query: String?,
         limit: Int,
         offset: Int
-    ): RepositoryResponse<List<PrivateUser>> = dbQuery {
+    ): RepositoryResponse<PagedResult<UserWithContext>> = dbQuery {
         val me = userId.toJavaUuid()
         val needle = query?.trim()?.takeIf { it.isNotBlank() }
         val safeLimit = limit.coerceIn(1, 50)
         val safeOffset = offset.coerceAtLeast(0).toLong()
 
-        val hasFriendship = hasFriendshipExpr(me, UsersTable.id, listOf(FriendshipStatus.ACCEPTED))
+        val joinFriendship = joinFriendships(me, listOf(FriendshipStatus.ACCEPTED))
 
-        val whereExpr = UsersTable.searchPredicate(me, needle) and (hasFriendship eq Op.TRUE)
+        val whereExpr = UsersTable.searchPredicate(me, needle)
 
-        val result = UsersTable
+        val total : Long = joinFriendship
+            .selectAll()
+            .where { whereExpr }
+            .count()
+
+        val items = joinFriendship
             .selectAll()
             .where { whereExpr }
             .orderBy(UsersTable.username to SortOrder.ASC)
             .limit(safeLimit)
             .offset(safeOffset)
             .toList()
-            .map { it.rowToPrivateResult() }
-        RepositoryResponse.Success(result)
+            .map { row ->
+                UserWithContext(
+                    user = row.rowToPrivateResult(),
+                    friendship = AcceptedFriendship(
+                        id = row[FriendshipsTable.id].value.toKotlinUuid(),
+                        otherUserId = row[UsersTable.id].value.toKotlinUuid(),
+                        createdAt = row[FriendshipsTable.createdAt].toInstant(),
+                        updatedAt = row[FriendshipsTable.updatedAt].toInstant()
+                    )
+                )
+            }
+
+        val hasMore = safeOffset + safeLimit < total
+        val nextOffset = if (hasMore) safeOffset + safeLimit else null
+
+        RepositoryResponse.Success(
+            PagedResult(
+                items = items,
+                limit = safeLimit,
+                offset = safeOffset,
+                total = total,
+                hasMore = hasMore,
+                nextOffset = nextOffset
+            )
+        )
+    }
+
+    override suspend fun friendRequests(
+        userId: Uuid,
+        query: String?,
+        limit: Int,
+        offset: Int
+    ): RepositoryResponse<PagedResult<UserWithContext>> = dbQuery {
+        val me = userId.toJavaUuid()
+        val needle = query?.trim()?.takeIf { it.isNotBlank() }
+        val safeLimit = limit.coerceIn(1, 50)
+        val safeOffset = offset.coerceAtLeast(0).toLong()
+
+        val whereExpr = UsersTable.searchPredicate(me, needle)
+        val joinFriendship = joinFriendships(me, listOf(FriendshipStatus.PENDING))
+
+        val total : Long = joinFriendship
+            .selectAll()
+            .where { whereExpr }
+            .count()
+
+        val items = joinFriendship
+            .selectAll()
+            .where { whereExpr }
+            .orderBy(
+                incomingRequestsFirst(me) to SortOrder.ASC,
+                UsersTable.username to SortOrder.ASC)
+            .limit(safeLimit)
+            .offset(safeOffset)
+            .toList()
+            .map { row ->
+                val direction: FriendshipDirection = if (row[FriendshipsTable.fromUserId].value == me) FriendshipDirection.OUTGOING else FriendshipDirection.INCOMING
+
+                val friendship = when(row[FriendshipsTable.status]) {
+                    FriendshipStatus.PENDING -> PendingFriendship(
+                        id = row[FriendshipsTable.id].value.toKotlinUuid(),
+                        direction = direction,
+                        otherUserId = row[UsersTable.id].value.toKotlinUuid(),
+                        createdAt = row[FriendshipsTable.createdAt].toInstant(),
+                        updatedAt = row[FriendshipsTable.updatedAt].toInstant()
+                    )
+                    FriendshipStatus.ACCEPTED -> AcceptedFriendship(
+                        id = row[FriendshipsTable.id].value.toKotlinUuid(),
+                        otherUserId = row[UsersTable.id].value.toKotlinUuid(),
+                        createdAt = row[FriendshipsTable.createdAt].toInstant(),
+                        updatedAt = row[FriendshipsTable.updatedAt].toInstant()
+                    )
+                    else ->  error("activeEntries zou alleen PENDING/ACCEPTED moeten bevatten")
+                }
+
+                val user = when(friendship) {
+                    is AcceptedFriendship -> row.rowToPrivateResult()
+                    is PendingFriendship -> row.rowToPublicResult()
+                }
+
+                UserWithContext(
+                    user = user,
+                    friendship = friendship
+                )
+            }
+
+        val hasMore = safeOffset + safeLimit < total
+        val nextOffset = if (hasMore) safeOffset + safeLimit else null
+
+        RepositoryResponse.Success(
+            PagedResult(
+                items = items,
+                limit = safeLimit,
+                offset = safeOffset,
+                total = total,
+                hasMore = hasMore,
+                nextOffset = nextOffset
+            )
+        )
     }
 
     override suspend fun incomingRequests(userId: Uuid): RepositoryResponse<List<PublicUser>> = dbQuery {

@@ -8,10 +8,10 @@ import kotlin.uuid.Uuid
 
 data class AcceptedFriendship(
     override val id: Uuid,
-    override val direction: FriendshipDirection,
-    val friend: PrivateUser,
+    val otherUserId: Uuid,
     override val createdAt: Instant,
     override val updatedAt: Instant,
 ) : Friendship {
+    override val direction: FriendshipDirection = FriendshipDirection.BOTH
     override val status: FriendshipStatus = FriendshipStatus.ACCEPTED
 }

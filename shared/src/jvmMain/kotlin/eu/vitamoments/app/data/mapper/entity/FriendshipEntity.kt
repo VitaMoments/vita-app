@@ -22,7 +22,7 @@ fun FriendshipEntity.toPendingDomain(userId: Uuid) : PendingFriendship {
     return PendingFriendship (
         id = this.id.value.toKotlinUuid(),
         direction = directionFor(userId),
-        friend = friendEntity(userId).toPublicDomain(),
+        otherUserId = userId,
         createdAt = this.createdAt.toInstant(),
         updatedAt = this.updatedAt.toInstant()
     )
@@ -32,8 +32,7 @@ fun FriendshipEntity.toAcceptedDomain(userId: Uuid) : AcceptedFriendship {
     require(this.status == FriendshipStatus.ACCEPTED) { "Friendship must be ACCEPTED" }
     return AcceptedFriendship(
         id = this.id.value.toKotlinUuid(),
-        direction = directionFor(userId),
-        friend = friendEntity(userId).toPrivateDomain(),
+        otherUserId = userId,
         createdAt = this.createdAt.toInstant(),
         updatedAt = this.updatedAt.toInstant()
     )

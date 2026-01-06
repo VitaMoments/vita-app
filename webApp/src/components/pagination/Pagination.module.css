@@ -1,0 +1,60 @@
+.paginationBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-primary-soft);
+}
+
+.pageNumbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+.pageBtn {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageBtnActive {
+  font-weight: 700;
+  border-color: var(--color-primary-soft);
+}
+
+.ellipsis {
+  padding: 0 6px;
+  opacity: 0.7;
+}
+
+.goto {
+  display: flex;
+  align-items: center;
+  background: var(--color-surface);;
+  gap: 6px;
+}
+
+.gotoInput {
+  width: 72px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: var(--color-surface);
+  color: var(--color-primary);
+}

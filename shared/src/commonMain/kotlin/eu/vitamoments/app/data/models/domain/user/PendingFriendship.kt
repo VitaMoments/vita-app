@@ -8,7 +8,7 @@ import kotlin.uuid.Uuid
 data class PendingFriendship(
     override val id: Uuid,
     override val direction: FriendshipDirection,
-    val friend: PublicUser,
+    val otherUserId: Uuid,
     override val createdAt: Instant,
     override val updatedAt: Instant,
 ) : Friendship {

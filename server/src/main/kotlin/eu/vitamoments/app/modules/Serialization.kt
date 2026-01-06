@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.modules
 
 import io.ktor.http.HttpStatusCode
@@ -14,14 +12,13 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import eu.vitamoments.app.data.serializer.LocalDateTimeAsLongSerializer
 import eu.vitamoments.app.data.serializer.UuidSerializer
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
         json(
             Json {
-                classDiscriminator = "type";
+                classDiscriminator = "type"
                 ignoreUnknownKeys = true
                 isLenient = true
                 encodeDefaults = true

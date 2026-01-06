@@ -1,36 +1,61 @@
 import api from "../axios";
 import type { UserDto } from "../types/user/userDto";
 import type { User, PrivateUser } from "../types/user/userDomain";
-import { mapPrivateUsersDtoListToPrivateUsers, mapPublicUsersDtoListToPublicUsers, mapUsersDtoListToUsers } from "../types/user/mapUserDtoToUser";
+import type { Page } from "../types/pagedResult/page"
+import { mapPrivateUsersDtoListToPrivateUsers, mapPublicUsersDtoListToPublicUsers, mapUsersDtoListToUsers, mapUserWithContextDtoToUserWithContext } from "../types/user/mapUserDtoToUser";
 
 export const FriendService = {
-    async searchNewFriends(params: {
+      async searchNewFriends(params: {
         query?: string;
         offset: number;
         limit: number;
-    }): Promise<User[]> {
-        console.log("test")
-        const res = await api.get("/friends/new", { params });
-        return mapPublicUsersDtoListToPublicUsers(res.data);
-    },
+      }): Promise<{ items: User[]; limit: number; offset: number; total: number; hasMore: boolean; nextOffset: number | null }> {
+        const res = await api.get<PagedResultDto<UserDto>>("/friends/new", {
+          params: {
+            query: params.query,
+            limit: params.limit,
+            offset: params.offset,
+          },
+        });
+
+        return {
+          ...res.data,
+          items: mapPublicUsersDtoListToPublicUsers(res.data.items),
+        };
+      },
 
     async searchFriends(params: {
         query?: string;
         offset: number;
         limit: number;
-    }): Promise<PrivateUser[]> {
-        const res = await api.get<PrivateUserDto[]>("/friends", { params });
-        return mapPrivateUsersDtoListToPrivateUsers(res.data);
+    }): Promise<{ items: User[]; limit: number; offset: number; total: number; hasMore: boolean; nextOffset: number | null }> {
+        const res = await api.get<PagedResultDto<UserWithContextDto>>("/friends", { params });
+
+        console.log(res.data)
+        return {
+            ...res.data,
+            items: res.data.items.map(mapUserWithContextDtoToUserWithContext),
+        };
     },
 
-    async incomingInvites(): Promise<User[]> {
-        const res = await api.get("/friends/invites/incoming");
-        return mapPublicUsersDtoListToPublicUsers(res.data)
-    },
+    async friendRequests(params: {
+        query?: string;
+        offset: number;
+        limit: number;
+    }): Promise<{
+        items: User[];
+        limit: number;
+        offset: number;
+        total: number;
+        hasMore: boolean;
+        nextOffset: number | null;
+    }> {
+        const res = await api.get<PagedResultDto<UserWithContextDto>>("/friends/invites", { params });
 
-    async outgoingInvites(): Promise<User[]> {
-        const res = await api.get("/friends/invites/outgoing");
-        return mapPublicUsersDtoListToPublicUsers(res.data)
+        return {
+        ...res.data,
+        items: res.data.items.map(mapUserWithContextDtoToUserWithContext),
+        };
     },
 
 // Actions
@@ -47,13 +72,13 @@ export const FriendService = {
         return res.data;
     },
 
-    async decline(friendId: string) {
-        const res = await api.post("/friends/decline", { friendId });
+    async reject(friendId: string) {
+        const res = await api.post("/friends/reject", { friendId });
         // return mapFriendshipDtoToFriendship(res.data as FriendshipDto);
         return res.data;
     },
-    async remove(friendId: string) {
-        const res = await api.post("/friends/delete", { friendId });
+    async revoke(friendId: string) {
+        const res = await api.post("/friends/revoke", { friendId });
         // return mapFriendshipDtoToFriendship(res.data as FriendshipDto);
         return res.data;
     }

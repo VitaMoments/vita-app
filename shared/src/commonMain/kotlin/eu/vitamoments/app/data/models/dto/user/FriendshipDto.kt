@@ -12,6 +12,7 @@ sealed interface FriendshipDto{
     val status: FriendshipStatus
     val createdAt: Long
     val updatedAt: Long
+    val otherUserId: Uuid
 }
 
 @Serializable
@@ -21,7 +22,7 @@ data class PendingFriendshipDto(
     override val createdAt: Long,
     override val updatedAt: Long,
     val direction: FriendshipDirection,
-    val friend: PublicUserDto,
+    override val otherUserId: Uuid,
 ) : FriendshipDto {
     override val status: FriendshipStatus = FriendshipStatus.PENDING
 }
@@ -32,7 +33,7 @@ data class AcceptedFriendshipDto(
     override val uuid: Uuid,
     override val createdAt: Long,
     override val updatedAt: Long,
-    val friend: PrivateUserDto,
+    override val otherUserId: Uuid,
 ) : FriendshipDto {
     override val status: FriendshipStatus = FriendshipStatus.ACCEPTED
 }

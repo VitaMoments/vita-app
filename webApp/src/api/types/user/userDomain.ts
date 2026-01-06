@@ -1,4 +1,5 @@
 import type { UserRole } from "./userDto";
+import type { Friendship } from "../friend/friendshipdomain"
 
 export type PublicUser = {
   type: "PUBLIC";
@@ -34,4 +35,10 @@ export type AccountUser = {
   deletedAt: number | null;
 };
 
-export type User = PublicUser | PrivateUser | AccountUser;
+export type UserWithContext = {
+  type: "CONTEXT";
+  user: PublicUser | PrivateUser | AccountUser;
+  friendship: Friendship | null;
+};
+
+export type User = PublicUser | PrivateUser | AccountUser | UserWithContext;

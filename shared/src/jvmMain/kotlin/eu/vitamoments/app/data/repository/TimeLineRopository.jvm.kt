@@ -17,6 +17,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.notInList
+import org.jetbrains.exposed.v1.core.or
 import java.util.UUID
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
@@ -70,7 +71,7 @@ class JVMTimeLineRepository() : TimeLineRepository {
                 if (friendIds.isEmpty()) return@dbQuery RepositoryResponse.Success(emptyList())
 
                 val entities = TimeLinePostEntity
-                    .find { TimeLinePostsTable.createdBy inList friendIds }
+                    .find { TimeLinePostsTable.createdBy inList friendIds or(TimeLinePostsTable.createdBy eq userId.toJavaUuid()) }
                     .orderBy(TimeLinePostsTable.createdAt to SortOrder.DESC)
                     .limit(count = limit)
                     .offset(offset)

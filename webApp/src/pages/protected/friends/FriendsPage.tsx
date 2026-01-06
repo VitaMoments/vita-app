@@ -1,27 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import styles from "./FriendsPage.module.css";
 
 import FriendsTab from "./FriendsTab"
 import SearchNewFriendsTab from "./SearchNewFriendsTab"
-import IncomingFriendRequestsTab from "./IncomingFriendRequestsTab"
+import FriendRequestsTab from "./FriendRequestsTab"
 
 import Tabs, { TabItem }  from "../../../components/tabs/Tabs"
 
-type FriendsTabLabel = "friends" | "search" | "incoming" | "outgoing";
+type FriendsTabLabel = "friends" | "search" | "requests" ;
 
 const FriendsPage: React.FC = () => {
-    const tabs: TabItem<FriendsTabLabel>[] = [
-        { value: "friends", label: "Friends", content: <FriendsTab /> },
-        { value: "search", label: "Search friends", content: <SearchNewFriendsTab /> },
-        { value: "incoming", label: "Incoming requests", content: <IncomingFriendRequestsTab /> },
-        { value: "outgoing", label: "Outgoing requests", content: <div>Outgoing </div> },
-    ];
+    const [activeTab, setActiveTab] = useState<FriendsTabLabel>("friends")
+
+    const tabs: TabItem<FriendsTabLabel>[] = useMemo(
+        () => [
+          { value: "friends", label: "Friends", content: <FriendsTab isActive={activeTab === "friends"} /> },
+          { value: "search", label: "Search friends", content: <SearchNewFriendsTab isActive={activeTab === "search"} /> },
+          { value: "requests", label: "Friend requests", content: <FriendRequestsTab isActive={activeTab === "requests"} /> },
+        ],
+        [activeTab]
+      );
 
   return (
       <div>
         <div className={styles.content}>
            <h1> Friends </h1>
-           <Tabs tabs={tabs} defaultValue="friends" ariaLabel="friends tabs" />
+           <Tabs
+             tabs={tabs}
+             value={activeTab}
+             onChange={setActiveTab}
+             ariaLabel="friends tabs"
+           />
         </div>
       </div>
       )

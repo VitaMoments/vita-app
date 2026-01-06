@@ -1,6 +1,6 @@
 export type UserRole = "USER" | "MODERATOR" | "ADMIN";
 
-export type UserDto = PublicUserDto | PrivateUserDto | AccountUserDto;
+export type UserDto = PublicUserDto | PrivateUserDto | AccountUserDto | UserWithContextDto;
 
 export interface BaseUserDto {
   type: "PUBLIC" | "PRIVATE" | "ACCOUNT";
@@ -30,4 +30,10 @@ export interface AccountUserDto extends BaseUserDto {
   createdAt: number;
   updatedAt: number;
   deletedAt: number | null;
+}
+
+export interface UserWithContextDto {
+  type: "CONTEXT";
+  user: PublicUserDto | PrivateUserDto | AccountUserDto;
+  friendship: FriendshipDto | null;
 }

@@ -1,18 +1,20 @@
-import type { UserDto, PublicUserDto, PrivateUserDto, AccountUserDto } from "./userDto";
-import type { User, PublicUser, PrivateUser, AccountUser } from "./userDomain";
+import type { UserDto, PublicUserDto, PrivateUserDto, AccountUserDto, UserWithContextDto } from "./userDto";
+import type { User, PublicUser, PrivateUser, AccountUser, UserWithContext } from "./userDomain";
+import { mapFriendshipDtoToFriendship } from "../friend/mapFriendshipDtoToFriendship";
 
 export const mapUserDtoToUser = (dto: UserDto): User => {
   switch (dto.type) {
     case "PUBLIC":
-      return mapPublicUserDtoToPublicUser(dto);
+        return mapPublicUserDtoToPublicUser(dto);
     case "PRIVATE":
-      return mapPrivateUserDtoToPrivateUser(dto);
+        return mapPrivateUserDtoToPrivateUser(dto);
     case "ACCOUNT":
-      return mapAccountUserDtoToAccountUser(dto);
+        return mapAccountUserDtoToAccountUser(dto);
+    case "CONTEXT":
+        return mapUserWithContextDtoToUserWithContext(dto)
     default: {
-      // zorgt dat je direct ziet wat er mis binnenkomt
-      const _exhaustive: never = dto;
-      throw new Error(`Unknown user dto type: ${(dto as any)?.type}`);
+        const _exhaustive: never = dto;
+        throw new Error(`Unknown user dto type: ${(dto as any)?.type}`);
     }
   }
 };
@@ -51,6 +53,15 @@ export const mapAccountUserDtoToAccountUser = (dto: AccountUserDto): AccountUser
   updatedAt: dto.updatedAt,
   deletedAt: dto.deletedAt,
 });
+
+export const mapUserWithContextDtoToUserWithContext = (
+  dto: UserWithContextDto
+): UserWithContext => ({
+  type: "CONTEXT",
+  user: mapUserDtoToUser(dto.user),
+  friendship: dto.friendship ? mapFriendshipDtoToFriendship(dto.friendship) : null,
+});
+
 
 
 export const mapPrivateUsersDtoListToPrivateUsers = (dtos: PrivateUserDto[]): PrivateUser[] =>

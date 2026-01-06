@@ -25,7 +25,7 @@ fun PendingFriendship.toDto(): PendingFriendshipDto =
         createdAt = this.createdAt.toEpochMilliseconds(),
         updatedAt = this.updatedAt.toEpochMilliseconds(),
         direction = this.direction,
-        friend = this.friend.toDto()
+        otherUserId = this.otherUserId
     )
 
 fun AcceptedFriendship.toDto(): AcceptedFriendshipDto =
@@ -33,21 +33,20 @@ fun AcceptedFriendship.toDto(): AcceptedFriendshipDto =
         uuid = this.id,
         createdAt = this.createdAt.toEpochMilliseconds(),
         updatedAt = this.updatedAt.toEpochMilliseconds(),
-        friend = this.friend.toDto()
+        otherUserId = this.otherUserId
     )
 
 fun PendingFriendshipDto.toDomain() : PendingFriendship = PendingFriendship(
     id = this.uuid,
     direction = this.direction,
-    friend = this.friend.toDomain(),
+    otherUserId = this.otherUserId,
     createdAt = Instant.fromEpochMilliseconds(this.createdAt),
     updatedAt = Instant.fromEpochMilliseconds(this.updatedAt)
 )
 
 fun AcceptedFriendshipDto.toDomain(): AcceptedFriendship = AcceptedFriendship(
     id = this.uuid,
-    direction = FriendshipDirection.BOTH,
-    friend = this.friend.toDomain(),
+    otherUserId = this.otherUserId,
     createdAt = Instant.fromEpochMilliseconds(this.createdAt),
     updatedAt = Instant.fromEpochMilliseconds(this.updatedAt)
 )

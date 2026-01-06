@@ -3,6 +3,8 @@ package eu.vitamoments.app.data.repository
 import eu.vitamoments.app.data.models.domain.user.Friendship
 import eu.vitamoments.app.data.models.domain.user.PrivateUser
 import eu.vitamoments.app.data.models.domain.user.PublicUser
+import eu.vitamoments.app.data.models.domain.user.UserWithContext
+import eu.vitamoments.app.data.models.domain.utils.PagedResult
 import kotlin.uuid.Uuid
 
 interface FriendRepository {
@@ -10,12 +12,12 @@ interface FriendRepository {
         userId: Uuid,
         query: String? = null,
         limit: Int = 20,
-        offset: Int = 0) : RepositoryResponse<List<PublicUser>>
+        offset: Int = 0) : RepositoryResponse<PagedResult<PublicUser>>
     suspend fun searchFriends(
         userId: Uuid,
         query: String? = null,
         limit: Int = 20,
-        offset: Int = 0) : RepositoryResponse<List<PrivateUser>>
+        offset: Int = 0) : RepositoryResponse<PagedResult<UserWithContext>>
     suspend fun incomingRequests(
         userId: Uuid
     ) : RepositoryResponse<List<PublicUser>>
@@ -38,4 +40,11 @@ interface FriendRepository {
         userId: Uuid,
         otherId: Uuid
     ): RepositoryResponse<Friendship>
+
+    suspend fun friendRequests(
+        userId: Uuid,
+        query: String?,
+        limit: Int,
+        offset: Int
+    ): RepositoryResponse<PagedResult<UserWithContext>>
 }

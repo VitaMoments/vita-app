@@ -6,10 +6,12 @@ import eu.vitamoments.app.data.models.domain.user.AccountUser
 import eu.vitamoments.app.data.models.domain.user.PrivateUser
 import eu.vitamoments.app.data.models.domain.user.PublicUser
 import eu.vitamoments.app.data.models.domain.user.User
+import eu.vitamoments.app.data.models.domain.user.UserWithContext
 import eu.vitamoments.app.data.models.dto.user.AccountUserDto
 import eu.vitamoments.app.data.models.dto.user.PublicUserDto
 import eu.vitamoments.app.data.models.dto.user.PrivateUserDto
 import eu.vitamoments.app.data.models.dto.user.UserDto
+import eu.vitamoments.app.data.models.dto.user.UserWithContextDto
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
@@ -18,13 +20,26 @@ fun User.toDto(): UserDto = when (this) {
     is PublicUser -> this.toDto()
     is PrivateUser -> this.toDto()
     is AccountUser -> this.toDto()
+    is UserWithContext -> this.toDto()
 }
 
 fun UserDto.toDomain(): User = when (this) {
     is PublicUserDto -> this.toDomain()
     is PrivateUserDto -> this.toDomain()
     is AccountUserDto -> this.toDomain()
+    is UserWithContextDto -> this.toDomain()
 }
+
+
+fun UserWithContext.toDto() : UserWithContextDto = UserWithContextDto(
+    user = this.user.toDto(),
+    friendship = this.friendship?.toDto()
+)
+
+fun UserWithContextDto.toDomain(): UserWithContext = UserWithContext(
+    user = user.toDomain(),
+    friendship = friendship?.toDomain()
+)
 
 fun PublicUser.toDto() : PublicUserDto = PublicUserDto(
     uuid = this.uuid,

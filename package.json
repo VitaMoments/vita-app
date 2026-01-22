@@ -31,11 +31,17 @@
     "shared": "^0.0.0-unspecified"
   },
   "devDependencies": {
-    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^5.0.3",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "typescript": "^5.9.2",
     "vite": "^7.1.7"
+  },
+  "overrides": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "@types/react": "18.2.79",
+    "@types/react-dom": "18.2.25"
   }
+
 }

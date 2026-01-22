@@ -29,7 +29,12 @@ jobs:
       - name: Build shared Kotlin/JS library
         run: |
           chmod +x ./gradlew
-          ./gradlew :shared:jsBrowserDevelopmentLibraryDistribution --stacktrace --info
+          ./gradlew :shared:compileKotlinJs \
+          --console=plain \
+          --stacktrace \
+          --info \
+          --no-configuration-cache \
+          --rerun-tasks
 
       # Node voor React/Vite build
       - uses: actions/setup-node@v4

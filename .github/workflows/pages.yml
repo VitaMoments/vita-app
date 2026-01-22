@@ -43,7 +43,7 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run buildNoTsc
+      - run: npm run build
 
       # SPA refresh fix (als je BrowserRouter gebruikt)
       - run: cp webApp/dist/index.html webApp/dist/404.html

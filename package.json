@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "cd webApp && npm run build",
-    "start": "cd webApp && npm run start"
+    "start": "npm install && cd webApp && npm run start"
   },
   "dependencies": {
     "@tiptap/core": "^3.11.1",

@@ -18,7 +18,7 @@ const WriteBlogTab: React.FC<Props> = ({ isActive }) => {
     const [subtitle, setSubtitle] = useState<string | null>(null)
 
     return (
-
+            <div> test </div>
         )
     }
 export default WriteBlogTab;

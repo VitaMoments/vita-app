@@ -156,3 +156,8 @@ tasks.withType<KotlinCompile>().configureEach {
     }
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>()
+    .matching { it.name.startsWith("compileKotlinJs") || it.name.contains("Js") }
+    .configureEach {
+        dependsOn(generateBuildConfig)
+    }

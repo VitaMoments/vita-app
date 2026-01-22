@@ -7,7 +7,7 @@
     "shared/build/dist/js/developmentLibrary"
   ],
   "scripts": {
-    "build": "cd webApp && npm run build",
+    "build": "cd webApp && npm run buildNoTsc",
     "start": "npm install && cd webApp && npm run start"
   },
   "dependencies": {

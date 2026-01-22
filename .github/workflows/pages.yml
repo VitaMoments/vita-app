@@ -19,6 +19,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Java voor Gradle/Kotlin
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Kotlin/JS library build (shared -> developmentLibrary)
+      - name: Build shared Kotlin/JS library
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :shared:jsBrowserDevelopmentLibraryDistribution
+
+      # Node voor React/Vite build
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -27,6 +40,7 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      # SPA refresh fix (als je BrowserRouter gebruikt)
       - run: cp webApp/dist/index.html webApp/dist/404.html
 
       - uses: actions/upload-pages-artifact@v3

@@ -1,2 +1,3 @@
-package eu.vitamoments.app.config 
+package eu.vitamoments.app.config
 
+actual fun getEnv(name: String): String? = "dev"

@@ -1,7 +1,5 @@
 package eu.vitamoments.app.config
 
-import getEnv
-
 object Config {
     private fun envName(): String =
         getEnv("ENVIRONMENT")?.trim()?.lowercase()

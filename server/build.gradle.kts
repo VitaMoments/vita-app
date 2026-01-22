@@ -83,6 +83,9 @@ dependencies {
 
     implementation(libs.postgresql)
 
+    implementation(libs.flyway.core)
+    implementation(libs.flyway.database.postgresql)
+
     // Image processing
     implementation(libs.thumbnailator)
 

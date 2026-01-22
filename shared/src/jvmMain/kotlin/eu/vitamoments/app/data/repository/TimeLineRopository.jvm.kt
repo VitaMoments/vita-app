@@ -1,13 +1,13 @@
 package eu.vitamoments.app.data.repository
 
 import kotlinx.serialization.json.JsonObject
-import eu.vitamoments.app.data.entities.TimeLinePostEntity
+import eu.vitamoments.app.data.entities.TimeLineItemEntity
 import eu.vitamoments.app.data.entities.UserEntity
 import eu.vitamoments.app.data.enums.FriendshipStatus
 import eu.vitamoments.app.data.enums.TimeLineFeed
 import eu.vitamoments.app.data.mapper.entity.toDomain
-import eu.vitamoments.app.data.models.domain.message.TimeLinePost
-import eu.vitamoments.app.data.tables.TimeLinePostsTable
+import eu.vitamoments.app.data.models.domain.feed.TimelineItem
+import eu.vitamoments.app.data.tables.TimeLineItemsTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.dbHelpers.dbQuery
 import eu.vitamoments.app.dbHelpers.queries.getAcceptedFriendIds
@@ -27,10 +27,10 @@ class JVMTimeLineRepository() : TimeLineRepository {
     override suspend fun createPost(
         userId: Uuid,
         content: JsonObject
-    ): RepositoryResponse<TimeLinePost> = dbQuery {
+    ): RepositoryResponse<TimelineItem> = dbQuery {
         val userEntity = UserEntity.find{ UsersTable.id eq userId.toJavaUuid() }.firstOrNull() ?: return@dbQuery RepositoryResponse.Error.InvalidData("UserId", "This userId is not registered as User")
 
-        val entity = TimeLinePostEntity.new {
+        val entity = TimeLineItemEntity.new {
             this.createdBy = userEntity
             this.content = content
         }
@@ -45,7 +45,7 @@ class JVMTimeLineRepository() : TimeLineRepository {
         feed: TimeLineFeed,
         limit: Int,
         offset: Long
-    ): RepositoryResponse<List<TimeLinePost>> = dbQuery {
+    ): RepositoryResponse<List<TimelineItem>> = dbQuery {
         val viewerUuid: UUID = userId.toJavaUuid()
 
         when (feed) {
@@ -55,9 +55,9 @@ class JVMTimeLineRepository() : TimeLineRepository {
             }
 
             TimeLineFeed.SELF -> {
-                val entities = TimeLinePostEntity
-                    .find { TimeLinePostsTable.createdBy eq viewerUuid }
-                    .orderBy(TimeLinePostsTable.createdAt to SortOrder.DESC)
+                val entities = TimeLineItemEntity
+                    .find { TimeLineItemsTable.createdBy eq viewerUuid }
+                    .orderBy(TimeLineItemsTable.createdAt to SortOrder.DESC)
                     .limit(count = limit)
                     .offset(offset)
                     .toList()
@@ -70,9 +70,9 @@ class JVMTimeLineRepository() : TimeLineRepository {
                 val friendIds = getAcceptedFriendIds(viewerUuid)
                 if (friendIds.isEmpty()) return@dbQuery RepositoryResponse.Success(emptyList())
 
-                val entities = TimeLinePostEntity
-                    .find { TimeLinePostsTable.createdBy inList friendIds or(TimeLinePostsTable.createdBy eq userId.toJavaUuid()) }
-                    .orderBy(TimeLinePostsTable.createdAt to SortOrder.DESC)
+                val entities = TimeLineItemEntity
+                    .find { TimeLineItemsTable.createdBy inList friendIds or(TimeLineItemsTable.createdBy eq userId.toJavaUuid()) }
+                    .orderBy(TimeLineItemsTable.createdAt to SortOrder.DESC)
                     .limit(count = limit)
                     .offset(offset)
                     .toList()
@@ -90,13 +90,13 @@ class JVMTimeLineRepository() : TimeLineRepository {
                 val friendIds = getAcceptedFriendIds(viewerUuid)
                 val friendSet = friendIds.toHashSet()
 
-                val entities = TimeLinePostEntity
+                val entities = TimeLineItemEntity
                     .find {
-                        (TimeLinePostsTable.createdBy neq viewerUuid) and
+                        (TimeLineItemsTable.createdBy neq viewerUuid) and
                                 (if (friendIds.isEmpty()) org.jetbrains.exposed.v1.core.Op.TRUE
-                                else TimeLinePostsTable.createdBy notInList friendIds)
+                                else TimeLineItemsTable.createdBy notInList friendIds)
                     }
-                    .orderBy(TimeLinePostsTable.createdAt to SortOrder.DESC)
+                    .orderBy(TimeLineItemsTable.createdAt to SortOrder.DESC)
                     .limit(count = limit)
                     .offset(offset)
                     .toList()

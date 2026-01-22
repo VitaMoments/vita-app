@@ -5,18 +5,18 @@ import eu.vitamoments.app.api.service.TimeLineService
 import eu.vitamoments.app.data.enums.TimeLineFeed
 import eu.vitamoments.app.data.mapper.toDomain
 import eu.vitamoments.app.data.mapper.toRepositoryResponse
-import eu.vitamoments.app.data.models.domain.message.TimeLinePost
-import eu.vitamoments.app.data.models.dto.message.CreateTimeLinePostDto
-import eu.vitamoments.app.data.models.dto.message.TimeLinePostDto
+import eu.vitamoments.app.data.models.domain.feed.TimelineItem
+import eu.vitamoments.app.data.models.dto.feed.TimelineItemDto
+import eu.vitamoments.app.data.models.dto.feed.WriteTimelineItemDto
 import kotlin.uuid.Uuid
 
 class TimeLineRepositoryImpl(
     private val service: TimeLineService
 ): TimeLineRepository {
-    override suspend fun createPost(userId: Uuid, content: JsonObject) : RepositoryResponse<TimeLinePost> {
-        val dto = CreateTimeLinePostDto(content = content)
+    override suspend fun createPost(userId: Uuid, content: JsonObject) : RepositoryResponse<TimelineItem> {
+        val dto = WriteTimelineItemDto(content = content)
         val response = service.createPost(dto)
-        return response.toRepositoryResponse<TimeLinePostDto, TimeLinePost> { dto ->
+        return response.toRepositoryResponse<TimelineItemDto, TimelineItem> { dto ->
             dto.toDomain()
         }
     }
@@ -26,7 +26,7 @@ class TimeLineRepositoryImpl(
         feed: TimeLineFeed,
         limit: Int,
         offset: Long
-    ): RepositoryResponse<List<TimeLinePost>> {
+    ): RepositoryResponse<List<TimelineItem>> {
         TODO("Not yet implemented")
     }
 }

@@ -10,7 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
-import eu.vitamoments.app.data.models.dto.message.CreateTimeLinePostDto
+import eu.vitamoments.app.data.models.dto.feed.WriteTimelineItemDto
 import eu.vitamoments.app.models.posts.TestTimeLinePosts
 import eu.vitamoments.app.models.user.TestUsers
 import eu.vitamoments.app.utils.DbIntegrationTest
@@ -34,7 +34,7 @@ class TimeLineTest: DbIntegrationTest() {
         val cookieHeaderValue = setCookieHeaders.joinToString("; ") { it.substringBefore(";") }
 
         val dto = TestTimeLinePosts.generateCreateTimelineDto()
-        val bodyJson = Json.encodeToString(CreateTimeLinePostDto.serializer(), dto)
+        val bodyJson = Json.encodeToString(WriteTimelineItemDto.serializer(), dto)
 
         val response = client.post("/api/timeline") {
             header(HttpHeaders.Cookie, cookieHeaderValue)

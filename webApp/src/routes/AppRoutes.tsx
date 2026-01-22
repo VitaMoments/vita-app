@@ -14,6 +14,8 @@ import Terms from "../pages/public/terms/Terms"
 import Home from "../pages/protected/home/Home";
 import Profile from "../pages/protected/profile/Profile";
 import FriendsPage from "../pages/protected/friends/FriendsPage";
+import BlogsPage from "../pages/protected/blog/BlogsPage"
+import CreateBlogPage from "../pages/protected/blog/CreateBlogPage"
 
 function RootGate() {
     const { user, loading } = useAuth();
@@ -31,9 +33,11 @@ export default function AppRoutes() {
         <Route path="/login" element={<Login />} />
       </Route>
 
-      <Route element={<ProtectedRoute />}>
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/friends" element={<FriendsPage />} />
+      <Route element={ <ProtectedRoute /> }>
+        <Route path="/profile" element={ <Profile /> }/>
+        <Route path="/friends" element={ <FriendsPage /> }/>
+        <Route path="/blogs" element={ <BlogsPage /> }/>
+        <Route path="/blogs/create" element={ <CreateBlogPage />}/>
       </Route>
 
       <Route path="/privacy" element={<Privacy />} />

@@ -15,8 +15,8 @@ import eu.vitamoments.app.api.helpers.requireUserId
 import eu.vitamoments.app.data.enums.TimeLineFeed
 import eu.vitamoments.app.data.mapper.extension_functions.respondRepositoryResponse
 import eu.vitamoments.app.data.mapper.toDto
-import eu.vitamoments.app.data.models.domain.message.TimeLinePost
-import eu.vitamoments.app.data.models.dto.message.CreateTimeLinePostDto
+import eu.vitamoments.app.data.models.domain.feed.TimelineItem
+import eu.vitamoments.app.data.models.dto.feed.WriteTimelineItemDto
 import eu.vitamoments.app.data.repository.FriendRepository
 import eu.vitamoments.app.data.repository.RepositoryResponse
 import eu.vitamoments.app.data.repository.TimeLineRepository
@@ -31,10 +31,10 @@ fun Route.timelineRoutes() {
 
     route("/timeline") {
         post {
-            val createTimeLinePostDto : CreateTimeLinePostDto = call.receive()
+            val writeTimelineItemDto : WriteTimelineItemDto = call.receive()
             val userid: Uuid = call.requireUserId()
 
-            val result: RepositoryResponse<TimeLinePost> = timeLineRepo.createPost(userid, createTimeLinePostDto.content)
+            val result: RepositoryResponse<TimelineItem> = timeLineRepo.createPost(userid, writeTimelineItemDto.content)
 
             call.respondRepositoryResponse(result, HttpStatusCode.Created) { timeLinePost -> timeLinePost.toDto()}
         }
@@ -53,7 +53,7 @@ fun Route.timelineRoutes() {
                 )
             }
 
-            val result: RepositoryResponse<List<TimeLinePost>> = timeLineRepo.getTimeLine(userId, feed,params["limit"]?.toInt() ?: 100, params["offset"]?.toLong() ?: 0)
+            val result: RepositoryResponse<List<TimelineItem>> = timeLineRepo.getTimeLine(userId, feed,params["limit"]?.toInt() ?: 100, params["offset"]?.toLong() ?: 0)
             call.respondRepositoryResponse(result, HttpStatusCode.OK) { list -> list.map { it.toDto() }}
         }
 

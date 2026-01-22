@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
 import org.jetbrains.exposed.v1.datetime.datetime
 import org.jetbrains.exposed.v1.json.jsonb
 
-object TimeLinePostsTable: UUIDTable("timeline_posts") {
+object TimeLineItemsTable: UUIDTable("timeline_posts") {
     val createdAt = datetime("created_at").clientDefault { LocalDateTime.nowUtc() }
     val updatedAt = datetime("updated_at").clientDefault { LocalDateTime.nowUtc() }
     val deletedAt = datetime("deleted_at").nullable()

@@ -1,23 +1,23 @@
 package eu.vitamoments.app.modules
 
+import eu.vitamoments.app.config.AppEnvironment
 import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.application.Application
 import eu.vitamoments.app.config.Config
-import eu.vitamoments.app.data.tables.RefreshTokensTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.config.helpers.findProjectRoot
 import eu.vitamoments.app.data.enums.UserRole.ADMIN
 import eu.vitamoments.app.data.enums.UserRole.USER
-import eu.vitamoments.app.data.tables.FriendshipEventTable
-import eu.vitamoments.app.data.tables.FriendshipsTable
-import eu.vitamoments.app.data.tables.TimeLinePostsTable
+import eu.vitamoments.app.data.tables.nevo.ProductsTable
 import eu.vitamoments.app.dbHelpers.PasswordHasher
+import eu.vitamoments.app.services.importNevoCsvIntoPostgres
+import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.net.URI
+import java.nio.file.Paths
 import java.util.UUID
 
 fun Application.configureDatabase() {
@@ -30,7 +30,7 @@ object DatabaseFactory {
         dotenv {
             directory = rootDir.absolutePath
             filename = ".env"
-            ignoreIfMissing = false
+            ignoreIfMissing = true
         }
     }
 
@@ -73,7 +73,13 @@ object DatabaseFactory {
         val username = finalUri.userInfo?.split(":")?.getOrNull(0) ?: error("No DB user in DATABASE_URL")
         val password = finalUri.userInfo?.split(":")?.getOrNull(1) ?: error("No DB password in DATABASE_URL")
 
-        val jdbcUrl = "jdbc:postgresql://${finalUri.host}:$port${finalUri.path}"
+//        val jdbcUrl = "jdbc:postgresql://${finalUri.host}:$port${finalUri.path}"
+
+        val query = finalUri.query?.let { "?$it" } ?: ""
+        val jdbcUrl = "jdbc:postgresql://${finalUri.host}:$port${finalUri.path}$query"
+
+
+        runMigrations(jdbcUrl = jdbcUrl, username = username, password = password)
 
         val database = Database.connect(
             url = jdbcUrl,
@@ -82,25 +88,23 @@ object DatabaseFactory {
             password = password
         )
 
-        val tables = listOf(
-            UsersTable,
-            RefreshTokensTable,
-            TimeLinePostsTable,
-            FriendshipsTable,
-            FriendshipEventTable,
-        )
-
-        transaction(database) {
-            SchemaUtils.create(*tables.toTypedArray())
-            SchemaUtils.createMissingTablesAndColumns(*tables.toTypedArray())
-
-            seed()
+        if (Config.currentEnvironment == AppEnvironment.Dev) transaction(database) {
+            seedUsers();
+            seedNevoProducts()
         }
-
         database
     }
 
-    private fun seed() {
+    private fun runMigrations(jdbcUrl: String, username: String, password: String) {
+        Flyway.configure()
+            .dataSource(jdbcUrl, username, password)
+            .locations("classpath:db/migration")
+            .baselineOnMigrate(true)
+            .load()
+            .migrate()
+    }
+
+    private fun seedUsers() {
         val hasAnyUser = UsersTable
             .selectAll()
             .limit(1)
@@ -132,6 +136,19 @@ object DatabaseFactory {
             }
         }
 
+    }
+
+    private fun seedNevoProducts() {
+        val hasAnyProduct = ProductsTable.selectAll().limit(1).any()
+
+        if (hasAnyProduct) return
+
+        val csvPath: String =
+            System.getenv("NEVO_CSV_PATH")
+                ?: env["NEVO_CSV_PATH"]
+                ?: error("Env file must have NEVO_CSV_PATH")
+
+        importNevoCsvIntoPostgres(Paths.get(csvPath), wipeExisting = true)
     }
 
     fun init(): Database = db

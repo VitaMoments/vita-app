@@ -1,0 +1,166 @@
+.page {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;           /* ruimte tussen left pane en content */
+}
+
+.leftPane {
+  width: 240px;        /* vaste breedte (pas aan naar smaak) */
+  margin: 8px;
+  flex: 0 0 240px;     /* niet laten krimpen/groeien */
+  align-items: flex-start;
+}
+
+.leftPaneCard {
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid var(--color-primary);
+  margin: 4px;
+}
+
+.leftPaneHeader {
+  text-align: center;
+  border-bottom: 1px solid var(--color-primary-soft);
+}
+
+/* container om alles onder elkaar te zetten met gap */
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* kleine gap */
+  margin-top: 12px;
+}
+
+/* button als platte tekst */
+.categoryItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  padding: 6px 4px;
+
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  color: inherit;
+  text-align: left;
+
+  /* voorkomt "button look" in sommige browsers */
+  appearance: none;
+  font-size: 16px
+}
+
+/* hover subtiel */
+.categoryItem:hover {
+  background: var(--color-primary-bg);
+  opacity: 0.85;
+}
+
+/* geselecteerd */
+.categoryItemActive {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* label */
+.categoryLabel {
+  flex: 1;
+  text-align: start;
+}
+
+/* (optioneel) disabled */
+.categoryItemDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.content {
+  flex: 1;             /* neemt de rest van de ruimte */
+  min-width: 0;        /* voorkomt rare overflow bij lange content */
+}
+
+
+ <section className={styles.main}>
+            <div className={styles.card}>
+              <div className={styles.tabsRow}>
+                <div className={styles.tabs}>
+                  <TabButton active={tab === "FOLLOWING"} onClick={() => setTab("FOLLOWING")}>
+                    Following
+                  </TabButton>
+                  <TabButton active={tab === "DISCOVER"} onClick={() => setTab("DISCOVER")}>
+                    Discover
+                  </TabButton>
+                  <TabButton active={tab === "MY_BLOGS"} onClick={() => setTab("MY_BLOGS")}>
+                    My Blogs
+                  </TabButton>
+                </div>
+
+                <div className={styles.sortRow}>
+                  <span className={styles.sortLabel}>Sort by:</span>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as Sort)}
+                    className={styles.sortSelect}
+                  >
+                    <option value="NEWEST">Newest</option>
+                    <option value="OLDEST">Oldest</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.activeFilterRow}>
+                <span className={styles.activeFilterLabel}>Active filter:</span>
+                {activeCategory ? (
+                  <Chip label={activeCategory} onClear={() => setActiveCategory(null)} />
+                ) : (
+                  <span className={styles.activeFilterNone}>None</span>
+                )}
+              </div>
+
+              <div className={styles.list}>
+                {paged.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    <h4 className={styles.emptyTitle}>
+                      {query || activeCategory ? "No results" : "No blogs yet"}
+                    </h4>
+                    <p className={styles.emptyText}>
+                      {query || activeCategory
+                        ? "Try clearing your filters or searching for something else."
+                        : tab === "MY_BLOGS"
+                        ? "Create your first blog post to get started."
+                        : "Follow creators to see posts here, or check Discover."}
+                    </p>
+
+                    <div className={styles.emptyActions}>
+                      {query || activeCategory ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setQuery("");
+                            setActiveCategory(null);
+                          }}
+                          className={styles.secondaryButton}
+                        >
+                          Clear filters
+                        </button>
+                      ) : null}
+
+                      <button type="button" onClick={onCreate} className={styles.primaryButton}>
+                        Create
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {paged.map((b) => (
+                      <BlogCard key={b.uuid} blog={b} onOpen={onOpenBlog} />
+                    ))}
+                    <Pagination page={page} totalPages={totalPages} onPage={setPage} />
+                  </>
+                )}
+              </div>
+            </div>
+          </section>

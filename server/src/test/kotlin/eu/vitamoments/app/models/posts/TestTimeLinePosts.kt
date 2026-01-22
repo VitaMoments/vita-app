@@ -5,7 +5,7 @@ package eu.vitamoments.app.models.posts
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
-import eu.vitamoments.app.data.models.dto.message.CreateTimeLinePostDto
+import eu.vitamoments.app.data.models.dto.feed.WriteTimelineItemDto
 import eu.vitamoments.app.dbHelpers.dbQuery
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
@@ -25,6 +25,6 @@ object TestTimeLinePosts {
         }
       """.trimIndent()
         ).jsonObject
-        CreateTimeLinePostDto(content = doc)
+        WriteTimelineItemDto(content = doc)
     }
 }

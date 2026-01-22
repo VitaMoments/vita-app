@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   root: '.',
-  base: '/',
+  base: '/vita-app/',
   plugins: [react()],
   build: {
     outDir: 'dist',

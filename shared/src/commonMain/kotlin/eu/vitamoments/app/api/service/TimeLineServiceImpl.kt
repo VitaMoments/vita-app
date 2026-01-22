@@ -5,10 +5,10 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import eu.vitamoments.app.data.models.dto.message.CreateTimeLinePostDto
+import eu.vitamoments.app.data.models.dto.feed.WriteTimelineItemDto
 
 class TimeLineServiceImpl(val client: HttpClient) : TimeLineService {
-    override suspend fun createPost(body: CreateTimeLinePostDto): HttpResponse = client.post("/timeline") {
+    override suspend fun createPost(body: WriteTimelineItemDto): HttpResponse = client.post("/timeline") {
         setBody(body)
     }
 

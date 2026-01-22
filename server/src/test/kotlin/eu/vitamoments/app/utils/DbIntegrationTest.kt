@@ -1,7 +1,7 @@
 package eu.vitamoments.app.utils
 
 import eu.vitamoments.app.data.tables.RefreshTokensTable
-import eu.vitamoments.app.data.tables.TimeLinePostsTable
+import eu.vitamoments.app.data.tables.TimeLineItemsTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.modules.DatabaseFactory
 import org.jetbrains.exposed.v1.jdbc.deleteAll
@@ -23,7 +23,7 @@ abstract class DbIntegrationTest {
         transaction(DatabaseFactory.db) {
             RefreshTokensTable.deleteAll()
             UsersTable.deleteAll()
-            TimeLinePostsTable.deleteAll()
+            TimeLineItemsTable.deleteAll()
         }
     }
 }

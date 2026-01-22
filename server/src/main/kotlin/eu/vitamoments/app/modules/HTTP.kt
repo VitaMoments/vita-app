@@ -50,13 +50,27 @@ fun Application.configureHTTP() {
         allowHost("localhost:5174", schemes=listOf("http"))
         allowHost("localhost:5175", schemes=listOf("http"))
         allowHost("localhost:5176", schemes=listOf("http"))
-        anyHost()
+//        anyHost() // alleen voor development
 
         // Eventueel voor productie:
         // val frontendHost = System.getenv("FRONTEND_HOST") // bijv. "app.healthyproduct.nl"
         // if (!frontendHost.isNullOrBlank()) {
         //     allowHost(frontendHost, schemes = listOf("https"))
         // }
+
+        // ---- PROD (GitHub Pages) ----
+        // 1) Standaard GitHub Pages host: <username>.github.io
+        // Dit dekt je repo site: https://<username>.github.io/<repo>/
+        val ghPagesHost = System.getenv("GH_PAGES_HOST") // bv "falcoberendhaus.github.io"
+        if (!ghPagesHost.isNullOrBlank()) {
+            allowHost(ghPagesHost, schemes = listOf("https"))
+        }
+
+        // Optioneel: als je later een custom domain gebruikt (bijv. app.vitamoments.eu)
+        val frontendHost = System.getenv("FRONTEND_HOST")
+        if (!frontendHost.isNullOrBlank()) {
+            allowHost(frontendHost, schemes = listOf("https"))
+        }
     }
 
     install(AutoHeadResponse)

@@ -7,8 +7,9 @@
     "shared/build/dist/js/developmentLibrary"
   ],
   "scripts": {
-    "build": "cd webApp && npm run buildNoTsc",
-    "start": "npm install && cd webApp && npm run start"
+    "gen:ts": "chmod +x ./gradlew && ./gradlew :shared:syncTsModelsToWeb --no-configuration-cache",
+    "build": "npm run gen:ts && cd webApp && npm run buildNoTsc",
+    "start": "npm run gen:ts && cd webApp && npm run start"
   },
   "dependencies": {
     "@tiptap/core": "^3.11.1",

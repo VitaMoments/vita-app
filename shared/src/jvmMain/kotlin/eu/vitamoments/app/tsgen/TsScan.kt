@@ -6,90 +6,74 @@ import kotlin.reflect.full.createType
 
 object TsScan {
 
-    data class ModuleSpec(val name: String, val packagePrefix: String)
-
-    data class Module(
-        val name: String,
-        val packagePrefix: String,
+    data class DomainModule(
+        val name: String,                 // e.g. "feed", "user", "friend", "common", "enums"
         val classes: List<Class<*>>
     )
 
     /**
-     * Auto-discover DTO modules:
-     *  - scans dtoRoot and groups by first segment after dtoRoot
-     *    e.g. eu...dto.feed.* -> module "feed"
-     *         eu...dto.recipe.* -> module "recipe"
-     *
-     * plus extraModules for things not under dtoRoot (e.g. enums, richtext).
+     * Module rules:
+     * - contracts.enums.*                  -> enums.ts
+     * - contracts.models.<domain>.*        -> <domain>.ts
+     * - contracts.requests.<domain>.*      -> <domain>.ts
+     * - contracts.responses.<domain>.*     -> <domain>.ts
+     * - contracts.common.* OR models.* w/o domain -> common.ts
      */
-    fun discoverModules(
-        dtoRoot: String,
-        extraModules: List<ModuleSpec> = emptyList()
-    ): List<Module> {
+    fun discoverDomainModules(
+        contractsRoot: String
+    ): List<DomainModule> {
+        val serializableClasses = scanSerializableClasses(contractsRoot)
+
+        val grouped = serializableClasses.groupBy { clazz ->
+            val pkg = clazz.packageName
+            val rest = pkg.removePrefix("$contractsRoot.") // e.g. "models.feed", "enums", "common"
+            val segments = rest.split('.')
+
+            val first = segments.getOrNull(0) ?: return@groupBy "common"
+
+            when (first) {
+                // ✅ top-level module
+                "enums" -> "enums"
+                "common" -> "common"
+
+                // ✅ domain modules under models/requests/responses
+                "models", "requests", "responses" -> segments.getOrNull(1) ?: "common"
+
+                // ✅ any other top-level folder becomes its own module name
+                // (handig als je later contracts/events.* of contracts/utils.* wilt)
+                else -> first
+            }
+        }
+
+        return grouped
+            .map { (name, classes) -> DomainModule(name, classes) }
+            .sortedBy { it.name }
+    }
+
+    private fun scanSerializableClasses(packagePrefix: String): List<Class<*>> {
         val scan = ClassGraph()
             .enableClassInfo()
             .enableAnnotationInfo()
-            .acceptPackages(dtoRoot)
+            .acceptPackages(packagePrefix)
             .scan()
 
         scan.use { result ->
-            val serializable = result
+            return result
                 .getClassesWithAnnotation(Serializable::class.qualifiedName)
-                .filter { it.packageName.startsWith(dtoRoot) }
+                .filter { it.packageName.startsWith(packagePrefix) }
                 .map { it.loadClass() }
-
-            val grouped = serializable.groupBy { clazz ->
-                val pkg = clazz.packageName
-                val rest = pkg.removePrefix("$dtoRoot.")
-                rest.substringBefore('.') // first segment after dtoRoot
-            }
-
-            val dtoModules = grouped.map { (name, classes) ->
-                Module(
-                    name = name,
-                    packagePrefix = "$dtoRoot.$name",
-                    classes = classes
-                )
-            }
-
-            // Extra modules (enums, richtext, etc.) scanned separately:
-            val extras = extraModules.map { spec ->
-                val extraScan = ClassGraph()
-                    .enableClassInfo()
-                    .enableAnnotationInfo()
-                    .acceptPackages(spec.packagePrefix)
-                    .scan()
-
-                extraScan.use { r ->
-                    val extraClasses = r
-                        .getClassesWithAnnotation(Serializable::class.qualifiedName)
-                        .filter { it.packageName.startsWith(spec.packagePrefix) }
-                        .map { it.loadClass() }
-
-                    Module(
-                        name = spec.name,
-                        packagePrefix = spec.packagePrefix,
-                        classes = extraClasses
-                    )
-                }
-            }
-
-            return (dtoModules + extras)
-                .distinctBy { it.name }
-                .sortedBy { it.name }
         }
     }
 
     /**
-     * Ownership is based on Kotlin simpleName -> moduleName.
-     * Used to strip duplicates and generate imports.
+     * Ownership map: symbol simpleName -> module (feed/user/friend/common/enums)
+     * Used for stripping + auto imports.
      */
-    fun buildSymbolOwnership(modules: List<Module>): Map<String, String> {
+    fun buildSymbolOwnership(modules: List<DomainModule>): Map<String, String> {
         val map = linkedMapOf<String, String>()
         for (m in modules) {
             for (c in m.classes) {
                 val name = c.simpleName ?: continue
-                // First win: stable deterministic order by module list
                 map.putIfAbsent(name, m.name)
             }
         }
@@ -98,11 +82,7 @@ object TsScan {
 
     /**
      * Resolve KSerializer instances for classes.
-     * We use kotlinx.serialization.serializer(KType) via reflection-free API.
-     *
-     * Skips:
-     * - generic classes (typeParameters not empty)
-     * - local/anonymous classes
+     * Skips generics.
      */
     fun resolveSerializers(classes: List<Class<*>>): List<Any> {
         val serializers = mutableListOf<Any>()

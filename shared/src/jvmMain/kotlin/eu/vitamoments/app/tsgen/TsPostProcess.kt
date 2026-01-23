@@ -1,31 +1,25 @@
 package eu.vitamoments.app.tsgen
 
-/**
- * Post-process generated TS:
- * - Ensures header contains a single Date line
- * - Injects imports
- * - Strips exported symbols (so we can import them from other files)
- *
- * Pragmatic regex-based approach tailored to kxs-ts-gen output.
- */
 object TsPostProcess {
 
     data class Import(val symbol: String, val from: String)
 
-    fun process(
+    /**
+     * Full automatic mode:
+     * - Normalizes header
+     * - Removes symbols owned by other modules
+     * - Detects which external symbols are referenced
+     * - Injects ONLY those imports
+     */
+    fun processAutoImports(
         rawTs: String,
         headerDate: String,
-        imports: List<Import>,
-        stripExports: List<String>,
+        ownership: Map<String, String>,   // symbol -> moduleName
+        currentModule: String
     ): String {
         var out = rawTs
 
-        // --- 1) Normalize header to ALWAYS have exactly one Date line ---
-        // Supports both:
-        // - header without Date
-        // - header with Date already present
-        //
-        // We match the top header block and rebuild it.
+        // --- 1) Normalize header (always single Date line) ---
         val headerRegex = Regex(
             pattern = """\A// GENERATED FILE - DO NOT EDIT\s*\R// Source: Kotlin @Serializable DTOs \(kxs-ts-gen\)\s*(?:\R// Date:.*)?\s*\R\R""",
             options = setOf(RegexOption.MULTILINE)
@@ -41,7 +35,6 @@ object TsPostProcess {
 """
             )
         } else {
-            // If generator ever changes header format, we still ensure our header exists at top
             """// GENERATED FILE - DO NOT EDIT
 // Source: Kotlin @Serializable DTOs (kxs-ts-gen)
 // Date: $headerDate
@@ -49,33 +42,49 @@ object TsPostProcess {
 $out"""
         }
 
-        // --- 2) Strip exported symbols we want to import instead ---
-        stripExports.forEach { symbol ->
-            out = removeSymbol(out, symbol)
+        // --- 2) Strip symbols that belong to other modules ---
+        // We strip definitions, but references remain -> we will import them.
+        val foreignSymbols = ownership
+            .filterValues { it != currentModule }
+            .keys
+
+        foreignSymbols.forEach { sym ->
+            out = removeSymbol(out, sym)
         }
 
-        // --- 3) Inject imports right after header block ---
-        if (imports.isNotEmpty()) {
-            val importLines = buildString {
-                imports
-                    .groupBy { it.from }
-                    .forEach { (from, items) ->
-                        val names = items.map { it.symbol }.distinct().sorted()
-                        appendLine("""import type { ${names.joinToString(", ")} } from "$from";""")
-                    }
+        // --- 3) Detect which external symbols are still referenced ---
+        val usedImports = mutableMapOf<String, MutableSet<String>>() // from -> symbols
+
+        foreignSymbols.forEach { sym ->
+            val owner = ownership[sym] ?: return@forEach
+            if (owner == currentModule) return@forEach
+
+            // Word-boundary match (avoid partial hits)
+            val re = Regex("""\b${Regex.escape(sym)}\b""")
+            if (re.containsMatchIn(out)) {
+                usedImports.getOrPut("./$owner") { mutableSetOf() }.add(sym)
+            }
+        }
+
+        // --- 4) Inject imports after header ---
+        if (usedImports.isNotEmpty()) {
+            val importBlock = buildString {
+                usedImports.toSortedMap().forEach { (from, syms) ->
+                    val names = syms.toList().sorted()
+                    appendLine("""import type { ${names.joinToString(", ")} } from "$from";""")
+                }
                 appendLine()
             }
 
-            // Header ends with a blank line; insert imports after that.
             val headerEnd = out.indexOf("\n\n")
             out = if (headerEnd != -1) {
-                out.substring(0, headerEnd + 2) + importLines + out.substring(headerEnd + 2)
+                out.substring(0, headerEnd + 2) + importBlock + out.substring(headerEnd + 2)
             } else {
-                importLines + out
+                importBlock + out
             }
         }
 
-        // --- 4) Tidy ---
+        // --- 5) Tidy ---
         out = out.replace(Regex("\n{3,}"), "\n\n").trimEnd() + "\n"
         return out
     }

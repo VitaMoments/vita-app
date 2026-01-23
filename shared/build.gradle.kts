@@ -20,10 +20,10 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     iosArm64()
     iosSimulatorArm64()
-    
+
     jvm()
 
     js(IR) {
@@ -35,7 +35,7 @@ kotlin {
         }
         browser {
             commonWebpackConfig {
-                cssSupport {} // ⚡ let op: dit is een **functie**, geen property
+                cssSupport {}
             }
         }
     }
@@ -73,13 +73,15 @@ kotlin {
             implementation(libs.ktor.server.auth)
             implementation(libs.ktor.server.auth.jwt)
 
-
             implementation(libs.ktor.client.cio)
 
             implementation(libs.bcrypt)
             implementation(libs.dotenv.kotlin)
 
             implementation(libs.koin.core.jvm)
+
+            implementation(kotlin("reflect"))
+            implementation(libs.classgraph)
 
         }
         androidMain.dependencies {
@@ -119,7 +121,7 @@ abstract class GenerateBuildConfig : DefaultTask() {
     @TaskAction
     fun generate() {
         val pkg = "eu.vitamoments.app.config"
-        val envValue = environment.get() // dev / test / acc / demo / prod
+        val envValue = environment.get()
 
         val file = outputDir.get().file("BuildConfig.kt").asFile
         file.parentFile.mkdirs()
@@ -135,8 +137,6 @@ abstract class GenerateBuildConfig : DefaultTask() {
     }
 }
 
-// Default = "dev", maar je kunt override met -PappEnvironment=test etc.
-// Eerst naar env var APP_ENV kijken, anders naar gradle property, anders "dev"
 val appEnvironment = providers
     .environmentVariable("APP_ENV")
     .orElse(providers.gradleProperty("appEnvironment").orElse("dev"))
@@ -161,3 +161,5 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>()
     .configureEach {
         dependsOn(generateBuildConfig)
     }
+
+apply(from = rootProject.file("gradle/tsgen.gradle.kts"))

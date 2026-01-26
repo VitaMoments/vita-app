@@ -2,7 +2,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { useEditor, useEditorState, EditorContent } from "@tiptap/react";
 
-import Input  from "../../../components/input/Input"
+import Input from "../../../components/input/Input";
 
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -24,9 +24,13 @@ import Link from "@tiptap/extension-link";
 
 import styles from "./CreateBlogInput.module.css";
 
-// 👉 pas aan naar jouw project
-import type { BlogCategory } from "../../../api/types/feed/feed.types";
-import { BLOG_CATEGORY_META } from "../../../api/types/feed/feed.types";
+// ✅ generated types (barrel)
+import type { BlogCategory, RichTextDocument } from "../../../data/types";
+
+// ✅ UI-only metadata for labels/icons/descriptions
+import { BLOG_CATEGORY_META } from "../../../data/ui/blogCategoryMeta";
+
+// ✅ service
 import { BlogService } from "../../../api/service/BlogService";
 
 type CreateBlogInputProps = {
@@ -141,18 +145,20 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
   };
 
   const cmd = useCallback(
-    (action:
-      | "bold"
-      | "italic"
-      | "underline"
-      | "h1"
-      | "h2"
-      | "h3"
-      | "bullet"
-      | "ordered"
-      | "blockquote"
-      | "link"
-      | "unlink") => {
+    (
+      action:
+        | "bold"
+        | "italic"
+        | "underline"
+        | "h1"
+        | "h2"
+        | "h3"
+        | "bullet"
+        | "ordered"
+        | "blockquote"
+        | "link"
+        | "unlink"
+    ) => {
       if (!editor) return;
 
       const chain = editor.chain().focus();
@@ -213,7 +219,7 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
         return;
       }
 
-      // publish requires content; draft may be empty (jij kunt dit aanpassen)
+      // publish requires content; draft may be empty (change if you want)
       if (mode === "PUBLISH" && !bodyText) {
         onError?.("Content is required to publish.");
         return;
@@ -223,19 +229,22 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
       onClearError?.();
 
       try {
+        // ✅ Convert TipTap JSON into your contract RichTextDocument
+        const tiptapJson = editor.getJSON();
+        const content: RichTextDocument = { content: tiptapJson as any };
+
         const payload = {
           title: t,
           subtitle: subtitle.trim() || null,
           coverImageUrl: coverImageUrl.trim() || null,
           coverImageAlt: coverImageAlt.trim() || null,
-          categories,
-          content: editor.getJSON(),
-          mode, // backend: draft vs publish
+          categories, // ✅ BlogCategory[]
+          content, // ✅ RichTextDocument
+          mode, // backend: draft vs publish (until you define the contract)
         };
 
-        const res = await BlogService.create(payload);
-        // verwacht bijvoorbeeld: { id: string, slug?: string }
-        onCreated?.(res.slug ?? res.id);
+        const res = await BlogService.create(payload as any);
+        onCreated?.((res as any).slug ?? (res as any).id);
       } catch (e: any) {
         const msg =
           e?.response?.data?.message ??
@@ -262,17 +271,21 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
 
   if (!editor) return null;
 
-  const ALL_CATEGORIES = Object.keys(BLOG_CATEGORY_META) as BlogCategory[];
+  const ALL_CATEGORIES = useMemo(
+    () => Object.keys(BLOG_CATEGORY_META) as BlogCategory[],
+    []
+  );
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.headerFields}>
         <Input
-            name="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
-            onFocus={() => setIsFocused(true)}/>
+          name="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+          onFocus={() => setIsFocused(true)}
+        />
 
         <Input
           className={styles.subtitleInput}
@@ -303,20 +316,26 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
       <div className={styles.categories}>
         <div className={styles.categoriesHeader}>
           <span className={styles.categoriesTitle}>Categories</span>
-          <span className={styles.categoriesHint}>Choose up to {MAX_CATEGORIES}</span>
+          <span className={styles.categoriesHint}>
+            Choose up to {MAX_CATEGORIES}
+          </span>
         </div>
 
         <div className={styles.categoryChips}>
           {ALL_CATEGORIES.map((c) => {
             const active = categories.includes(c);
-            const label = BLOG_CATEGORY_META[c]?.label ?? c;
+            const meta = BLOG_CATEGORY_META[c];
+            const label = meta?.label ?? c;
+
             return (
               <button
                 key={c}
                 type="button"
                 onClick={() => toggleCategory(c)}
-                className={`${styles.categoryChip} ${active ? styles.categoryChipActive : ""}`}
-                title={label}
+                className={`${styles.categoryChip} ${
+                  active ? styles.categoryChipActive : ""
+                }`}
+                title={meta?.description ?? label}
                 aria-pressed={active}
               >
                 {label}
@@ -367,7 +386,9 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
             aria-pressed={isBold}
             title="Bold (Ctrl+B)"
           >
-            <span className={styles.iconBold} aria-hidden="true">B</span>
+            <span className={styles.iconBold} aria-hidden="true">
+              B
+            </span>
           </button>
           <button
             type="button"
@@ -376,7 +397,9 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
             aria-pressed={isItalic}
             title="Italic (Ctrl+I)"
           >
-            <span className={styles.iconItalic} aria-hidden="true">I</span>
+            <span className={styles.iconItalic} aria-hidden="true">
+              I
+            </span>
           </button>
           <button
             type="button"
@@ -385,7 +408,9 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
             aria-pressed={isUnderline}
             title="Underline (Ctrl+U)"
           >
-            <span className={styles.iconUnderline} aria-hidden="true">U</span>
+            <span className={styles.iconUnderline} aria-hidden="true">
+              U
+            </span>
           </button>
 
           <span className={styles.divider} />
@@ -439,7 +464,7 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
             type="button"
             className={styles.secondaryBtn}
             onClick={() => saveBlog("DRAFT")}
-            disabled={!editor || isSaving}
+            disabled={isSaving}
             title="Save as draft"
           >
             {isSaving ? "Saving…" : "Save Draft"}

@@ -1,3 +1,4 @@
+// GenerateAll.kt
 package eu.vitamoments.app.tsgen
 
 import java.io.File
@@ -11,48 +12,63 @@ fun main(args: Array<String>) {
     }
 
     val outDir = File(outDirPath).apply { mkdirs() }
+    val timestamp = Instant.now().toString()
 
-    // clean old outputs
+    val contractsRoot = TsConfig.contractsRoot
+
+    val discovered = TsScan.discoverDomainModules(contractsRoot).toMutableList()
+
+    // Ensure required modules exist even if empty (common.ts needed for manual types)
+    TsConfig.requiredModules.forEach { required ->
+        if (discovered.none { it.name == required }) {
+            discovered += TsScan.DomainModule(required, emptyList())
+        }
+    }
+
+    val modules = discovered.distinctBy { it.name }.sortedBy { it.name }
+
+    // Clean generated .ts files (including typeGuards.ts)
     outDir.listFiles()
         ?.filter { it.isFile && it.extension == "ts" }
         ?.forEach { it.delete() }
 
-    val timestamp = Instant.now().toString()
-    val contractsRoot = "eu.vitamoments.app.api.contracts"
+    val baseOwnership = TsScan.buildSymbolOwnership(modules)
+    val ownership = TsOwnership.applyOverrides(baseOwnership)
 
-    val modules = TsScan.discoverDomainModules(contractsRoot)
-    val ownership = TsScan.buildSymbolOwnership(modules)
+    // Keep final TS per module in memory so we can generate typeGuards.ts afterwards
+    val finalByModule = linkedMapOf<String, String>()
 
     modules.forEach { module ->
         val serializers = TsScan.resolveSerializers(module.classes)
         val rawTs = if (serializers.isEmpty()) "" else TsGenerator.generate(serializers)
 
-        val processed = TsPostProcess.processAutoImports(
+        val processed = TsPostProcess.process(
             rawTs = rawTs,
             headerDate = timestamp,
             ownership = ownership,
             currentModule = module.name
         )
 
-        // Manual generic edge cases (optional)
-        val hasPaged = module.classes.any { it.simpleName == "PagedResultContract" }
+        val finalTs = TsManual.appendManuals(
+            moduleName = module.name,
+            ts = processed
+        ).trimStart().trimEnd() + "\n"
 
-        val finalTs = buildString {
-            append(processed.trim())
-            if (hasPaged) {
-                appendLine()
-                appendLine()
-                append(TsManual.pagedResultContractTs())
-            }
-            appendLine()
-        }.trimStart()
-
-        if (finalTs.isNotBlank()) {
+        // Always write common.ts, others only if non-empty
+        if (finalTs.isNotBlank() || module.name in TsConfig.alwaysWriteModules) {
             File(outDir, "${module.name}.ts").writeText(finalTs)
+            finalByModule[module.name] = finalTs
         }
     }
 
-    // index.ts optional
+    // ✅ Generate typeGuards.ts from the final outputs
+    val typeGuardsTs = TsTypeGuardsGen.generate(
+        headerDate = timestamp,
+        moduleTsByName = finalByModule
+    )
+    File(outDir, "typeGuards.ts").writeText(typeGuardsTs)
+
+    // ✅ index.ts includes typeGuards export
     val index = buildString {
         appendLine("// GENERATED FILE - DO NOT EDIT")
         appendLine("// Date: $timestamp")
@@ -60,6 +76,7 @@ fun main(args: Array<String>) {
         modules.map { it.name }.distinct().sorted().forEach { name ->
             appendLine("""export * from "./$name";""")
         }
+        appendLine("""export * from "./typeGuards";""")
     }
     File(outDir, "index.ts").writeText(index)
 }

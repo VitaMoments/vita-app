@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "gen:ts": "chmod +x ./gradlew && ./gradlew :shared:syncTsModelsToWeb --no-configuration-cache",
-    "build": "npm run gen:ts && cd webApp && npm run buildNoTsc",
+    "build": "npm run gen:ts && cd webApp && npm run build",
     "start": "npm run gen:ts && cd webApp && npm run start"
   },
   "dependencies": {

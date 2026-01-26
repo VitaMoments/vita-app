@@ -8,7 +8,7 @@ dependencies {
     kxsTsGen("dev.adamko.kxstsgen:kxs-ts-gen-core-jvm:0.2.4")
 }
 
-val generatedTsDir = layout.buildDirectory.dir("generated/ts")
+val generatedTsDir = layout.buildDirectory.dir("data/types/ts")
 
 val generateTsModels = tasks.register("generateTsModels", JavaExec::class.java) {
     group = "typescript"
@@ -49,11 +49,11 @@ val generateTsModels = tasks.register("generateTsModels", JavaExec::class.java) 
 
 val syncTsModelsToWeb = tasks.register("syncTsModelsToWeb", Copy::class.java) {
     group = "typescript"
-    description = "Copy generated TS models into webApp/src/generated"
+    description = "Copy generated TS models into webApp/src/data/types"
 
     dependsOn(generateTsModels)
 
     from(generatedTsDir)
     include("**/*.ts")
-    into(rootProject.layout.projectDirectory.dir("webApp/src/generated"))
+    into(rootProject.layout.projectDirectory.dir("webApp/src/data/types"))
 }

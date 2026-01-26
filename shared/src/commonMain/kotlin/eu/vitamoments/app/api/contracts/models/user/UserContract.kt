@@ -1,6 +1,6 @@
 package eu.vitamoments.app.api.contracts.models.user
 
-import eu.vitamoments.app.data.models.dto.user.FriendshipDto
+import eu.vitamoments.app.api.contracts.models.friendship.FriendshipContract
 
 import eu.vitamoments.app.data.enums.UserRole
 import kotlinx.serialization.SerialName
@@ -56,5 +56,5 @@ data class AccountUserContract(
 @SerialName("CONTEXT")
 data class UserWithContextContract(
     val user: UserContract,
-    val friendship: FriendshipDto? = null,
+    val friendship: FriendshipContract? = null,
 ) : UserContract by user

@@ -2,27 +2,26 @@
 import React from "react";
 import { generateHTML } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import type { TimeLinePost } from "../../api/types/timelinePostType";
-import { toAbsoluteUrl } from "../../utils/urls";
+import type { FeedItem } from "../../data/types"
 import styles from "./TimelinePostCard.module.css";
+import { getUserDisplayName, getUserEmail, getUserImageUrl } from "../../data/ui/userHelpers";
 
-type TimelinePostCardProps = {
-  post: TimeLinePost;
-};
 
-export function TimelinePostCard({ post }: TimelinePostCardProps) {
-    const created = new Date(post.createdAt);
-    const html = generateHTML(post.content, [StarterKit]);
+export function TimelinePostCard({ item }: { item: FeedItem.TIMELINEITEM }) {
+    const created = new Date(item.createdAt);
+    const html = generateHTML(item.content.content, [StarterKit]);
 
-    console.log(post)
+    const authorName = getUserDisplayName(item.author);
+    const authorEmail = getUserEmail(item.author);
+    const authorImage = getUserImageUrl(item.author);
 
     return (
         <article className={styles.card}>
         <header className={styles.header}>
-            {post.user.imageUrl ? (
+            {authorImage ? (
             <img
-                src={post.user.imageUrl}
-                alt={post.user.email}
+                src={authorImage}
+                alt={authorEmail}
                 className={styles.avatar}
               />
             ) : (
@@ -30,7 +29,7 @@ export function TimelinePostCard({ post }: TimelinePostCardProps) {
             )}
 
             <div className={styles.meta}>
-              <span className={styles.email}>{post.user.displayName} </span>
+              <span className={styles.email}>{authorName}</span>
               <span className={styles.date}>
                 {created.toLocaleDateString("nl-NL", {
                   day: "2-digit",

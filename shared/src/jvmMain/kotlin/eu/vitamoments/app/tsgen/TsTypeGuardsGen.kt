@@ -37,7 +37,7 @@ object TsTypeGuardsGen {
             appendLine("// Source: Kotlin @Serializable DTOs (kxs-ts-gen)")
             appendLine("// Date: $headerDate")
             appendLine()
-            appendLine("""import type { ${importedTypes.joinToString(", ")} } from "./index";""")
+            appendLine("""import { ${importedTypes.joinToString(", ")} } from "./index";""")
             appendLine()
 
             unions.forEach { u ->

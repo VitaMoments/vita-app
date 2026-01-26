@@ -1,12 +1,12 @@
 import React from "react";
 import Cropper, { Area } from "react-easy-crop";
 import { UserService } from "../../api/service/UserService";
-import { UserDto } from "../../types/userType";
+import { User } from "../../data/types";
 import styles from "./ProfilePhotoUploader.module.css";
 
 type Props = {
   avatarSize?: number; // default 512 (server resizet alsnog)
-  onUpdatedUser?: (user: UserDto) => void; // handig om state te updaten
+  onUpdatedUser?: (user: User) => void; // handig om state te updaten
 };
 
 const ACCEPTED_MIME = new Set(["image/jpeg", "image/png"]);

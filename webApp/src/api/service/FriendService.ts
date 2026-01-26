@@ -1,6 +1,6 @@
 import api from "../axios";
-import { UserContract } from "../types";          // <-- géén import type, want je gebruikt UserContract.Type mogelijk in guards
-import type { PagedResult } from "../types";       // <-- type-only
+import { User } from "../../data/types";
+import type { PagedResult } from "../../data/types";
 
 export type FriendSearchParams = {
   query?: string;
@@ -21,8 +21,8 @@ export const FriendService = {
    * Nieuwe vrienden zoeken (meestal PUBLIC users)
    * Backend: PagedResult<UserContract>
    */
-  async searchNewFriends(params: FriendSearchParams = {}): Promise<PagedResult<UserContract>> {
-    const res = await api.get<PagedResult<UserContract>>("/friends/new", {
+  async searchNewFriends(params: FriendSearchParams = {}): Promise<PagedResult<User>> {
+    const res = await api.get<PagedResult<User>>("/friends/new", {
       params: normalizeParams(params),
     });
 
@@ -34,8 +34,8 @@ export const FriendService = {
    * Je bestaande vrienden (waarschijnlijk CONTEXT, dus inclusief friendship info)
    * Backend: PagedResult<UserContract> (met type CONTEXT items)
    */
-  async searchFriends(params: FriendSearchParams = {}): Promise<PagedResult<UserContract>> {
-    const res = await api.get<PagedResult<UserContract>>("/friends", {
+  async searchFriends(params: FriendSearchParams = {}): Promise<PagedResult<User>> {
+    const res = await api.get<PagedResult<User>>("/friends", {
       params: normalizeParams(params),
     });
 
@@ -46,8 +46,8 @@ export const FriendService = {
    * Friend invites/requests
    * Backend: PagedResult<UserContract> (met CONTEXT items)
    */
-  async friendRequests(params: FriendSearchParams = {}): Promise<PagedResult<UserContract>> {
-    const res = await api.get<PagedResult<UserContract>>("/friends/invites", {
+  async friendRequests(params: FriendSearchParams = {}): Promise<PagedResult<User>> {
+    const res = await api.get<PagedResult<User>>("/friends/invites", {
       params: normalizeParams(params),
     });
 

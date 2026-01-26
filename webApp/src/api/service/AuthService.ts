@@ -1,24 +1,24 @@
 import api from "../axios";
-import { AccountUserDto } from "../../data/types"
+import { User } from "../../data/types"
 
 export const AuthService = {
-  async login(email: string, password: string): Promise<UserContract.ACCOUNT> {
-    const res = await api.post<UserContract.ACCOUNT>("/auth/login", { email, password });
+  async login(email: string, password: string): Promise<User.ACCOUNT> {
+    const res = await api.post<User.ACCOUNT>("/auth/login", { email, password });
     return res.data;
   },
 
-  async register(username: string, email: string, password: string): Promise<UserContract.ACCOUNT> {
-    const res = await api.post<UserContract.ACCOUNT>("/auth/register", { username, email, password });
+  async register(username: string, email: string, password: string): Promise<User.ACCOUNT> {
+    const res = await api.post<User.ACCOUNT>("/auth/register", { username, email, password });
     return res.data;
   },
 
-  async fetchSession(): Promise<UserContract.ACCOUNT> {
-    const res = await api.get<UserContract.ACCOUNT>("/auth/session");
+  async fetchSession(): Promise<User.ACCOUNT> {
+    const res = await api.get<User.ACCOUNT>("/auth/session");
     return res.data;
   },
 
-  async refreshSession(): Promise<UserContract.ACCOUNT> {
-    const res = await api.post<UserContract.ACCOUNT>("/auth/refresh");
+  async refreshSession(): Promise<User.ACCOUNT> {
+    const res = await api.post<User.ACCOUNT>("/auth/refresh");
     return res.data;
   },
 

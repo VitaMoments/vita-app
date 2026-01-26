@@ -5,7 +5,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "className"> & {
   label?: string;
   rightAdornment?: React.ReactNode;
-  inputClassName?: string;
+  className?: string;
 };
 
 type PasswordInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "className"> & {
@@ -14,7 +14,7 @@ type PasswordInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "typ
 };
 
 const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, id, name, rightAdornment, inputClassName, ...rest },
+  { label, id, name, rightAdornment, className, ...rest },
   ref
 ) {
   const reactId = useId();
@@ -31,7 +31,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           ref={ref}
           id={inputId}
           name={name}
-          className={`${styles.input} ${inputClassName ?? ""}`.trim()}
+          className={`${styles.input} ${className ?? ""}`.trim()}
           {...rest}
         />
 

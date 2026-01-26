@@ -1,4 +1,3 @@
-// GenerateAll.kt
 package eu.vitamoments.app.tsgen
 
 import java.io.File
@@ -39,8 +38,17 @@ fun main(args: Array<String>) {
     val finalByModule = linkedMapOf<String, String>()
 
     modules.forEach { module ->
-        val serializers = TsScan.resolveSerializers(module.classes)
-        val rawTs = if (serializers.isEmpty()) "" else TsGenerator.generate(serializers)
+        val rawTs = if (module.name == "enums") {
+            // ✅ GUARANTEE: enums.ts contains ALL enums from contracts.enums (no serializer/annotation dependency)
+            val enumClasses = TsScan.scanEnumClasses(contractsRoot)
+            TsEnumGen.generateEnumsTs(
+                headerDate = timestamp,
+                enumClasses = enumClasses
+            )
+        } else {
+            val serializers = TsScan.resolveSerializers(module.classes)
+            if (serializers.isEmpty()) "" else TsGenerator.generate(serializers)
+        }
 
         val processed = TsPostProcess.process(
             rawTs = rawTs,

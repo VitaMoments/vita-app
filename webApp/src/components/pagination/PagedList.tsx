@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Pagination } from "./Pagination";
-import type { PagedResult } from "../../../api/types/pagedResult/pagedResult"
-import { styles } from "./PagedList.module.css"
+import type { PagedResult } from "../../data/types"
+import styles from "./PagedList.module.css"
 
 
 export type PagedListCtx<T> = {
@@ -29,7 +29,7 @@ export type PagedListProps<T> = {
   resetKey?: string | number;
 
   /** Haal data op voor (limit, offset) */
-  fetchPage: (args: { limit: number; offset: number; signal?: AbortSignal }) => Promise<PageResult<T>>;
+  fetchPage: (args: { limit: number; offset: number; signal?: AbortSignal }) => Promise<PagedResult<T>>;
 
   /** Render 1 item */
   renderItem: (item: T) => React.ReactNode;

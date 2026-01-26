@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import styles from "./FriendsPage.module.css";
 
 import Input from "../../../components/input/Input";
-import { Card } from "../../../components/card/card"
+import { Card } from "../../../components/card/Card"
 
 import { FriendService } from "../../../api/service/FriendService";
 import type { User } from "../../../api/types/user/userDomain";

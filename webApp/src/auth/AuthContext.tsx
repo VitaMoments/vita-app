@@ -6,7 +6,7 @@ import {
   ReactNode,
 } from "react";
 import { AuthService } from "../api/service/AuthService"
-import { User } from "../api/types/userType"
+import { User } from "../data/types"
 
 type AuthContextValue = {
   user: User | null;

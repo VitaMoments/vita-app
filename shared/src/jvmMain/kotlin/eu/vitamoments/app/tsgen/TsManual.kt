@@ -3,14 +3,23 @@ package eu.vitamoments.app.tsgen
 
 object TsManual {
 
+    /**
+     * Adds manual TS blocks to certain modules.
+     * - common.ts: RichTextDocument + PagedResult<T>
+     *
+     * Guarantees:
+     * - Header is always the first lines in the file (TsHeader.ensureHeaderFirst)
+     * - Manual blocks are inserted right after the header
+     */
     fun appendManuals(moduleName: String, ts: String): String {
         var out = ts.trimEnd()
 
+        // Only common gets these shared/manual types
         if (moduleName == "common") {
-            out = injectAfterHeader(out, richTextDocumentTs())
+            out = injectAfterHeader(out, commonManualTs())
         }
 
-        // Hard guarantee: header ends up on top
+        // Hard guarantee: header ends up on top (even if manual contains header-ish lines)
         out = TsHeader.ensureHeaderFirst(out)
 
         return out.trimEnd() + "\n"
@@ -21,7 +30,7 @@ object TsManual {
         val manualBlock = insert.trimEnd() + "\n\n"
 
         return if (split.header == null) {
-            // No header found: prepend manual, ensureHeaderFirst will reorder if header appears later
+            // No header found: put manual first; ensureHeaderFirst() will reorder if needed
             manualBlock + ts.trimStart()
         } else {
             // header + manual + rest
@@ -29,9 +38,13 @@ object TsManual {
         }
     }
 
-    fun richTextDocumentTs(): String = """
+    /**
+     * Manual shared types for common.ts
+     */
+    private fun commonManualTs(): String = """
 // ---- Manually emitted shared types ----
-// RichTextDocument is used across many contracts, but should live in common.ts.
+// RichTextDocument + PagedResult<T> are shared across many contracts,
+// and should live in common.ts (not repeated per module).
 
 import type { JSONContent } from "@tiptap/react";
 
@@ -46,6 +59,15 @@ export interface JsonArray extends Array<JsonValue> {}
 
 export interface RichTextDocument {
   content: JsonObject;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  limit: number;
+  offset: number;
+  total: number;
+  hasMore: boolean;
+  nextOffset?: number | null;
 }
 """.trimIndent()
 }

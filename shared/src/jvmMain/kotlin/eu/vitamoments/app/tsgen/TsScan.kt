@@ -32,15 +32,9 @@ object TsScan {
             val first = segments.getOrNull(0) ?: return@groupBy "common"
 
             when (first) {
-                // ✅ top-level module
                 "enums" -> "enums"
                 "common" -> "common"
-
-                // ✅ domain modules under models/requests/responses
                 "models", "requests", "responses" -> segments.getOrNull(1) ?: "common"
-
-                // ✅ any other top-level folder becomes its own module name
-                // (handig als je later contracts/events.* of contracts/utils.* wilt)
                 else -> first
             }
         }
@@ -61,6 +55,30 @@ object TsScan {
             return result
                 .getClassesWithAnnotation(Serializable::class.qualifiedName)
                 .filter { it.packageName.startsWith(packagePrefix) }
+                .map { it.loadClass() }
+        }
+    }
+
+    /**
+     * ✅ Dedicated enum scan.
+     *
+     * We do NOT rely on @Serializable scanning here.
+     * This guarantees: every enum under `contractsRoot.enums` is included in enums.ts,
+     * as long as it is on the runtime classpath of this generator.
+     */
+    fun scanEnumClasses(contractsRoot: String): List<Class<*>> {
+        val enumPkg = "$contractsRoot.enums"
+
+        val scan = ClassGraph()
+            .enableClassInfo()
+            .ignoreClassVisibility()
+            .acceptPackages(enumPkg)
+            .scan()
+
+        scan.use { result ->
+            return result
+                .allClasses
+                .filter { it.isEnum && it.packageName.startsWith(enumPkg) }
                 .map { it.loadClass() }
         }
     }

@@ -10,7 +10,7 @@ type CardProps = {
   className?: string;
 };
 
-export const Card: React.FC<DefaultCardProps> = ({
+export const Card: React.FC<CardProps> = ({
   title,
   subtitle,
   actions,

@@ -1,1 +1,0 @@
-export type FriendshipStatus = "PENDING" | "ACCEPTED" | "DECLINED" | "REMOVED"

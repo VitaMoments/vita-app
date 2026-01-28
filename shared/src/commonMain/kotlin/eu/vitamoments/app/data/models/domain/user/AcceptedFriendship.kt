@@ -1,17 +1,19 @@
 package eu.vitamoments.app.data.models.domain.user
 
-import eu.vitamoments.app.data.enums.FriendshipDirection
-import eu.vitamoments.app.data.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-
+@Serializable
+@SerialName("ACCEPTED")
 data class AcceptedFriendship(
-    override val id: Uuid,
-    val otherUserId: Uuid,
+    override val uuid: Uuid,
+    override val otherUserId: Uuid,
     override val createdAt: Instant,
     override val updatedAt: Instant,
 ) : Friendship {
-    override val direction: FriendshipDirection = FriendshipDirection.BOTH
+    override val deletedAt: Instant? = null
     override val status: FriendshipStatus = FriendshipStatus.ACCEPTED
 }

@@ -18,13 +18,7 @@ const Header = ({ user }: HeaderProps) => {
   const headerRef = useRef<HTMLElement | null>(null);
 
   const navigate = useNavigate();
-  const { logout } = useAuth(); // ✅ fix
-
-  const handleLogout = async () => {
-    await logout();
-    setOpen(false);
-    navigate("/"); // optioneel
-  };
+  const { logout } = useAuth();
 
   useEffect(() => {
     if (!open) return;
@@ -90,15 +84,6 @@ const Header = ({ user }: HeaderProps) => {
               className={styles.link} // ✅ fix
               onClick={() => setOpen(false)}
             />
-
-            {/* Als je logout knop in menu wil */}
-            <button
-              type="button"
-              className={styles.link}
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
           </>
         )}
       </nav>

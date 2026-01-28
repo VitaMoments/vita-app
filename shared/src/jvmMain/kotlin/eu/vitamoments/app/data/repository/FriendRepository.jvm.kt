@@ -2,22 +2,21 @@ package eu.vitamoments.app.data.repository
 
 import eu.vitamoments.app.data.entities.FriendshipEntity
 import eu.vitamoments.app.data.entities.UserEntity
-import eu.vitamoments.app.data.enums.FriendInviteEventType
-import eu.vitamoments.app.data.enums.FriendshipDirection
-import eu.vitamoments.app.data.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.entity.rowToPrivateResult
 import eu.vitamoments.app.data.mapper.entity.rowToPublicResult
 import eu.vitamoments.app.data.mapper.entity.toDomain
 import eu.vitamoments.app.data.mapper.extension_functions.minus
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
+import eu.vitamoments.app.data.models.domain.common.PagedResult
 import eu.vitamoments.app.data.models.domain.user.AcceptedFriendship
 import eu.vitamoments.app.data.models.domain.user.Friendship
 import eu.vitamoments.app.data.models.domain.user.PendingFriendship
-import eu.vitamoments.app.data.models.domain.user.PrivateUser
 import eu.vitamoments.app.data.models.domain.user.PublicUser
 import eu.vitamoments.app.data.models.domain.user.UserWithContext
-import eu.vitamoments.app.data.models.domain.utils.PagedResult
+import eu.vitamoments.app.data.models.enums.FriendInviteEventType
+import eu.vitamoments.app.data.models.enums.FriendshipDirection
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.tables.FriendshipEventTable
 import eu.vitamoments.app.data.tables.FriendshipsTable
 import eu.vitamoments.app.data.tables.UsersTable
@@ -29,8 +28,6 @@ import eu.vitamoments.app.dbHelpers.queries.incomingRequestsFirst
 import eu.vitamoments.app.dbHelpers.queries.joinFriendships
 import eu.vitamoments.app.dbHelpers.queries.searchPredicate
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toInstant
-import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -51,7 +48,8 @@ import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
 
-class JVMFriendRepository() : FriendRepository {
+class JVMFriendRepository : FriendRepository {
+
     override suspend fun searchNewFriends(
         userId: Uuid,
         query: String?,
@@ -64,7 +62,6 @@ class JVMFriendRepository() : FriendRepository {
         val safeOffset = offset.coerceAtLeast(0).toLong()
 
         val hasFriendship = hasFriendshipExpr(me, UsersTable.id, FriendshipStatus.activeEntries)
-
         val whereExpr = UsersTable.searchPredicate(me, needle) and (hasFriendship neq Op.TRUE)
 
         val total: Long = UsersTable
@@ -121,10 +118,9 @@ class JVMFriendRepository() : FriendRepository {
         val safeOffset = offset.coerceAtLeast(0).toLong()
 
         val joinFriendship = joinFriendships(me, listOf(FriendshipStatus.ACCEPTED))
-
         val whereExpr = UsersTable.searchPredicate(me, needle)
 
-        val total : Long = joinFriendship
+        val total: Long = joinFriendship
             .selectAll()
             .where { whereExpr }
             .count()
@@ -140,7 +136,7 @@ class JVMFriendRepository() : FriendRepository {
                 UserWithContext(
                     user = row.rowToPrivateResult(),
                     friendship = AcceptedFriendship(
-                        id = row[FriendshipsTable.id].value.toKotlinUuid(),
+                        uuid = row[FriendshipsTable.id].value.toKotlinUuid(),
                         otherUserId = row[UsersTable.id].value.toKotlinUuid(),
                         createdAt = row[FriendshipsTable.createdAt].toInstant(),
                         updatedAt = row[FriendshipsTable.updatedAt].toInstant()
@@ -177,7 +173,7 @@ class JVMFriendRepository() : FriendRepository {
         val whereExpr = UsersTable.searchPredicate(me, needle)
         val joinFriendship = joinFriendships(me, listOf(FriendshipStatus.PENDING))
 
-        val total : Long = joinFriendship
+        val total: Long = joinFriendship
             .selectAll()
             .where { whereExpr }
             .count()
@@ -187,33 +183,39 @@ class JVMFriendRepository() : FriendRepository {
             .where { whereExpr }
             .orderBy(
                 incomingRequestsFirst(me) to SortOrder.ASC,
-                UsersTable.username to SortOrder.ASC)
+                UsersTable.username to SortOrder.ASC
+            )
             .limit(safeLimit)
             .offset(safeOffset)
             .toList()
             .map { row ->
-                val direction: FriendshipDirection = if (row[FriendshipsTable.fromUserId].value == me) FriendshipDirection.OUTGOING else FriendshipDirection.INCOMING
+                val direction: FriendshipDirection =
+                    if (row[FriendshipsTable.fromUserId].value == me) FriendshipDirection.OUTGOING
+                    else FriendshipDirection.INCOMING
 
-                val friendship = when(row[FriendshipsTable.status]) {
+                val friendship: Friendship = when (row[FriendshipsTable.status]) {
                     FriendshipStatus.PENDING -> PendingFriendship(
-                        id = row[FriendshipsTable.id].value.toKotlinUuid(),
+                        uuid = row[FriendshipsTable.id].value.toKotlinUuid(),
                         direction = direction,
                         otherUserId = row[UsersTable.id].value.toKotlinUuid(),
                         createdAt = row[FriendshipsTable.createdAt].toInstant(),
                         updatedAt = row[FriendshipsTable.updatedAt].toInstant()
                     )
+
                     FriendshipStatus.ACCEPTED -> AcceptedFriendship(
-                        id = row[FriendshipsTable.id].value.toKotlinUuid(),
+                        uuid = row[FriendshipsTable.id].value.toKotlinUuid(),
                         otherUserId = row[UsersTable.id].value.toKotlinUuid(),
                         createdAt = row[FriendshipsTable.createdAt].toInstant(),
                         updatedAt = row[FriendshipsTable.updatedAt].toInstant()
                     )
-                    else ->  error("activeEntries zou alleen PENDING/ACCEPTED moeten bevatten")
+
+                    else -> error("joinFriendships(activeEntries) zou alleen PENDING/ACCEPTED moeten bevatten")
                 }
 
-                val user = when(friendship) {
+                val user = when (friendship) {
                     is AcceptedFriendship -> row.rowToPrivateResult()
                     is PendingFriendship -> row.rowToPublicResult()
+                    else -> row.rowToPublicResult()
                 }
 
                 UserWithContext(
@@ -241,8 +243,9 @@ class JVMFriendRepository() : FriendRepository {
         val me = userId.toJavaUuid()
         val meRef = EntityID(me, UsersTable)
 
-        val fromIdsSubQuery = FriendshipsTable.select(FriendshipsTable.fromUserId)
-            .where { (FriendshipsTable.toUserId eq meRef) and(FriendshipsTable.status eq FriendshipStatus.PENDING) }
+        val fromIdsSubQuery = FriendshipsTable
+            .select(FriendshipsTable.fromUserId)
+            .where { (FriendshipsTable.toUserId eq meRef) and (FriendshipsTable.status eq FriendshipStatus.PENDING) }
 
         val result = UsersTable
             .selectAll()
@@ -261,14 +264,15 @@ class JVMFriendRepository() : FriendRepository {
         val me = userId.toJavaUuid()
         val meRef = EntityID(me, UsersTable)
 
-        val fromIdsSubQuery = FriendshipsTable.select(FriendshipsTable.toUserId)
-            .where { (FriendshipsTable.fromUserId eq meRef) and(FriendshipsTable.status eq FriendshipStatus.PENDING) }
+        val toIdsSubQuery = FriendshipsTable
+            .select(FriendshipsTable.toUserId)
+            .where { (FriendshipsTable.fromUserId eq meRef) and (FriendshipsTable.status eq FriendshipStatus.PENDING) }
 
         val result = UsersTable
             .selectAll()
             .where {
                 UsersTable.deletedAt.isNull() and
-                        (UsersTable.id inSubQuery fromIdsSubQuery)
+                        (UsersTable.id inSubQuery toIdsSubQuery)
             }
             .orderBy(UsersTable.username to SortOrder.ASC)
             .toList()
@@ -280,18 +284,45 @@ class JVMFriendRepository() : FriendRepository {
     override suspend fun invite(
         userId: Uuid,
         otherId: Uuid
-    ): RepositoryResponse<Friendship> = dbQuery{
-        if (userId == otherId) return@dbQuery RepositoryResponse.Error.InvalidData("id", "You cannot invite yourself")
+    ): RepositoryResponse<Friendship> = dbQuery {
+        val errors = mutableListOf<RepositoryResponse.Error.FieldError>()
+
+        if (userId == otherId) {
+            errors += RepositoryResponse.Error.FieldError(
+                field = "otherId",
+                message = "You cannot invite yourself"
+            )
+        }
 
         val me = userId.toJavaUuid()
         val other = otherId.toJavaUuid()
         val now = LocalDateTime.nowUtc()
 
-        val meUser = UserEntity.findById(me) ?: return@dbQuery RepositoryResponse.Error.InvalidData("id", "User not found")
-        val otherUser = UserEntity.findById(other) ?: return@dbQuery RepositoryResponse.Error.InvalidData("id", "Target friend not found")
-        val (pairA, pairB) = canonicalPair(me, other)
+        val meUser = UserEntity.findById(me)
+        val otherUser = UserEntity.findById(other)
 
+        if (meUser == null) {
+            errors += RepositoryResponse.Error.FieldError(
+                field = "userId",
+                message = "User with id: $me is not found"
+            )
+        }
+
+        if (otherUser == null) {
+            errors += RepositoryResponse.Error.FieldError(
+                field = "otherId",
+                message = "User with id: $other is not found"
+            )
+        }
+
+        // ✅ Input/validation errors -> 400
+        if (errors.isNotEmpty()) {
+            return@dbQuery RepositoryResponse.Error.Validation(errors = errors)
+        }
+
+        val (pairA, pairB) = canonicalPair(me, other)
         val cooldownSince = now.minus(1.days)
+
         val hasRecentDecline = FriendshipEventTable
             .select(FriendshipEventTable.id)
             .where {
@@ -331,31 +362,53 @@ class JVMFriendRepository() : FriendRepository {
         val entity = if (existing != null) {
             val id = existing[FriendshipsTable.id].value
             when (existing[FriendshipsTable.status]) {
-                FriendshipStatus.ACCEPTED -> return@dbQuery RepositoryResponse.Error.InvalidData("friendrequest", "Users are friends already")
-                FriendshipStatus.PENDING -> return@dbQuery RepositoryResponse.Error.InvalidData("friendrequest", "Invite is already pending")
+                FriendshipStatus.ACCEPTED -> {
+                    // ✅ State conflict -> 409
+                    return@dbQuery RepositoryResponse.Error.Conflict(
+                        errors = listOf(
+                            RepositoryResponse.Error.FieldError(
+                                field = "friendrequest",
+                                message = "Users are friends already"
+                            )
+                        )
+                    )
+                }
+
+                FriendshipStatus.PENDING -> {
+                    // ✅ State conflict -> 409
+                    return@dbQuery RepositoryResponse.Error.Conflict(
+                        errors = listOf(
+                            RepositoryResponse.Error.FieldError(
+                                field = "friendrequest",
+                                message = "Invite is already pending"
+                            )
+                        )
+                    )
+                }
+
                 FriendshipStatus.DECLINED, FriendshipStatus.REMOVED -> {
                     FriendshipEntity.findByIdAndUpdate(id) { e ->
                         e.status = FriendshipStatus.PENDING
-                        e.fromUserId = meUser.id
-                        e.toUserId = otherUser.id
+                        e.fromUserId = meUser!!.id
+                        e.toUserId = otherUser!!.id
                         e.updatedAt = now
                     } ?: return@dbQuery RepositoryResponse.Error.Internal()
                 }
-                else -> return@dbQuery RepositoryResponse.Error.Internal()
             }
         } else {
             val pairAUser = if (pairA == me) meUser else otherUser
             val pairBUser = if (pairB == me) meUser else otherUser
 
             FriendshipEntity.new {
-                fromUserId = meUser.id
-                toUserId = otherUser.id
-                this.pairA = pairAUser
-                this.pairB = pairBUser
+                fromUserId = meUser!!.id
+                toUserId = otherUser!!.id
+                this.pairA = pairAUser!!
+                this.pairB = pairBUser!!
                 status = FriendshipStatus.PENDING
                 updatedAt = now
             }
         }
+
         logEvent(
             actor = me,
             other = other,
@@ -365,15 +418,25 @@ class JVMFriendRepository() : FriendRepository {
             preferredEventTypeName = "PENDING",
             action = "pending",
         )
+
         RepositoryResponse.Success(entity.toDomain(userId))
     }
 
     override suspend fun accept(
         userId: Uuid,
         otherId: Uuid
-    ): RepositoryResponse<Friendship> = dbQuery{
+    ): RepositoryResponse<Friendship> = dbQuery {
+        val errors = mutableListOf<RepositoryResponse.Error.FieldError>()
+
         if (userId == otherId) {
-            return@dbQuery RepositoryResponse.Error.InvalidData("id", "You cannot accept yourself")
+            errors += RepositoryResponse.Error.FieldError(
+                field = "otherId",
+                message = "You cannot accept yourself"
+            )
+        }
+
+        if (errors.isNotEmpty()) {
+            return@dbQuery RepositoryResponse.Error.Validation(errors = errors)
         }
 
         val me = userId.toJavaUuid()
@@ -382,13 +445,22 @@ class JVMFriendRepository() : FriendRepository {
         val (pairA, pairB) = canonicalPair(me, other)
 
         val record = findFriendshipByPair(pairA, pairB)
-            ?: return@dbQuery RepositoryResponse.Error.InvalidData("friendrequest", "Invite not found")
+            ?: return@dbQuery RepositoryResponse.Error.NotFound("Invite not found")
 
         if (record.status != FriendshipStatus.PENDING) {
-            return@dbQuery RepositoryResponse.Error.InvalidData("friendrequest", "Invite is not pending")
+            return@dbQuery RepositoryResponse.Error.Conflict(
+                errors = listOf(
+                    RepositoryResponse.Error.FieldError(
+                        field = "friendrequest",
+                        message = "Invite is not pending"
+                    )
+                )
+            )
         }
+
         if (record.toUserId != me) {
-            return@dbQuery RepositoryResponse.Error.InvalidData("friendrequest", "Only the receiver can accept an invite")
+            // (semantisch 403, maar als je geen Forbidden hebt: Unauthorized werkt ook)
+            return@dbQuery RepositoryResponse.Error.Unauthorized("Only the receiver can accept an invite")
         }
 
         val entity = FriendshipEntity.findByIdAndUpdate(record.id) { e ->
@@ -412,9 +484,18 @@ class JVMFriendRepository() : FriendRepository {
     override suspend fun delete(
         userId: Uuid,
         otherId: Uuid
-    ): RepositoryResponse<Friendship> = dbQuery{
+    ): RepositoryResponse<Friendship> = dbQuery {
+        val errors = mutableListOf<RepositoryResponse.Error.FieldError>()
+
         if (userId == otherId) {
-            return@dbQuery RepositoryResponse.Error.InvalidData("id", "You cannot remove yourself")
+            errors += RepositoryResponse.Error.FieldError(
+                field = "otherId",
+                message = "You cannot remove yourself"
+            )
+        }
+
+        if (errors.isNotEmpty()) {
+            return@dbQuery RepositoryResponse.Error.Validation(errors = errors)
         }
 
         val me = userId.toJavaUuid()
@@ -423,32 +504,70 @@ class JVMFriendRepository() : FriendRepository {
         val (pairA, pairB) = canonicalPair(me, other)
 
         val record = findFriendshipByPair(pairA, pairB)
-            ?: return@dbQuery RepositoryResponse.Error.InvalidData("friendship", "Friendship not found")
+            ?: return@dbQuery RepositoryResponse.Error.NotFound("Friendship not found")
 
         val (newStatus, preferredEventTypeName, action, metaJson) = when (record.status) {
             FriendshipStatus.ACCEPTED ->
-                Quad(FriendshipStatus.REMOVED, "REMOVED", "removed", """{"reason":"unfriended"}""")
+                Quad(
+                    FriendshipStatus.REMOVED,
+                    "REMOVED",
+                    "removed",
+                    """{"reason":"unfriended"}"""
+                )
 
             FriendshipStatus.PENDING -> {
                 when (me) {
                     record.fromUserId ->
-                        Quad(FriendshipStatus.REMOVED, "CANCELLED", "cancelled", """{"reason":"cancelled_by_sender"}""")
+                        Quad(
+                            FriendshipStatus.REMOVED,
+                            "CANCELLED",
+                            "cancelled",
+                            """{"reason":"cancelled_by_sender"}"""
+                        )
+
                     record.toUserId ->
                         // keep DECLINED so your cooldown logic stays consistent
-                        Quad(FriendshipStatus.DECLINED, "DECLINED", "declined", """{"reason":"removed_pending_by_receiver"}""")
+                        Quad(
+                            FriendshipStatus.DECLINED,
+                            "DECLINED",
+                            "declined",
+                            """{"reason":"removed_pending_by_receiver"}"""
+                        )
+
                     else ->
                         return@dbQuery RepositoryResponse.Error.Internal()
                 }
             }
 
             FriendshipStatus.REMOVED ->
-                return@dbQuery RepositoryResponse.Error.InvalidData("friendship", "Friendship already removed")
+                return@dbQuery RepositoryResponse.Error.Conflict(
+                    errors = listOf(
+                        RepositoryResponse.Error.FieldError(
+                            field = "friendship",
+                            message = "Friendship already removed"
+                        )
+                    )
+                )
 
             FriendshipStatus.DECLINED ->
-                return@dbQuery RepositoryResponse.Error.InvalidData("friendrequest", "Invite already declined")
+                return@dbQuery RepositoryResponse.Error.Conflict(
+                    errors = listOf(
+                        RepositoryResponse.Error.FieldError(
+                            field = "friendrequest",
+                            message = "Invite already declined"
+                        )
+                    )
+                )
 
             else ->
-                return@dbQuery RepositoryResponse.Error.InvalidData("friendship", "Unsupported status: ${record.status}")
+                return@dbQuery RepositoryResponse.Error.Conflict(
+                    errors = listOf(
+                        RepositoryResponse.Error.FieldError(
+                            field = "friendship",
+                            message = "Unsupported status: ${record.status}"
+                        )
+                    )
+                )
         }
 
         val entity = FriendshipEntity.findByIdAndUpdate(record.id) { e ->
@@ -473,23 +592,41 @@ class JVMFriendRepository() : FriendRepository {
     override suspend fun decline(
         userId: Uuid,
         otherId: Uuid
-    ): RepositoryResponse<Friendship> = dbQuery{
+    ): RepositoryResponse<Friendship> = dbQuery {
+        val errors = mutableListOf<RepositoryResponse.Error.FieldError>()
+
         if (userId == otherId) {
-            return@dbQuery RepositoryResponse.Error.InvalidData("id", "You cannot decline yourself")
+            errors += RepositoryResponse.Error.FieldError(
+                field = "otherId",
+                message = "You cannot decline yourself"
+            )
         }
+
+        if (errors.isNotEmpty()) {
+            return@dbQuery RepositoryResponse.Error.Validation(errors = errors)
+        }
+
         val me = userId.toJavaUuid()
         val other = otherId.toJavaUuid()
         val now = LocalDateTime.nowUtc()
         val (pairA, pairB) = canonicalPair(me, other)
 
         val record = findFriendshipByPair(pairA, pairB)
-            ?: return@dbQuery RepositoryResponse.Error.InvalidData("friendrequest", "Invite not found")
+            ?: return@dbQuery RepositoryResponse.Error.NotFound("Invite not found")
 
         if (record.status != FriendshipStatus.PENDING) {
-            return@dbQuery RepositoryResponse.Error.InvalidData("friendrequest", "Invite is not pending")
+            return@dbQuery RepositoryResponse.Error.Conflict(
+                errors = listOf(
+                    RepositoryResponse.Error.FieldError(
+                        field = "friendrequest",
+                        message = "Invite is not pending"
+                    )
+                )
+            )
         }
+
         if (record.toUserId != me) {
-            return@dbQuery RepositoryResponse.Error.InvalidData("friendrequest", "Only the receiver can decline an invite")
+            return@dbQuery RepositoryResponse.Error.Unauthorized("Only the receiver can decline an invite")
         }
 
         val entity = FriendshipEntity.findByIdAndUpdate(record.id) { e ->
@@ -530,6 +667,7 @@ class JVMFriendRepository() : FriendRepository {
             metaJson == null -> """{"action":"$action"}"""
             metaJson.trim().startsWith("{") ->
                 metaJson.trim().removePrefix("{").let { rest -> """{"action":"$action",$rest""" }
+
             else -> """{"action":"$action","meta":${metaJson.trim()}}"""
         }
 
@@ -553,9 +691,6 @@ class JVMFriendRepository() : FriendRepository {
         val authors = authorUuids.distinct().filter { it != viewerUuid }
         if (authors.isEmpty()) return emptyMap()
 
-        // Canonieke splits:
-        // viewer < author -> (pairA=viewer, pairB=author)
-        // author < viewer -> (pairA=author, pairB=viewer)
         val (greaterThanViewer, lessThanViewer) = authors.partition { it > viewerUuid }
 
         val rows = FriendshipsTable
@@ -573,4 +708,3 @@ class JVMFriendRepository() : FriendRepository {
         }
     }
 }
-

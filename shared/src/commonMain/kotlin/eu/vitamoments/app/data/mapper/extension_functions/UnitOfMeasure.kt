@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.mapper.extension_functions
 
-import eu.vitamoments.app.data.models.domain.nevo.UnitOfMeasure
+import eu.vitamoments.app.data.domains_for_later.nevo.UnitOfMeasure
 
 fun UnitOfMeasure.defaultDecimals(): Int = when (this) {
     is UnitOfMeasure.Known -> when (this) {

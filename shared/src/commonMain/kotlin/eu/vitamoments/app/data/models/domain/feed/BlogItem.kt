@@ -1,13 +1,17 @@
 package eu.vitamoments.app.data.models.domain.feed
 
-import eu.vitamoments.app.data.enums.BlogCategory
-import eu.vitamoments.app.data.enums.BlogStatus
-import eu.vitamoments.app.data.enums.PrivacyStatus
-import eu.vitamoments.app.data.models.domain.richtext.RichTextDocument
+import eu.vitamoments.app.data.models.enums.BlogCategory
+import eu.vitamoments.app.data.models.enums.BlogStatus
+import eu.vitamoments.app.data.models.enums.PrivacyStatus
+import eu.vitamoments.app.data.models.domain.common.RichTextDocument
 import eu.vitamoments.app.data.models.domain.user.User
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
+@Serializable
+@SerialName("BLOGITEM")
 data class BlogItem(
     override val uuid: Uuid,
     override val author: User,

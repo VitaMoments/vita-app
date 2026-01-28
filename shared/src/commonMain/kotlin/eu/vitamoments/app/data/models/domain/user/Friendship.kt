@@ -1,14 +1,17 @@
 package eu.vitamoments.app.data.models.domain.user
 
-import eu.vitamoments.app.data.enums.FriendshipDirection
-import eu.vitamoments.app.data.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
+@Serializable
 sealed interface Friendship {
-    val id: Uuid
+    val uuid: Uuid
+    val otherUserId: Uuid
     val status: FriendshipStatus
-    val direction: FriendshipDirection
-    val createdAt: Instant
-    val updatedAt: Instant
+    @Contextual val createdAt: Instant
+    @Contextual val updatedAt: Instant
+    @Contextual val deletedAt: Instant?
 }

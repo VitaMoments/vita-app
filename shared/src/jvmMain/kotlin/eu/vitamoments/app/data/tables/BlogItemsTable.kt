@@ -1,7 +1,7 @@
 package eu.vitamoments.app.data.tables
 
-import eu.vitamoments.app.data.enums.BlogStatus
-import eu.vitamoments.app.data.enums.PrivacyStatus
+import eu.vitamoments.app.data.models.enums.BlogStatus
+import eu.vitamoments.app.data.models.enums.PrivacyStatus
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json

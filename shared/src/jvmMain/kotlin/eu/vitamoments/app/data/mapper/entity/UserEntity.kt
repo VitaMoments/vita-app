@@ -1,7 +1,7 @@
 package eu.vitamoments.app.data.mapper.entity
 
 import eu.vitamoments.app.data.entities.UserEntity
-import eu.vitamoments.app.data.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.models.domain.user.AccountUser
 import eu.vitamoments.app.data.models.domain.user.PrivateUser
@@ -13,8 +13,8 @@ import kotlin.uuid.Uuid
 import kotlin.uuid.toKotlinUuid
 
 
-fun UserEntity.toDomainForVieuwer(viewerUuid: Uuid, status: FriendshipStatus? = null) : User {
-    val authorUuid = this.id.value.toKotlinUuid()
+fun UserEntity.toDomainForViewer(viewerUuid: Uuid, status: FriendshipStatus? = null) : User {
+    val authorUuid = this.uuid()
     return when {
         authorUuid == viewerUuid -> this.toAccountDomain()
         status == FriendshipStatus.ACCEPTED -> this.toPrivateDomain()
@@ -23,23 +23,23 @@ fun UserEntity.toDomainForVieuwer(viewerUuid: Uuid, status: FriendshipStatus? = 
 }
 
 fun UserEntity.toPrivateDomain() : PrivateUser = PrivateUser(
-    uuid = this.id.value.toKotlinUuid(),
+    uuid = this.uuid(),
     username = this.username,
     email = this.email,
-    alias = this.alias,
+    displayName = this.displayName(),
     bio = this.bio,
     role = this.role,
     imageUrl = this.imageUrl
 )
 fun UserEntity.toPublicDomain() : PublicUser = PublicUser(
-    uuid = this.id.value.toKotlinUuid(),
-    alias = this.alias ?: this.username,
+    uuid = this.uuid(),
+    displayName = this.displayName(),
     bio = this.bio,
     imageUrl = this.imageUrl
 )
 
 fun UserEntity.toAccountDomain() : AccountUser = AccountUser(
-    uuid = this.id.value.toKotlinUuid(),
+    uuid = this.uuid(),
     username = this.username,
     alias = this.alias,
     bio = this.bio,
@@ -53,14 +53,14 @@ fun UserEntity.toAccountDomain() : AccountUser = AccountUser(
 
 fun ResultRow.rowToPublicResult() : PublicUser = PublicUser(
     uuid = this.userUuid(),
-    alias = this.displayName(),
+    displayName = this.displayName(),
     bio = this[UsersTable.bio],
     imageUrl = this[UsersTable.imageUrl]
 )
 fun ResultRow.rowToPrivateResult() : PrivateUser = PrivateUser(
     uuid = this.userUuid(),
     username = this[UsersTable.username],
-    alias = this.displayName(),
+    displayName = this.displayName(),
     bio = this[UsersTable.bio],
     imageUrl = this[UsersTable.imageUrl],
     role = this[UsersTable.role],
@@ -84,3 +84,9 @@ private fun ResultRow.userUuid() =
 
 private fun ResultRow.displayName(): String =
     this[UsersTable.alias] ?: this[UsersTable.username]
+
+private fun UserEntity.displayName(): String =
+    this.alias ?: this.username
+
+private fun UserEntity.uuid() =
+    this.id.value.toKotlinUuid()

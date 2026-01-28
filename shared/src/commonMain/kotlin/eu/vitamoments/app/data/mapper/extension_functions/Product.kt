@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.mapper.extension_functions
 
-import eu.vitamoments.app.data.models.domain.nevo.Product
+import eu.vitamoments.app.data.domains_for_later.nevo.Product
 
 fun Product.nutrientMapUnsafeOverwrite(): Map<String, Long?> =
     nutrients.associate { it.nutrient.code to it.value }

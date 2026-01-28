@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.records
 
-import eu.vitamoments.app.data.enums.FriendInviteEventType
+import eu.vitamoments.app.data.models.enums.FriendInviteEventType
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.tables.FriendshipEventTable
 import org.jetbrains.exposed.v1.core.ResultRow

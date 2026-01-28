@@ -14,12 +14,12 @@ import eu.vitamoments.app.api.helpers.clearAuthCookies
 import eu.vitamoments.app.api.helpers.requireRefreshToken
 import eu.vitamoments.app.api.helpers.requireUserId
 import eu.vitamoments.app.api.helpers.setAuthCookies
-import eu.vitamoments.app.data.mapper.extension_functions.respondRepositoryResponse
-import eu.vitamoments.app.data.mapper.toDto
 import eu.vitamoments.app.data.models.domain.AuthSession
+import eu.vitamoments.app.data.models.domain.user.AccountUser
 import eu.vitamoments.app.data.models.domain.user.User
-import eu.vitamoments.app.data.models.dto.auth.LoginDto
-import eu.vitamoments.app.data.models.dto.auth.RegistrationDto
+import eu.vitamoments.app.data.models.requests.auth_requests.LoginRequest
+import eu.vitamoments.app.data.models.requests.auth_requests.RegistrationRequest
+import eu.vitamoments.app.data.models.requests.respondRepository
 import eu.vitamoments.app.data.repository.RepositoryResponse
 import eu.vitamoments.app.data.repository.ServerAuthRepository
 import eu.vitamoments.app.data.repository.UserRepository
@@ -33,8 +33,8 @@ fun Route.authRoutes() {
 
     route("/auth") {
         post("/register") {
-            val registrationDto : RegistrationDto = call.receive()
-            val result: RepositoryResponse<AuthSession> = authRepo.register(username = registrationDto.username, email = registrationDto.email, password = registrationDto.password)
+            val request: RegistrationRequest = call.receive()
+            val result: RepositoryResponse<AuthSession> = authRepo.register(username = request.username, email = request.email, password = request.password)
 
             when (result) {
                 is RepositoryResponse.Success -> {
@@ -43,18 +43,20 @@ fun Route.authRoutes() {
                 }
                 else -> result
             }
-            call.respondRepositoryResponse(result, HttpStatusCode.Created) { session -> session.user.toDto() }
+            call.respond(result)
+            call.respondRepository(result)
         }
 
         post("/login") {
-            val loginDto : LoginDto = call.receive()
-            val result: RepositoryResponse<AuthSession> = authRepo.login(email = loginDto.email, password = loginDto.password)
-
+            val request : LoginRequest = call.receive()
+            val result: RepositoryResponse<AuthSession> = authRepo.login(email = request.email, password = request.password)
             if (result is RepositoryResponse.Success) {
                 val session = result.body
                 call.setAuthCookies(session)
+                call.respondRepository(RepositoryResponse.Success(result.body.user))
+            } else {
+                call.respond(result)
             }
-            call.respondRepositoryResponse(result) { session -> session.user.toDto() }
         }
 
         post("/refresh") {
@@ -64,8 +66,10 @@ fun Route.authRoutes() {
             if (result is RepositoryResponse.Success) {
                 val session = result.body
                 call.setAuthCookies(session)
+                call.respondRepository(RepositoryResponse.Success(result.body.user))
+            } else {
+                call.respond(result)
             }
-            call.respondRepositoryResponse(result, HttpStatusCode.Created) { session -> session.user.toDto() }
         }
 
         post("/logout") {
@@ -79,8 +83,8 @@ fun Route.authRoutes() {
         authenticate("cookie-jwt-authentication") {
             get("/session") {
                 val userId : Uuid = call.requireUserId()
-                val result: RepositoryResponse<User> = userRepo.getMyAccount(userId = userId)
-                call.respondRepositoryResponse(result) { user -> user.toDto() }
+                val result: RepositoryResponse<AccountUser> = userRepo.getMyAccount(userId = userId)
+                call.respondRepository(result)
             }
         }
     }

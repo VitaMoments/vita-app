@@ -1,13 +1,9 @@
 package eu.vitamoments.app.routes.api
 
 import eu.vitamoments.app.api.helpers.requireUserId
-import eu.vitamoments.app.data.mapper.extension_functions.respondRepositoryResponse
-import eu.vitamoments.app.data.mapper.toDto
-import eu.vitamoments.app.data.mapper.utils.toDto
-import eu.vitamoments.app.data.models.dto.user.AcceptFriendInviteDto
-import eu.vitamoments.app.data.models.dto.user.DeclineFriendInviteDto
-import eu.vitamoments.app.data.models.dto.user.FriendInviteDto
-import eu.vitamoments.app.data.models.dto.user.RemoveFriendshipDto
+import eu.vitamoments.app.data.models.requests.friendship_requests.InviteFriendshipRequest
+import eu.vitamoments.app.data.models.requests.friendship_requests.UpdateFriendshipRequest
+import eu.vitamoments.app.data.models.requests.respondRepository
 import eu.vitamoments.app.data.repository.FriendRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -34,10 +30,7 @@ fun Route.friendRoutes() {
                 limit = safeLimit,
                 offset = safeOffset
             )
-
-            call.respondRepositoryResponse(page, HttpStatusCode.OK) { result ->
-                result.toDto { it.toDto() }
-            }
+            call.respondRepository(page)
         }
 
         get("/new") {
@@ -54,41 +47,39 @@ fun Route.friendRoutes() {
                 offset = offset
             )
 
-            call.respondRepositoryResponse(page, HttpStatusCode.OK) { result ->
-                result.toDto { it.toDto() }
-            }
+            call.respondRepository(page)
         }
 
         post("/invite") {
             val userId = call.requireUserId()
-            val dto: FriendInviteDto = call.receive()
+            val request: InviteFriendshipRequest = call.receive()
 
-            val result = friendRepo.invite(userId, dto.friendId)
-            call.respondRepositoryResponse(result) { it.toDto() }
+            val result = friendRepo.invite(userId, request.userId)
+            call.respondRepository(result)
         }
 
         post("/accept") {
             val userId = call.requireUserId()
-            val dto: AcceptFriendInviteDto = call.receive()
+            val request: UpdateFriendshipRequest = call.receive()
 
-            val result = friendRepo.accept(userId, dto.friendId)
-            call.respondRepositoryResponse(result) { it.toDto() }
+            val result = friendRepo.accept(userId, request.friendship.otherUserId)
+            call.respondRepository(result)
         }
 
         post("/reject") {
             val userId = call.requireUserId()
-            val dto: DeclineFriendInviteDto = call.receive()
+            val request: UpdateFriendshipRequest = call.receive()
 
-            val result = friendRepo.decline(userId, dto.friendId)
-            call.respondRepositoryResponse(result) { it.toDto() }
+            val result = friendRepo.decline(userId, request.friendship.otherUserId)
+            call.respondRepository(result)
         }
 
         post("/revoke") {
             val userId = call.requireUserId()
-            val dto: RemoveFriendshipDto = call.receive()
+            val request: UpdateFriendshipRequest = call.receive()
 
-            val result = friendRepo.delete(userId, dto.friendId)
-            call.respondRepositoryResponse(result) { it.toDto() }
+            val result = friendRepo.delete(userId, request.friendship.otherUserId)
+            call.respondRepository(result)
         }
 
         get("/invites") {
@@ -105,9 +96,7 @@ fun Route.friendRoutes() {
                 offset = safeOffset
             )
 
-            call.respondRepositoryResponse(page, HttpStatusCode.OK) { result ->
-                result.toDto { it.toDto() }
-            }
+            call.respondRepository(page)
         }
     }
 }

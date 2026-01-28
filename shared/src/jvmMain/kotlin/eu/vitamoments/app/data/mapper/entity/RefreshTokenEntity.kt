@@ -2,7 +2,7 @@ package eu.vitamoments.app.data.mapper.entity
 
 import eu.vitamoments.app.data.entities.RefreshTokenEntity
 import eu.vitamoments.app.data.entities.UserEntity
-import eu.vitamoments.app.data.enums.AuthTokenType
+import eu.vitamoments.app.data.models.enums.AuthTokenType
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.models.domain.AuthToken
 import eu.vitamoments.app.mappers.toUtcLocalDateTime

@@ -1,7 +1,7 @@
 package eu.vitamoments.app.data.repository
 
 import eu.vitamoments.app.data.entities.UserEntity
-import eu.vitamoments.app.data.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.entity.toAccountDomain
 import eu.vitamoments.app.data.mapper.entity.toPrivateDomain
 import eu.vitamoments.app.data.mapper.entity.toPublicDomain

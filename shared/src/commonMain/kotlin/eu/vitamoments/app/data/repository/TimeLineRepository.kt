@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.repository
 
-import eu.vitamoments.app.data.enums.TimeLineFeed
+import eu.vitamoments.app.data.models.enums.TimeLineFeed
 import kotlinx.serialization.json.JsonObject
 import eu.vitamoments.app.data.models.domain.feed.TimelineItem
 import kotlin.uuid.Uuid

@@ -2,10 +2,10 @@
 package eu.vitamoments.app.tsgen
 
 object TsConfig {
-    const val contractsRoot: String = "eu.vitamoments.app.api.contracts"
+    const val contractsRoot: String = "eu.vitamoments.app.data.models"
 
     val requiredModules: Set<String> = setOf("common", "enums")
-    val alwaysWriteModules: Set<String> = setOf("common")
+    val alwaysWriteModules: Set<String> = setOf("common", "enums")
 
     // ✅ Kotlin FooContract -> TS Foo
     const val stripContractSuffix: Boolean = true

@@ -12,11 +12,10 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import eu.vitamoments.app.api.helpers.requireUserId
-import eu.vitamoments.app.data.enums.TimeLineFeed
-import eu.vitamoments.app.data.mapper.extension_functions.respondRepositoryResponse
-import eu.vitamoments.app.data.mapper.toDto
+import eu.vitamoments.app.data.models.enums.TimeLineFeed
 import eu.vitamoments.app.data.models.domain.feed.TimelineItem
-import eu.vitamoments.app.data.models.dto.feed.WriteTimelineItemDto
+import eu.vitamoments.app.data.models.requests.respondRepository
+import eu.vitamoments.app.data.models.requests.timeline_requests.CreateTimelineItemRequest
 import eu.vitamoments.app.data.repository.FriendRepository
 import eu.vitamoments.app.data.repository.RepositoryResponse
 import eu.vitamoments.app.data.repository.TimeLineRepository
@@ -31,12 +30,12 @@ fun Route.timelineRoutes() {
 
     route("/timeline") {
         post {
-            val writeTimelineItemDto : WriteTimelineItemDto = call.receive()
+            val request : CreateTimelineItemRequest = call.receive()
             val userid: Uuid = call.requireUserId()
 
-            val result: RepositoryResponse<TimelineItem> = timeLineRepo.createPost(userid, writeTimelineItemDto.content)
+            val result: RepositoryResponse<TimelineItem> = timeLineRepo.createPost(userid, request.document.content)
 
-            call.respondRepositoryResponse(result, HttpStatusCode.Created) { timeLinePost -> timeLinePost.toDto()}
+            call.respondRepository(result, HttpStatusCode.Created)
         }
 
         get {
@@ -54,7 +53,7 @@ fun Route.timelineRoutes() {
             }
 
             val result: RepositoryResponse<List<TimelineItem>> = timeLineRepo.getTimeLine(userId, feed,params["limit"]?.toInt() ?: 100, params["offset"]?.toLong() ?: 0)
-            call.respondRepositoryResponse(result, HttpStatusCode.OK) { list -> list.map { it.toDto() }}
+            call.respondRepository(result)
         }
 
         delete {

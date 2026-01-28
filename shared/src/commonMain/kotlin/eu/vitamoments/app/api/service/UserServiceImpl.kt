@@ -1,16 +1,9 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.api.service
 
 import io.ktor.client.HttpClient
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import eu.vitamoments.app.data.models.dto.user.PrivateUserDto
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import io.ktor.http.parameters
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class UserServiceImpl(private val client: HttpClient) : UserService {

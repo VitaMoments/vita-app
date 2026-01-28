@@ -1,0 +1,2 @@
+ALTER TABLE friendships
+ADD COLUMN deleted_at TIMESTAMP NULL

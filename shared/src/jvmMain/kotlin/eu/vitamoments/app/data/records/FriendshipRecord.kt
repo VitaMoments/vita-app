@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.records
 
-import eu.vitamoments.app.data.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.tables.FriendshipsTable
 import org.jetbrains.exposed.v1.core.ResultRow
 import java.util.UUID

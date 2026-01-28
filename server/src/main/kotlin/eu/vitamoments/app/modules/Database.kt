@@ -6,8 +6,8 @@ import io.ktor.server.application.Application
 import eu.vitamoments.app.config.Config
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.config.helpers.findProjectRoot
-import eu.vitamoments.app.data.enums.UserRole.ADMIN
-import eu.vitamoments.app.data.enums.UserRole.USER
+import eu.vitamoments.app.data.models.enums.UserRole.ADMIN
+import eu.vitamoments.app.data.models.enums.UserRole.USER
 import eu.vitamoments.app.data.tables.nevo.ProductsTable
 import eu.vitamoments.app.dbHelpers.PasswordHasher
 import eu.vitamoments.app.services.importNevoCsvIntoPostgres

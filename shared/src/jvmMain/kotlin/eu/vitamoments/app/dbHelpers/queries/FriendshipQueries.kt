@@ -1,14 +1,12 @@
 package eu.vitamoments.app.dbHelpers.queries
 
-import eu.vitamoments.app.data.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.records.FriendshipRecord
 import eu.vitamoments.app.data.tables.FriendshipsTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.dbHelpers.canonicalPair
 import org.jetbrains.exposed.v1.core.Case
 import org.jetbrains.exposed.v1.core.Column
-import org.jetbrains.exposed.v1.core.Exists
-import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
 import org.jetbrains.exposed.v1.core.Join
 import org.jetbrains.exposed.v1.core.JoinType
@@ -24,7 +22,6 @@ import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.UUID
-import kotlin.enums.EnumEntries
 import kotlin.uuid.Uuid
 
 fun findFriendshipByUuid(userId: Uuid, target: Uuid): FriendshipRecord? =

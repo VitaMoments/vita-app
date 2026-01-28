@@ -6,7 +6,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.utils.io.InternalAPI
-import eu.vitamoments.app.data.enums.AuthTokenType
+import eu.vitamoments.app.data.models.enums.AuthTokenType
 import eu.vitamoments.app.data.models.domain.AuthToken
 import eu.vitamoments.app.data.models.domain.user.User
 import java.util.Date

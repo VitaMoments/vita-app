@@ -15,4 +15,5 @@ class FriendshipEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var status by FriendshipsTable.status
     var createdAt by FriendshipsTable.createdAt
     var updatedAt by FriendshipsTable.updatedAt
+    var deletedAt by FriendshipsTable.deletedAt
 }

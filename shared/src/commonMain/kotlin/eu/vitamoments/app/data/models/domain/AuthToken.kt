@@ -1,10 +1,12 @@
 package eu.vitamoments.app.data.models.domain
 
 import kotlinx.datetime.LocalDateTime
-import eu.vitamoments.app.data.enums.AuthTokenType
+import eu.vitamoments.app.data.models.enums.AuthTokenType
+import kotlinx.serialization.Serializable
 import kotlin.time.Clock
 import kotlin.time.Instant
 
+@Serializable
 data class AuthToken(
     val token: String,
     val expiredAt: Instant,

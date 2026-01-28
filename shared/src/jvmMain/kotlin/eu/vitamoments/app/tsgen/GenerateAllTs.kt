@@ -31,24 +31,19 @@ fun main(args: Array<String>) {
         ?.filter { it.isFile && it.extension == "ts" }
         ?.forEach { it.delete() }
 
-    val baseOwnership = TsScan.buildSymbolOwnership(modules)
-    val ownership = TsOwnership.applyOverrides(baseOwnership)
+    // -----------------------------
+    // Ownership (with enums forced)
+    // -----------------------------
+    val baseOwnershipMutable = TsScan.buildSymbolOwnership(modules).toMutableMap()
+
+    val ownership = TsOwnership.applyOverrides(baseOwnershipMutable)
 
     // Keep final TS per module in memory so we can generate typeGuards.ts afterwards
     val finalByModule = linkedMapOf<String, String>()
 
     modules.forEach { module ->
-        val rawTs = if (module.name == "enums") {
-            // ✅ GUARANTEE: enums.ts contains ALL enums from contracts.enums (no serializer/annotation dependency)
-            val enumClasses = TsScan.scanEnumClasses(contractsRoot)
-            TsEnumGen.generateEnumsTs(
-                headerDate = timestamp,
-                enumClasses = enumClasses
-            )
-        } else {
-            val serializers = TsScan.resolveSerializers(module.classes)
-            if (serializers.isEmpty()) "" else TsGenerator.generate(serializers)
-        }
+        val serializers = TsScan.resolveSerializers(module.classes)
+        val rawTs = if (serializers.isEmpty()) "" else TsGenerator.generate(serializers)
 
         val processed = TsPostProcess.process(
             rawTs = rawTs,

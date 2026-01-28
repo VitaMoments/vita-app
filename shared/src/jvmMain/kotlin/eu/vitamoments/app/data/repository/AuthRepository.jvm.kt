@@ -44,8 +44,27 @@ class JVMAuthRepository() : ServerAuthRepository {
         email: String,
         password: String
     ): RepositoryResponse<AuthSession> = dbQuery {
-        if (usernameExists(username)) return@dbQuery RepositoryResponse.Error.Conflict(key = "username", "Username already exists")
-        if (emailExists(email)) return@dbQuery RepositoryResponse.Error.Conflict(key = "email", "Email already exists")
+
+        val errors = mutableListOf<RepositoryResponse.Error.FieldError>()
+
+        if (usernameExists(username)) {
+            errors += RepositoryResponse.Error.FieldError(
+                field = "username",
+                message = "Username already exists"
+            )
+        }
+        if (emailExists(email)) {
+            errors += RepositoryResponse.Error.FieldError(
+                field = "email",
+                message = "Email already exists"
+            )
+        }
+
+        if (errors.isNotEmpty()) {
+            // Je kunt hier kiezen: Conflict of Validation
+            // Duplicate is typisch Conflict (409)
+            return@dbQuery RepositoryResponse.Error.Conflict(errors = errors)
+        }
 
         val hashedPassword = PasswordHasher.hashPassword(password)
         val userEntity = UserEntity.new {

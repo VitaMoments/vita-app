@@ -2,10 +2,10 @@ package eu.vitamoments.app.data.mapper.entity
 
 import kotlinx.serialization.json.jsonObject
 import eu.vitamoments.app.data.entities.TimeLineItemEntity
-import eu.vitamoments.app.data.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.models.domain.feed.TimelineItem
-import eu.vitamoments.app.data.models.domain.richtext.RichTextDocument
+import eu.vitamoments.app.data.models.domain.common.RichTextDocument
 import kotlin.uuid.Uuid
 import kotlin.uuid.toKotlinUuid
 
@@ -20,7 +20,7 @@ fun TimeLineItemEntity.toDomain(
     createdAt = this.createdAt.toInstant(),
     updatedAt = this.updatedAt.toInstant(),
     deletedAt = this.deletedAt?.toInstant(),
-    author = this.createdBy.toDomainForVieuwer(viewerUuid, status),
+    author = this.createdBy.toDomainForViewer(viewerUuid, status),
     content = RichTextDocument(this.content.jsonObject)
 )
 }

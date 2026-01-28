@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.tables
 
-import eu.vitamoments.app.data.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.ReferenceOption
@@ -17,6 +17,7 @@ object FriendshipsTable : UUIDTable("friendships") {
 
     val createdAt = datetime("created_at").clientDefault { LocalDateTime.nowUtc() }
     val updatedAt = datetime("updated_at").clientDefault { LocalDateTime.nowUtc() }
+    val deletedAt = datetime("deleted_at").nullable()
 
     init {
         uniqueIndex(pairA, pairB)

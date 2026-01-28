@@ -1,10 +1,9 @@
 package eu.vitamoments.app.data.repository
 
 import eu.vitamoments.app.data.models.domain.user.Friendship
-import eu.vitamoments.app.data.models.domain.user.PrivateUser
 import eu.vitamoments.app.data.models.domain.user.PublicUser
 import eu.vitamoments.app.data.models.domain.user.UserWithContext
-import eu.vitamoments.app.data.models.domain.utils.PagedResult
+import eu.vitamoments.app.data.models.domain.common.PagedResult
 import kotlin.uuid.Uuid
 
 interface FriendRepository {

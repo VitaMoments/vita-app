@@ -1,18 +1,12 @@
 package eu.vitamoments.app.data.repository
 
 import eu.vitamoments.app.api.service.FriendService
-import eu.vitamoments.app.data.mapper.toDomain
 import eu.vitamoments.app.data.mapper.toRepositoryResponse
 import eu.vitamoments.app.data.models.domain.user.Friendship
-import eu.vitamoments.app.data.models.domain.user.PrivateUser
 import eu.vitamoments.app.data.models.domain.user.PublicUser
 import eu.vitamoments.app.data.models.domain.user.UserWithContext
-import eu.vitamoments.app.data.models.domain.utils.PagedResult
-import eu.vitamoments.app.data.models.dto.user.FriendInviteDto
-import eu.vitamoments.app.data.models.dto.user.FriendshipDto
-import eu.vitamoments.app.data.models.dto.user.PrivateUserDto
-import eu.vitamoments.app.data.models.dto.user.UserDto
-import eu.vitamoments.app.data.models.dto.user.UserWithContextDto
+import eu.vitamoments.app.data.models.domain.common.PagedResult
+import eu.vitamoments.app.data.models.requests.friendship_requests.InviteFriendshipRequest
 import kotlin.uuid.Uuid
 
 class FriendRepositoryImpl(private val service: FriendService) : FriendRepository {
@@ -46,11 +40,11 @@ class FriendRepositoryImpl(private val service: FriendService) : FriendRepositor
 
     override suspend fun invite(
         userId: Uuid,
-        receiverId: Uuid
-    ): RepositoryResponse<Friendship> {
-        val response = service.invite(FriendInviteDto(friendId = receiverId))
-        return response.toRepositoryResponse<FriendshipDto, Friendship> { dto -> dto.toDomain() }
-    }
+        otherId: Uuid
+    ): RepositoryResponse<Friendship> = service
+        .invite(InviteFriendshipRequest(userId = otherId))
+        .toRepositoryResponse<Friendship>()
+
 
     override suspend fun accept(
         userId: Uuid,

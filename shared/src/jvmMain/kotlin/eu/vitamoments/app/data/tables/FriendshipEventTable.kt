@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.tables
 
-import eu.vitamoments.app.data.enums.FriendInviteEventType
+import eu.vitamoments.app.data.models.enums.FriendInviteEventType
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.ReferenceOption

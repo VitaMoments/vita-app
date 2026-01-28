@@ -1,5 +1,6 @@
 package eu.vitamoments.app.modules
 
+import eu.vitamoments.app.data.serializer.InstantSerializer
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -12,6 +13,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import eu.vitamoments.app.data.serializer.LocalDateTimeAsLongSerializer
 import eu.vitamoments.app.data.serializer.UuidSerializer
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 fun Application.configureSerialization() {
@@ -26,6 +28,7 @@ fun Application.configureSerialization() {
                 serializersModule = SerializersModule {
                     contextual(Uuid::class, UuidSerializer)
                     contextual(LocalDateTime::class, LocalDateTimeAsLongSerializer)
+                    contextual(Instant::class, InstantSerializer)
                 }
             }
         )

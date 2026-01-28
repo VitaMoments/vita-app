@@ -7,34 +7,48 @@ import kotlin.reflect.full.createType
 object TsScan {
 
     data class DomainModule(
-        val name: String,                 // e.g. "feed", "user", "friend", "common", "enums"
+        val name: String,                 // e.g. "feed", "user", "friendship", "common", "enums"
         val classes: List<Class<*>>
     )
 
     /**
-     * Module rules:
-     * - contracts.enums.*                  -> enums.ts
-     * - contracts.models.<domain>.*        -> <domain>.ts
-     * - contracts.requests.<domain>.*      -> <domain>.ts
-     * - contracts.responses.<domain>.*     -> <domain>.ts
-     * - contracts.common.* OR models.* w/o domain -> common.ts
+     * Module rules (for contractsRoot = eu.vitamoments.app.data.models):
+     *
+     * - data.models.enums.*                     -> enums.ts
+     * - data.models.common.*                    -> common.ts
+     *
+     * - data.models.domain.<domain>.*           -> <domain>.ts
+     *   e.g. data.models.domain.user.*          -> user.ts
+     *        data.models.domain.feed.*          -> feed.ts
+     *
+     * - data.models.domain.common.*             -> common.ts (optional)
+     *
+     * - Any other top-level folder becomes its own module:
+     *   e.g. data.models.events.*               -> events.ts
      */
-    fun discoverDomainModules(
-        contractsRoot: String
-    ): List<DomainModule> {
+    fun discoverDomainModules(contractsRoot: String): List<DomainModule> {
         val serializableClasses = scanSerializableClasses(contractsRoot)
 
         val grouped = serializableClasses.groupBy { clazz ->
             val pkg = clazz.packageName
-            val rest = pkg.removePrefix("$contractsRoot.") // e.g. "models.feed", "enums", "common"
-            val segments = rest.split('.')
+
+            val rest = pkg.removePrefix("$contractsRoot.")
+            val segments = rest.split('.').filter { it.isNotBlank() }
 
             val first = segments.getOrNull(0) ?: return@groupBy "common"
 
             when (first) {
                 "enums" -> "enums"
                 "common" -> "common"
-                "models", "requests", "responses" -> segments.getOrNull(1) ?: "common"
+
+                // ✅ your new structure
+                "domain", "requests", "responses" -> {
+                    val second = segments.getOrNull(1) ?: "common"
+                    // allow: domain.common.* -> common.ts
+                    if (second == "common") "common" else second
+                }
+
+                // fallback: treat any other top-level folder as its own module
                 else -> first
             }
         }
@@ -60,31 +74,7 @@ object TsScan {
     }
 
     /**
-     * ✅ Dedicated enum scan.
-     *
-     * We do NOT rely on @Serializable scanning here.
-     * This guarantees: every enum under `contractsRoot.enums` is included in enums.ts,
-     * as long as it is on the runtime classpath of this generator.
-     */
-    fun scanEnumClasses(contractsRoot: String): List<Class<*>> {
-        val enumPkg = "$contractsRoot.enums"
-
-        val scan = ClassGraph()
-            .enableClassInfo()
-            .ignoreClassVisibility()
-            .acceptPackages(enumPkg)
-            .scan()
-
-        scan.use { result ->
-            return result
-                .allClasses
-                .filter { it.isEnum && it.packageName.startsWith(enumPkg) }
-                .map { it.loadClass() }
-        }
-    }
-
-    /**
-     * Ownership map: symbol simpleName -> module (feed/user/friend/common/enums)
+     * Ownership map: symbol simpleName -> module (feed/user/common/enums/etc.)
      * Used for stripping + auto imports.
      */
     fun buildSymbolOwnership(modules: List<DomainModule>): Map<String, String> {

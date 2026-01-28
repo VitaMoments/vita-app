@@ -1,26 +1,27 @@
 package eu.vitamoments.app.data.repository
 
 import eu.vitamoments.app.api.service.AuthService
-import eu.vitamoments.app.data.mapper.toDomain
+import eu.vitamoments.app.data.mapper.extension_functions.map
 import eu.vitamoments.app.data.mapper.toRepositoryResponse
+import eu.vitamoments.app.data.models.domain.AuthSession
 import eu.vitamoments.app.data.models.domain.user.User
-import eu.vitamoments.app.data.models.dto.auth.AuthSessionDto
-import eu.vitamoments.app.data.models.dto.auth.LoginDto
-import eu.vitamoments.app.data.models.dto.auth.RegistrationDto
+import eu.vitamoments.app.data.models.requests.auth_requests.LoginRequest
+import eu.vitamoments.app.data.models.requests.auth_requests.RegistrationRequest
 
 class AuthRepositoryImpl(
     private val service: AuthService
 ) : AuthRepository<User> {
 
     override suspend fun login(email: String, password: String): RepositoryResponse<User> {
-        val dto = LoginDto(
+        val requestBody = LoginRequest(
             email = email,
-            password = password)
-        val response = service.login(body = dto)
+            password = password
+        )
 
-        return response.toRepositoryResponse<AuthSessionDto, User> { dto ->
-            dto.user.toDomain()
-        }
+        val response = service.login(body = requestBody)
+        return response
+            .toRepositoryResponse<AuthSession>()
+            .map { session -> session.user }
     }
 
     override suspend fun register(
@@ -28,15 +29,15 @@ class AuthRepositoryImpl(
         email: String,
         password: String
     ): RepositoryResponse<User> {
-        val dto = RegistrationDto(
+        val requestBody = RegistrationRequest(
             username = username,
             email = email,
             password = password
         )
-        val response = service.register(body = dto)
-        return response.toRepositoryResponse<AuthSessionDto, User> { dto ->
-            dto.user.toDomain()
-        }
+        val response = service.register(body = requestBody)
+        return response
+            .toRepositoryResponse<AuthSession>()
+            .map { session -> session.user }
     }
 
     override suspend fun logout(refreshToken: String): RepositoryResponse<Boolean> {
@@ -46,12 +47,16 @@ class AuthRepositoryImpl(
 
     override suspend fun refresh(refreshToken: String?): RepositoryResponse<User> {
         val response = service.refreshTokens()
-        return response.toRepositoryResponse<AuthSessionDto, User> { dto -> dto.user.toDomain() }
+        return response
+            .toRepositoryResponse<AuthSession>()
+            .map { session -> session.user }
     }
 
     @Suppress("DEPRECATION")
     override suspend fun session(): RepositoryResponse<User> {
         val response = service.session()
-        return response.toRepositoryResponse<AuthSessionDto, User> {dto -> dto.user.toDomain()}
+        return response
+            .toRepositoryResponse<AuthSession>()
+            .map { session -> session.user }
     }
 }

@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.tables
 
-import eu.vitamoments.app.data.enums.UserRole
+import eu.vitamoments.app.data.models.enums.UserRole
 import kotlinx.datetime.LocalDateTime
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import org.jetbrains.exposed.v1.core.dao.id.UUIDTable

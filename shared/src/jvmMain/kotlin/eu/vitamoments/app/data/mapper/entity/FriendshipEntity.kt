@@ -2,10 +2,11 @@ package eu.vitamoments.app.data.mapper.entity
 
 import eu.vitamoments.app.data.entities.FriendshipEntity
 import eu.vitamoments.app.data.entities.UserEntity
-import eu.vitamoments.app.data.enums.FriendshipDirection
-import eu.vitamoments.app.data.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.FriendshipDirection
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.models.domain.user.AcceptedFriendship
+import eu.vitamoments.app.data.models.domain.user.DeletedFriendship
 import eu.vitamoments.app.data.models.domain.user.Friendship
 import eu.vitamoments.app.data.models.domain.user.PendingFriendship
 import kotlin.uuid.Uuid
@@ -14,13 +15,14 @@ import kotlin.uuid.toKotlinUuid
 fun FriendshipEntity.toDomain(userId: Uuid) : Friendship = when(status) {
         FriendshipStatus.PENDING -> this.toPendingDomain(userId)
         FriendshipStatus.ACCEPTED -> this.toAcceptedDomain(userId)
+        FriendshipStatus.REMOVED -> this.toDeletedDomain(userId)
         else -> throw NotImplementedError("$status is not accepted")
     }
 
 fun FriendshipEntity.toPendingDomain(userId: Uuid) : PendingFriendship {
     require(this.status == FriendshipStatus.PENDING) { "Friendship must be pending" }
     return PendingFriendship (
-        id = this.id.value.toKotlinUuid(),
+        uuid = this.id.value.toKotlinUuid(),
         direction = directionFor(userId),
         otherUserId = userId,
         createdAt = this.createdAt.toInstant(),
@@ -31,10 +33,22 @@ fun FriendshipEntity.toPendingDomain(userId: Uuid) : PendingFriendship {
 fun FriendshipEntity.toAcceptedDomain(userId: Uuid) : AcceptedFriendship {
     require(this.status == FriendshipStatus.ACCEPTED) { "Friendship must be ACCEPTED" }
     return AcceptedFriendship(
-        id = this.id.value.toKotlinUuid(),
+        uuid = this.id.value.toKotlinUuid(),
         otherUserId = userId,
         createdAt = this.createdAt.toInstant(),
         updatedAt = this.updatedAt.toInstant()
+    )
+}
+
+fun FriendshipEntity.toDeletedDomain(userId: Uuid) : DeletedFriendship {
+    require(this.status == FriendshipStatus.REMOVED) { "Friendship must be REMOVED" }
+    require(this.deletedAt != null) { "DeletedFriendship must have an DeletedAt" }
+    return DeletedFriendship(
+        uuid = this.id.value.toKotlinUuid(),
+        otherUserId = userId,
+        createdAt = this.createdAt.toInstant(),
+        updatedAt = this.updatedAt.toInstant(),
+        deletedAt = this.deletedAt!!.toInstant()
     )
 }
 

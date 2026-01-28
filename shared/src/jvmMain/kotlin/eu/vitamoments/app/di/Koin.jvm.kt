@@ -17,10 +17,12 @@ import eu.vitamoments.app.data.repository.JVMUserRepository
 import eu.vitamoments.app.data.repository.ServerAuthRepository
 import eu.vitamoments.app.data.repository.TimeLineRepository
 import eu.vitamoments.app.data.repository.UserRepository
+import eu.vitamoments.app.data.serializer.InstantSerializer
 import eu.vitamoments.app.data.serializer.LocalDateTimeAsLongSerializer
 import eu.vitamoments.app.data.serializer.UuidSerializer
 import org.koin.core.context.GlobalContext
 import org.koin.dsl.module
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 private val jvmRepositoryModule = module {
@@ -42,6 +44,7 @@ private val networkModule = module {
             serializersModule = SerializersModule {
                 contextual(Uuid::class, UuidSerializer)
                 contextual(LocalDateTime::class, LocalDateTimeAsLongSerializer)
+                contextual(Instant::class, InstantSerializer)
             }
         }
 

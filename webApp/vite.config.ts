@@ -8,6 +8,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          tiptap: ["@tiptap/core", "@tiptap/react"],
+          icons: ["react-icons"],
+        },
+      },
+    },
   },
   server: {
       port: 5174,

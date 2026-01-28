@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-@Serializable
 data class AuthToken(
     val token: String,
     val expiredAt: Instant,

@@ -1,6 +1,5 @@
 import api from "../axios";
-import { User } from "../../data/types";
-import type { PagedResult } from "../../data/types";
+import type { PagedResult, User, UserWithContext } from "../../data/types";
 
 export type FriendSearchParams = {
   query?: string;
@@ -18,60 +17,68 @@ function normalizeParams(params: FriendSearchParams) {
 
 export const FriendService = {
   /**
-   * Nieuwe vrienden zoeken (meestal PUBLIC users)
-   * Backend: PagedResult<UserContract>
+   * Nieuwe vrienden zoeken
+   * Backend: PagedResult<User.PUBLIC>
    */
-  async searchNewFriends(params: FriendSearchParams = {}): Promise<PagedResult<User>> {
-    const res = await api.get<PagedResult<User>>("/friends/new", {
+  async searchNewFriends(
+    params: FriendSearchParams = {},
+    signal?: AbortSignal
+  ): Promise<PagedResult<User.PUBLIC>> {
+    const res = await api.get<PagedResult<User.PUBLIC>>("/friends/new", {
       params: normalizeParams(params),
+      signal,
     });
-
-    // ✅ contract-first: geen mapping
     return res.data;
   },
 
   /**
-   * Je bestaande vrienden (waarschijnlijk CONTEXT, dus inclusief friendship info)
-   * Backend: PagedResult<UserContract> (met type CONTEXT items)
+   * Je bestaande vrienden
+   * Jij zegt: Backend: PagedResult<UserWithContext>
    */
-  async searchFriends(params: FriendSearchParams = {}): Promise<PagedResult<User>> {
-    const res = await api.get<PagedResult<User>>("/friends", {
+  async searchFriends(
+    params: FriendSearchParams = {},
+    signal?: AbortSignal
+  ): Promise<PagedResult<UserWithContext>> {
+    const res = await api.get<PagedResult<UserWithContext>>("/friends", {
       params: normalizeParams(params),
+      signal,
     });
-
     return res.data;
   },
 
   /**
    * Friend invites/requests
-   * Backend: PagedResult<UserContract> (met CONTEXT items)
+   * Jij zegt: Backend: PagedResult<User.CONTEXT>
    */
-  async friendRequests(params: FriendSearchParams = {}): Promise<PagedResult<User>> {
-    const res = await api.get<PagedResult<User>>("/friends/invites", {
+  async friendRequests(
+    params: FriendSearchParams = {},
+    signal?: AbortSignal
+  ): Promise<PagedResult<UserWithContext>> {
+    const res = await api.get<PagedResult<UserWithContext>>("/friends/invites", {
       params: normalizeParams(params),
+      signal,
     });
-
     return res.data;
   },
 
-  // Actions — tip: typ deze zodra je endpoint dat terugstuurt (bijv FriendshipDto/Contract)
-  async invite(friendId: string): Promise<unknown> {
-    const res = await api.post("/friends/invite", { friendId });
+  // Actions (laat even unknown, of typ later op Friendship/UserWithContext/etc)
+  async invite(friendId: string, signal?: AbortSignal): Promise<unknown> {
+    const res = await api.post("/friends/invite", { friendId }, { signal });
     return res.data;
   },
 
-  async accept(friendId: string): Promise<unknown> {
-    const res = await api.post("/friends/accept", { friendId });
+  async accept(friendId: string, signal?: AbortSignal): Promise<unknown> {
+    const res = await api.post("/friends/accept", { friendId }, { signal });
     return res.data;
   },
 
-  async reject(friendId: string): Promise<unknown> {
-    const res = await api.post("/friends/reject", { friendId });
+  async reject(friendId: string, signal?: AbortSignal): Promise<unknown> {
+    const res = await api.post("/friends/reject", { friendId }, { signal });
     return res.data;
   },
 
-  async revoke(friendId: string): Promise<unknown> {
-    const res = await api.post("/friends/revoke", { friendId });
+  async revoke(friendId: string, signal?: AbortSignal): Promise<unknown> {
+    const res = await api.post("/friends/revoke", { friendId }, { signal });
     return res.data;
   },
 };

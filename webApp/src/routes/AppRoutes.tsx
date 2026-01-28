@@ -1,48 +1,55 @@
 // src/routes/AppRoutes.tsx
+import React, { Suspense, lazy } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute, AuthRoute } from "./ProtectedRoute";
 import { useAuth } from "../auth/AuthContext";
 
-// Public
-import PublicHome from "../pages/public/home/Home";
-import Registration from "../pages/public/auth/Registration";
-import Login from "../pages/public/auth/Login";
-import Privacy from "../pages/public/privacy/Privacy"
-import Terms from "../pages/public/terms/Terms"
+// Public (lazy)
+const PublicHome = lazy(() => import("../pages/public/home/Home"));
+const Registration = lazy(() => import("../pages/public/auth/Registration"));
+const Login = lazy(() => import("../pages/public/auth/Login"));
+const Privacy = lazy(() => import("../pages/public/privacy/Privacy"));
+const Terms = lazy(() => import("../pages/public/terms/Terms"));
 
-// Private
-import Home from "../pages/protected/home/Home";
-import Profile from "../pages/protected/profile/Profile";
-import FriendsPage from "../pages/protected/friends/FriendsPage";
-import BlogsPage from "../pages/protected/blog/BlogsPage"
-import CreateBlogPage from "../pages/protected/blog/CreateBlogPage"
+// Private (lazy)
+const Home = lazy(() => import("../pages/protected/home/Home"));
+const Profile = lazy(() => import("../pages/protected/profile/Profile"));
+const FriendsPage = lazy(() => import("../pages/protected/friends/FriendsPage"));
+const BlogsPage = lazy(() => import("../pages/protected/blog/BlogsPage"));
+const CreateBlogPage = lazy(() => import("../pages/protected/blog/CreateBlogPage"));
 
 function RootGate() {
-    const { user, loading } = useAuth();
-    if (loading) return <div>Loading... </div>;
-    return user ? <Home /> : <PublicHome />;
+  const { user, loading } = useAuth();
+  if (loading) return <div>Loading...</div>;
+  return user ? <Home /> : <PublicHome />;
+}
+
+function LoadingFallback() {
+  return <div>Loading...</div>;
 }
 
 export default function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/" element={<RootGate />} />
+    <Suspense fallback={<LoadingFallback />}>
+      <Routes>
+        <Route path="/" element={<RootGate />} />
 
-      <Route element={<AuthRoute />}>
-        <Route path="/registration" element={<Registration />} />
-        <Route path="/login" element={<Login />} />
-      </Route>
+        <Route element={<AuthRoute />}>
+          <Route path="/registration" element={<Registration />} />
+          <Route path="/login" element={<Login />} />
+        </Route>
 
-      <Route element={ <ProtectedRoute /> }>
-        <Route path="/profile" element={ <Profile /> }/>
-        <Route path="/friends" element={ <FriendsPage /> }/>
-        <Route path="/blogs" element={ <BlogsPage /> }/>
-        <Route path="/blogs/create" element={ <CreateBlogPage />}/>
-      </Route>
+        <Route element={<ProtectedRoute />}>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/friends" element={<FriendsPage />} />
+          <Route path="/blogs" element={<BlogsPage />} />
+          <Route path="/blogs/create" element={<CreateBlogPage />} />
+        </Route>
 
-      <Route path="/privacy" element={<Privacy />} />
-      <Route path="/terms" element={<Terms />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }

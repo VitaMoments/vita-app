@@ -7,9 +7,14 @@ object TsPostProcess {
         rawTs: String,
         headerDate: String,
         ownership: Map<String, String>,
+        moduleClasses: List<Class<*>>,
         currentModule: String
     ): String {
         var out = rawTs
+
+        // Build: module -> set(simpleNames) that are actually top-level exportable
+        // from the list of scanned classes + ownership routing.
+        val moduleExports: Map<String, Set<String>> = buildModuleExports(moduleClasses, ownership)
 
         // 1) Normalize header
         out = normalizeHeader(out, headerDate)
@@ -40,19 +45,30 @@ object TsPostProcess {
             out = TsRemove.removeExportedSymbol(out, sym)
         }
 
-        // ✅ 6) Remove top-level duplicate interfaces for sealed union variants
+        // 6) Remove top-level duplicate interfaces for sealed union variants
         out = TsSealedCleanup.removeTopLevelDuplicateVariantInterfaces(out)
 
         // 7) Auto-import still referenced foreign symbols
+        //    Fixes:
+        //    - never auto-import into enums.ts
+        //    - never import ALL_CAPS (enum members / sealed variants like ACCEPTED/PRIVATE)
+        //    - only import symbols that are known top-level exports of the owner module
         val usedImports = linkedMapOf<String, MutableSet<String>>() // from -> symbols
 
-        foreignSymbols.forEach { sym ->
-            val owner = ownership[sym] ?: return@forEach
-            if (owner == currentModule) return@forEach
+        if (currentModule != "enums") {
+            foreignSymbols.forEach { sym ->
+                if (isAllCapsSymbol(sym)) return@forEach
 
-            val re = Regex("""\b${Regex.escape(sym)}\b""")
-            if (re.containsMatchIn(out)) {
-                usedImports.getOrPut("./$owner") { mutableSetOf() }.add(sym)
+                val owner = ownership[sym] ?: return@forEach
+                if (owner == currentModule) return@forEach
+
+                val ownerExports = moduleExports[owner].orEmpty()
+                if (sym !in ownerExports) return@forEach
+
+                val re = Regex("""\b${Regex.escape(sym)}\b""")
+                if (re.containsMatchIn(out)) {
+                    usedImports.getOrPut("./$owner") { mutableSetOf() }.add(sym)
+                }
             }
         }
 
@@ -70,6 +86,30 @@ object TsPostProcess {
         out = out.replace(Regex("\n{3,}"), "\n\n").trimEnd() + "\n"
         return out
     }
+
+    private fun buildModuleExports(
+        moduleClasses: List<Class<*>>,
+        ownership: Map<String, String>
+    ): Map<String, Set<String>> {
+        val acc = linkedMapOf<String, MutableSet<String>>()
+
+        for (cls in moduleClasses) {
+            val simple = cls.simpleName ?: continue
+            // Route using ownership (your SSOT for module split)
+            val owner = ownership[simple] ?: continue
+
+            // Ignore symbols you intentionally drop/override
+            if (simple in TsConfig.dropSymbols) continue
+            if (simple in TsConfig.manualOverrideSymbols) continue
+
+            acc.getOrPut(owner) { linkedSetOf() }.add(simple)
+        }
+
+        return acc.mapValues { it.value.toSet() }
+    }
+
+    private fun isAllCapsSymbol(sym: String): Boolean =
+        sym.isNotBlank() && sym.all { it.isUpperCase() || it.isDigit() || it == '_' }
 
     private fun normalizeHeader(ts: String, headerDate: String): String {
         val headerRegex = Regex(

@@ -1,98 +1,123 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./FriendsPage.module.css";
 
 import Input from "../../../components/input/Input";
-import { Card } from "../../../components/card/Card"
+import { Card } from "../../../components/card/Card";
 
 import { FriendService } from "../../../api/service/FriendService";
-import type { User } from "../../../api/types/user/userDomain";
+import { User } from "../../../data/types";
+import { getUserDisplayName } from "../../../data/ui/userHelpers";
 
 import { PagedList } from "../../../components/pagination/PagedList";
 
-import { MdPersonAdd, MdPersonRemove } from "react-icons/md";
-
+import { MdPersonAdd } from "react-icons/md";
 
 const LIMIT = 20;
 const TAB_KEY = "friends-new";
 
-type Props = { isActive: boolean }
+type Props = { isActive: boolean };
+
+type PublicUser = User.PUBLIC;
+
+const isPublicUser = (u: User): u is PublicUser => u.type === User.Type.PUBLIC;
 
 const SearchNewFriendsTab: React.FC<Props> = ({ isActive }) => {
-    const [query, setQuery] = useState("");
-    const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
-    const [reloadToken, setReloadToken] = useState(0);
+  const [query, setQuery] = useState("");
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
 
-    useEffect(() => {
-        if (isActive) setReloadToken((x) => x + 1);
-    }, [isActive]);
+  useEffect(() => {
+    if (isActive) setReloadToken((x) => x + 1);
+  }, [isActive]);
 
-    const fetchPage = useCallback(
-        ({ limit, offset, signal }: { limit: number; offset: number; signal?: AbortSignal }) =>
-        FriendService.searchNewFriends({
-            query: query.trim() || undefined,
-            limit,
-            offset,
-            signal
-        }),
-        [query]
-    );
+  const fetchPage = useCallback(
+    async ({
+      limit,
+      offset,
+      signal,
+    }: {
+      limit: number;
+      offset: number;
+      signal?: AbortSignal;
+    }) => {
+      // We halen op als "User" (union) en filteren naar PUBLIC
+      const res = await FriendService.searchNewFriends(
+        {
+          query: query.trim() || undefined,
+          limit,
+          offset,
+        },
+        signal
+      );
 
-    const inviteUser = useCallback(async (uuid: string) => {
-        setActionLoadingId(uuid);
-        try {
-            await FriendService.invite(uuid);
-            setReloadToken(x => x + 1);
-        } finally {
-            setActionLoadingId(null);
-        }
-    }, []);
+      // res.items kan union bevatten; UI wil PUBLIC-only
+      const publicItems = res.items.filter(isPublicUser);
 
-    const listInstanceKey = `${TAB_KEY}:${query}:${reloadToken}`;
+      return {
+        ...res,
+        items: publicItems,
+      };
+    },
+    [query]
+  );
+
+  const inviteUser = useCallback(async (uuid: string) => {
+    setActionLoadingId(uuid);
+    try {
+      await FriendService.invite(uuid);
+      setReloadToken((x) => x + 1);
+    } finally {
+      setActionLoadingId(null);
+    }
+  }, []);
+
+  const listInstanceKey = useMemo(
+    () => `${TAB_KEY}:${query}:${reloadToken}`,
+    [query, reloadToken]
+  );
 
   return (
-    <PagedList<User>
+    <PagedList<PublicUser>
       limit={LIMIT}
       resetKey={listInstanceKey}
       fetchPage={fetchPage}
       listClassName={styles.userCardList}
-        empty={<p className={styles.emptyText}>No users found</p>}
-      getKey={(u) => u.uuid}
-      controls={({ refresh }) => (
+      empty={<p className={styles.emptyText}>No users found</p>}
+      getKey={(u) => `${TAB_KEY}:${u.uuid}`}
+      controls={() => (
         <Input
           name="query"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search..."
-          // TIP: als je na invite wil herladen: roep refresh() aan
-          // dit is bv. handig als je een 'Refresh' knop wil
         />
       )}
-      renderItem={(user) => (
+      renderItem={(u) => (
         <Card>
-            <div className={styles.cardContent}>
-                {user.imageUrl ? (
-                <img src={user.imageUrl} alt="profile image" className={styles.avatar} />
-                ) : (
-                <div className={styles.avatar} />
-                )}
+          <div className={styles.cardContent}>
+            {u.imageUrl ? (
+              <img src={u.imageUrl} alt="" className={styles.avatar} />
+            ) : (
+              <div className={styles.avatar} />
+            )}
 
-                <div className={styles.userInfo}>
-                  <span className={styles.displayName}>{user.displayName}</span>
-                  {user.bio ? <span className={styles.bio}>{user.bio}</span> : null}
-                </div>
-
-                <div className={styles.actionButtonBar}>
-                    <button
-                      type="button"
-                      disabled={actionLoadingId === user.uuid}
-                      onClick={() => inviteUser(user.uuid)}
-                      aria-busy={actionLoadingId === user.uuid}
-                      aria-label="Add friend"
-                    >
-                      <MdPersonAdd className={styles.colorPrimary} />
-                    </button>
-                </div>
+            <div className={styles.userInfo}>
+              <span className={styles.displayName}>{u.displayName}</span>
+              {u.bio ? <span className={styles.bio}>{u.bio}</span> : null}
             </div>
+
+            <div className={styles.actionButtonBar}>
+              <button
+                type="button"
+                disabled={actionLoadingId === u.uuid}
+                onClick={() => inviteUser(u.uuid)}
+                aria-busy={actionLoadingId === u.uuid}
+                aria-label="Add friend"
+              >
+                <MdPersonAdd className={styles.colorPrimary} />
+              </button>
+            </div>
+          </div>
         </Card>
       )}
     />

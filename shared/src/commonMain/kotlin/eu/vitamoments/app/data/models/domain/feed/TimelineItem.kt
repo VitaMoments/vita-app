@@ -3,6 +3,7 @@ package eu.vitamoments.app.data.models.domain.feed
 import eu.vitamoments.app.data.models.enums.PrivacyStatus
 import eu.vitamoments.app.data.models.domain.common.RichTextDocument
 import eu.vitamoments.app.data.models.domain.user.User
+import eu.vitamoments.app.data.serializer.InstantSerializer
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -16,7 +17,7 @@ data class TimelineItem(
     override val author: User,
     override val content: RichTextDocument,
     override val privacy: PrivacyStatus = PrivacyStatus.FRIENDS_ONLY,
-    @Contextual override val createdAt: Instant,
-    @Contextual override val updatedAt: Instant,
-    @Contextual override val deletedAt: Instant? = null
+    @Serializable(with = InstantSerializer::class) override val createdAt: Instant,
+    @Serializable(with = InstantSerializer::class) override val updatedAt: Instant,
+    @Serializable(with = InstantSerializer::class) override val deletedAt: Instant? = null
 ) : FeedItem

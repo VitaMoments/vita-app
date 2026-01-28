@@ -4,7 +4,7 @@ import { generateHTML } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import type { FeedItem } from "../../data/types"
 import styles from "./TimelinePostCard.module.css";
-import { getUserDisplayName, getUserEmail, getUserImageUrl } from "../../data/ui/userHelpers";
+import { getUserDisplayName } from "../../data/ui/userHelpers";
 
 
 export function TimelinePostCard({ item }: { item: FeedItem.TIMELINEITEM }) {
@@ -12,8 +12,8 @@ export function TimelinePostCard({ item }: { item: FeedItem.TIMELINEITEM }) {
     const html = generateHTML(item.content.content, [StarterKit]);
 
     const authorName = getUserDisplayName(item.author);
-    const authorEmail = getUserEmail(item.author);
-    const authorImage = getUserImageUrl(item.author);
+//     const authorEmail = getUserEmail(item.author);
+    const authorImage = item.author.imageUrl
 
     return (
         <article className={styles.card}>
@@ -21,7 +21,7 @@ export function TimelinePostCard({ item }: { item: FeedItem.TIMELINEITEM }) {
             {authorImage ? (
             <img
                 src={authorImage}
-                alt={authorEmail}
+                alt={authorName}
                 className={styles.avatar}
               />
             ) : (

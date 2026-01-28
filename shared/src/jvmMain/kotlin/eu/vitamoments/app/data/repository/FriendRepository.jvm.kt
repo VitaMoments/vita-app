@@ -9,9 +9,9 @@ import eu.vitamoments.app.data.mapper.extension_functions.minus
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.models.domain.common.PagedResult
-import eu.vitamoments.app.data.models.domain.user.AcceptedFriendship
-import eu.vitamoments.app.data.models.domain.user.Friendship
-import eu.vitamoments.app.data.models.domain.user.PendingFriendship
+import eu.vitamoments.app.data.models.domain.friendship.AcceptedFriendship
+import eu.vitamoments.app.data.models.domain.friendship.Friendship
+import eu.vitamoments.app.data.models.domain.friendship.PendingFriendship
 import eu.vitamoments.app.data.models.domain.user.PublicUser
 import eu.vitamoments.app.data.models.domain.user.UserWithContext
 import eu.vitamoments.app.data.models.enums.FriendInviteEventType
@@ -214,7 +214,6 @@ class JVMFriendRepository : FriendRepository {
 
                 val user = when (friendship) {
                     is AcceptedFriendship -> row.rowToPrivateResult()
-                    is PendingFriendship -> row.rowToPublicResult()
                     else -> row.rowToPublicResult()
                 }
 

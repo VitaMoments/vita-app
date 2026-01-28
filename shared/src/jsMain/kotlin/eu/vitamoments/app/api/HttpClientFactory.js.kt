@@ -2,6 +2,7 @@
 
 package eu.vitamoments.app.api
 
+import eu.vitamoments.app.data.serializer.InstantSerializer
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.js.Js
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -11,6 +12,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import eu.vitamoments.app.data.serializer.LocalDateTimeAsLongSerializer
 import eu.vitamoments.app.data.serializer.UuidSerializer
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -24,6 +26,7 @@ actual fun createHttpClient(): HttpClient = HttpClient(Js) {
             serializersModule = SerializersModule {
                 contextual(Uuid::class, UuidSerializer)
                 contextual(LocalDateTime::class, LocalDateTimeAsLongSerializer)
+                contextual(Instant::class, InstantSerializer)
             }
         })
     }

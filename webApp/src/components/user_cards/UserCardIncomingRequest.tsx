@@ -3,7 +3,7 @@ import React from "react";
 import styles from "./UserCard.module.css";
 
 import type { User } from "../../data/types";
-import { getUserDisplayName, getUserImageUrl, unwrapUser } from "../../data/ui/userHelpers";
+import { getUserDisplayName } from "../../data/ui/userHelpers";
 
 type UserCardIncomingRequestProps = {
   user: User;
@@ -20,12 +20,9 @@ export function UserCardIncomingRequest({
   disabled = false,
   loading = false,
 }: UserCardIncomingRequestProps) {
-  const img = getUserImageUrl(user);
+  const img = user.imageUrl;
   const name = getUserDisplayName(user);
-
-  // uuid is not on CONTEXT directly; unwrap first
-  const base = unwrapUser(user);
-  const uuid = "uuid" in base ? base.uuid : ""; // safety fallback
+  const uuid = user.uuid
 
   return (
     <article className={styles.card}>

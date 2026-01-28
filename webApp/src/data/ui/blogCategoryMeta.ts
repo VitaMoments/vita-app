@@ -1,32 +1,95 @@
+import type { ComponentType } from "react";
 import { BlogCategory } from "../types";
 
-/**
- * UI-only metadata for BlogCategory.
- * - You still send ONLY `BlogCategory[]` to the backend.
- * - This is purely for labels/icons/descriptions in the UI.
- */
+import {
+  MdPsychology,
+  MdFitnessCenter,
+  MdRestaurant,
+  MdSpa,
+  MdSelfImprovement,
+  MdChecklist,
+  MdBedtime,
+  MdBolt,
+  MdHandshake,
+  MdGroups,
+  MdTrackChanges,
+  MdTrendingUp,
+  MdAutoStories,
+} from "react-icons/md";
+
+export type BlogCategoryMeta = {
+  label: string;
+  description?: string;
+  icon?: ComponentType<{ className?: string }>;
+};
+
 export const BLOG_CATEGORY_META = {
-  [BlogCategory.MENTAL]: { label: "Mental Health" },
-  [BlogCategory.PHYSICAL]: { label: "Physical Health" },
-  [BlogCategory.FOOD]: { label: "Food & Nutrition" },
-  [BlogCategory.LIFESTYLE]: { label: "Lifestyle" },
+  [BlogCategory.MENTAL]: {
+    label: "Mental Health",
+    description: "Mindset, stress, focus, emotions",
+    icon: MdPsychology,
+  },
+  [BlogCategory.PHYSICAL]: {
+    label: "Physical Health",
+    description: "Training, movement, recovery",
+    icon: MdFitnessCenter,
+  },
+  [BlogCategory.FOOD]: {
+    label: "Food & Nutrition",
+    description: "Meals, nutrition, healthy habits",
+    icon: MdRestaurant,
+  },
+  [BlogCategory.LIFESTYLE]: {
+    label: "Lifestyle",
+    description: "Routine, balance, daily life",
+    icon: MdSpa,
+  },
 
-  [BlogCategory.MINDFULNESS]: { label: "Mindfulness" },
-  [BlogCategory.HABITS]: { label: "Habits & Routines" },
-  [BlogCategory.SLEEP]: { label: "Sleep & Rest" },
-  [BlogCategory.ENERGY]: { label: "Energy & Vitality" },
+  [BlogCategory.MINDFULNESS]: {
+    label: "Mindfulness",
+    description: "Presence, calm, awareness",
+    icon: MdSelfImprovement,
+  },
+  [BlogCategory.HABITS]: {
+    label: "Habits & Routines",
+    description: "Systems that stick",
+    icon: MdChecklist,
+  },
+  [BlogCategory.SLEEP]: {
+    label: "Sleep & Rest",
+    description: "Sleep quality, rest, recovery",
+    icon: MdBedtime,
+  },
+  [BlogCategory.ENERGY]: {
+    label: "Energy & Vitality",
+    description: "Energy management and stamina",
+    icon: MdBolt,
+  },
 
-  [BlogCategory.RELATIONSHIPS]: { label: "Relationships" },
-  [BlogCategory.COMMUNITY]: { label: "Community" },
-  [BlogCategory.PURPOSE]: { label: "Purpose & Meaning" },
+  [BlogCategory.RELATIONSHIPS]: {
+    label: "Relationships",
+    description: "Connection and communication",
+    icon: MdHandshake,
+  },
+  [BlogCategory.COMMUNITY]: {
+    label: "Community",
+    description: "Belonging and support",
+    icon: MdGroups,
+  },
+  [BlogCategory.PURPOSE]: {
+    label: "Purpose & Meaning",
+    description: "Values, direction, meaning",
+    icon: MdTrackChanges,
+  },
 
-  [BlogCategory.PERSONAL_GROWTH]: { label: "Personal Growth" },
-  [BlogCategory.REFLECTION]: { label: "Reflection" },
-} satisfies Record<
-  BlogCategory,
-  {
-    label: string;
-    description?: string;
-    icon?: string;
-  }
->;
+  [BlogCategory.PERSONAL_GROWTH]: {
+    label: "Personal Growth",
+    description: "Learning and improvement",
+    icon: MdTrendingUp,
+  },
+  [BlogCategory.REFLECTION]: {
+    label: "Reflection",
+    description: "Review, journaling, insights",
+    icon: MdAutoStories,
+  },
+} satisfies Record<BlogCategory, BlogCategoryMeta>;

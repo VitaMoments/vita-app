@@ -326,20 +326,20 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
             const active = categories.includes(c);
             const meta = BLOG_CATEGORY_META[c];
             const label = meta?.label ?? c;
-
+            const Icon = meta?.icon;
             return (
               <button
                 key={c}
                 type="button"
                 onClick={() => toggleCategory(c)}
-                className={`${styles.categoryChip} ${
-                  active ? styles.categoryChipActive : ""
-                }`}
+                className={`${styles.categoryChip} ${active ? styles.categoryChipActive : ""}`}
                 title={meta?.description ?? label}
                 aria-pressed={active}
               >
+                {Icon ? <Icon className={styles.categoryChipIcon} /> : null}
                 {label}
               </button>
+
             );
           })}
         </div>

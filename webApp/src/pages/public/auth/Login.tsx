@@ -57,11 +57,12 @@ const Login: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             required/>
         <PasswordInput
-            type="password"
-            value={password}
-            placeholder="password"
-            onChange={(e)=> setPassword(e.target.value)}
-            required />
+                  label="password"
+                  value={password}
+                  placeholder="password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
 
         <Button type="submit" disabled={loading}>
           {loading ? "loading..." : "Login"}

@@ -1,9 +1,11 @@
 package eu.vitamoments.app.data.models.domain.user
 
 import eu.vitamoments.app.data.models.enums.UserRole
+import eu.vitamoments.app.data.serializer.InstantSerializer
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseContextualSerialization
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -20,8 +22,8 @@ data class AccountUser(
     override val displayName: String = username,
     override val bio: String? = null,
     override val role: UserRole = UserRole.USER,
-    @Contextual val createdAt: Instant,
-    @Contextual val updatedAt: Instant,
-    @Contextual val deletedAt: Instant?,
+    @Serializable(with = InstantSerializer::class) val createdAt: Instant,
+    @Serializable(with = InstantSerializer::class) val updatedAt: Instant,
+    @Serializable(with = InstantSerializer::class) val deletedAt: Instant?,
     override val imageUrl: String? = null
 ) : User

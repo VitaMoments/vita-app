@@ -3,37 +3,38 @@ package eu.vitamoments.app.tsgen
 import io.github.classgraph.ClassGraph
 import kotlinx.serialization.Serializable
 import kotlin.reflect.full.createType
+import kotlinx.serialization.SerialName
+import kotlin.reflect.full.findAnnotation
 
 object TsScan {
 
     data class DomainModule(
-        val name: String,                 // e.g. "feed", "user", "friendship", "common", "enums"
+        val name: String,                 // e.g. "feed", "user", "friend", "common", "enums"
         val classes: List<Class<*>>
     )
 
     /**
-     * Module rules (for contractsRoot = eu.vitamoments.app.data.models):
+     * New module rules for SSOT under eu.vitamoments.app.data.models.*:
      *
-     * - data.models.enums.*                     -> enums.ts
-     * - data.models.common.*                    -> common.ts
+     * - ... .enums.*                 -> enums.ts
+     * - ... .common.*                -> common.ts
      *
-     * - data.models.domain.<domain>.*           -> <domain>.ts
-     *   e.g. data.models.domain.user.*          -> user.ts
-     *        data.models.domain.feed.*          -> feed.ts
+     * - ... .domain.<module>.*       -> <module>.ts
+     * - ... .requests.<module>.*     -> <module>.ts
+     * - ... .responses.<module>.*    -> <module>.ts
      *
-     * - data.models.domain.common.*             -> common.ts (optional)
-     *
-     * - Any other top-level folder becomes its own module:
-     *   e.g. data.models.events.*               -> events.ts
+     * - ... .domain.* (no module)    -> common.ts
+     * - any other top-level folder   -> that folder name as module
      */
-    fun discoverDomainModules(contractsRoot: String): List<DomainModule> {
+    fun discoverDomainModules(
+        contractsRoot: String
+    ): List<DomainModule> {
         val serializableClasses = scanSerializableClasses(contractsRoot)
 
         val grouped = serializableClasses.groupBy { clazz ->
             val pkg = clazz.packageName
-
-            val rest = pkg.removePrefix("$contractsRoot.")
-            val segments = rest.split('.').filter { it.isNotBlank() }
+            val rest = pkg.removePrefix("$contractsRoot.") // e.g. "domain.user", "enums", "requests.feed"
+            val segments = rest.split('.')
 
             val first = segments.getOrNull(0) ?: return@groupBy "common"
 
@@ -41,14 +42,10 @@ object TsScan {
                 "enums" -> "enums"
                 "common" -> "common"
 
-                // ✅ your new structure
-                "domain", "requests", "responses" -> {
-                    val second = segments.getOrNull(1) ?: "common"
-                    // allow: domain.common.* -> common.ts
-                    if (second == "common") "common" else second
-                }
+                // ✅ NEW: treat domain like old models bucket
+                "domain", "requests", "responses" -> segments.getOrNull(1) ?: "common"
 
-                // fallback: treat any other top-level folder as its own module
+                // ✅ any other top-level folder becomes module
                 else -> first
             }
         }
@@ -74,17 +71,30 @@ object TsScan {
     }
 
     /**
-     * Ownership map: symbol simpleName -> module (feed/user/common/enums/etc.)
+     * Ownership map: symbol simpleName -> module (feed/user/friend/common/enums)
      * Used for stripping + auto imports.
      */
-    fun buildSymbolOwnership(modules: List<DomainModule>): Map<String, String> {
+
+    fun buildSymbolOwnership(modules: List<TsScan.DomainModule>): Map<String, String> {
         val map = linkedMapOf<String, String>()
         for (m in modules) {
             for (c in m.classes) {
-                val name = c.simpleName ?: continue
-                map.putIfAbsent(name, m.name)
+                val k = runCatching { c.kotlin }.getOrNull()
+
+                // 1) default: Kotlin class simpleName (UserWithContext, BlogItem, etc.)
+                val simple = c.simpleName
+                if (!simple.isNullOrBlank()) {
+                    map.putIfAbsent(simple, m.name)
+                }
+
+                // 2) ✅ ALSO: @SerialName("BLOGITEM") -> "BLOGITEM"
+                val serialName = k?.findAnnotation<SerialName>()?.value
+                if (!serialName.isNullOrBlank()) {
+                    map.putIfAbsent(serialName, m.name)
+                }
             }
         }
+
         return map
     }
 

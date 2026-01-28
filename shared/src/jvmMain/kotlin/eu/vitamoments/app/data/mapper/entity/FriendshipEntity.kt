@@ -5,10 +5,10 @@ import eu.vitamoments.app.data.entities.UserEntity
 import eu.vitamoments.app.data.models.enums.FriendshipDirection
 import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
-import eu.vitamoments.app.data.models.domain.user.AcceptedFriendship
-import eu.vitamoments.app.data.models.domain.user.DeletedFriendship
-import eu.vitamoments.app.data.models.domain.user.Friendship
-import eu.vitamoments.app.data.models.domain.user.PendingFriendship
+import eu.vitamoments.app.data.models.domain.friendship.AcceptedFriendship
+import eu.vitamoments.app.data.models.domain.friendship.DeletedFriendship
+import eu.vitamoments.app.data.models.domain.friendship.Friendship
+import eu.vitamoments.app.data.models.domain.friendship.PendingFriendship
 import kotlin.uuid.Uuid
 import kotlin.uuid.toKotlinUuid
 

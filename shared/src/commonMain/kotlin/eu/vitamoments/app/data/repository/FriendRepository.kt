@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.repository
 
-import eu.vitamoments.app.data.models.domain.user.Friendship
+import eu.vitamoments.app.data.models.domain.friendship.Friendship
 import eu.vitamoments.app.data.models.domain.user.PublicUser
 import eu.vitamoments.app.data.models.domain.user.UserWithContext
 import eu.vitamoments.app.data.models.domain.common.PagedResult

@@ -2,10 +2,10 @@ import React from "react";
 import { TimelineButton } from "./TimelineButton";
 import styles from "./Button.module.css";
 
-type TimelineButtonBarProps = {
+export type TimelineButtonBarProps = {
   activeIndex: number;
-  onChange: (index: number) => void | Promise<void>;
-  labels: [string, string, string, string];
+  labels: readonly string[];
+  onChange: (index: number) => void;
   className?: string;
 };
 
@@ -16,7 +16,7 @@ export function TimelineButtonBar({
   className,
 }: TimelineButtonBarProps) {
   return (
-    <div className={`${styles.bar} ${className ?? ""}`}>
+    <div className={`${styles.bar} ${className ?? ""}`.trim()}>
       {labels.map((label, index) => (
         <TimelineButton
           key={index}

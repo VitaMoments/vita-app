@@ -5,6 +5,7 @@ import eu.vitamoments.app.data.models.enums.BlogStatus
 import eu.vitamoments.app.data.models.enums.PrivacyStatus
 import eu.vitamoments.app.data.models.domain.common.RichTextDocument
 import eu.vitamoments.app.data.models.domain.user.User
+import eu.vitamoments.app.data.serializer.InstantSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
@@ -28,9 +29,9 @@ data class BlogItem(
 
     val categories: List<BlogCategory> = emptyList(),
     val status: BlogStatus = BlogStatus.DRAFT,
-    val publishedAt: Instant? = null,
+    @Serializable(with = InstantSerializer::class) val publishedAt: Instant? = null,
 
-    override val createdAt: Instant,
-    override val updatedAt: Instant,
-    override val deletedAt: Instant? = null
+    @Serializable(with = InstantSerializer::class) override val createdAt: Instant,
+    @Serializable(with = InstantSerializer::class) override val updatedAt: Instant,
+    @Serializable(with = InstantSerializer::class) override val deletedAt: Instant? = null
 ) : FeedItem

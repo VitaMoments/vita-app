@@ -1,59 +1,77 @@
-import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.JavaExec
-import java.io.File
+import org.gradle.api.tasks.Delete
 
-val kxsTsGen = configurations.maybeCreate("kxsTsGen")
+// Vereist: in de module (shared) plugins block:
+// alias(libs.plugins.ksp)
+
+if (!plugins.hasPlugin("com.google.devtools.ksp")) {
+    throw GradleException(
+        "KSP plugin is not applied. Add `alias(libs.plugins.ksp)` to the shared module plugins block."
+    )
+}
 
 dependencies {
-    kxsTsGen("dev.adamko.kxstsgen:kxs-ts-gen-core-jvm:0.2.4")
+    add("kspCommonMainMetadata", project(":kxs-ts-gen"))
 }
 
-val generatedTsDir = layout.buildDirectory.dir("data/types/ts")
+// Deterministisch pad (CC-safe). Zet dit in gradle.properties voor jouw repo:
+// tsgenOutDir=../webApp/src/data/types   (of wat jij wil)
+val outDirPath = providers.gradleProperty("tsgenOutDir")
+    .orElse("webApp/src/data/types")
+    .get()
 
-val generateTsModels = tasks.register("generateTsModels", JavaExec::class.java) {
-    group = "typescript"
-    description = "Generate TypeScript models for contracts packages (models/requests/responses)."
+val resolvedOutDir = rootProject.file(outDirPath)
 
-    dependsOn("compileKotlinJvm")
-    notCompatibleWithConfigurationCache("Runs a JVM generator with dynamically resolved classpath")
+// Configure KSP args zonder KspExtension import (werkt in applied scripts)
+val kspExt = extensions.getByName("ksp")
+val argMethod = kspExt.javaClass.methods.firstOrNull { m ->
+    m.name == "arg" &&
+            m.parameterTypes.size == 2 &&
+            m.parameterTypes[0] == String::class.java &&
+            m.parameterTypes[1] == String::class.java
+} ?: error("Could not find method ksp.arg(String, String).")
 
-    // Kotlin/JVM output locations
-    val kotlinJvmClassesDir = layout.buildDirectory.dir("classes/kotlin/jvm/main")
-    val jvmResourcesDirA = layout.buildDirectory.dir("processedResources/jvm/main")
-    val jvmResourcesDirB = layout.buildDirectory.dir("resources/jvm/main")
+argMethod.invoke(kspExt, "tsgen.basePackage", "eu.vitamoments.app.data.models")
+argMethod.invoke(kspExt, "tsgen.discriminatorKey", "type")
+argMethod.invoke(kspExt, "tsgen.outDir", resolvedOutDir.absolutePath)
 
-    doFirst {
-        // ✅ CRUCIAAL: clean output dir
-        val out = generatedTsDir.get().asFile
-        out.mkdirs()
-        out.listFiles()?.filter { it.isFile && it.extension == "ts" }?.forEach(File::delete)
+// Zoek KSP metadata tasks voor commonMain (tasknamen verschillen per KSP/Kotlin versie)
+val kspMetadataTasks = tasks.matching { t ->
+    t.name.startsWith("ksp", ignoreCase = true) &&
+            t.name.contains("CommonMain", ignoreCase = true) &&
+            t.name.contains("Metadata", ignoreCase = true)
+}
 
-        val resolvedGenJars = kxsTsGen.resolve()
+// Fallback als hij anders heet (bijv. geen "CommonMain" in de naam)
+val kspFallbackTasks = tasks.matching { t ->
+    t.name.startsWith("ksp", ignoreCase = true) &&
+            t.name.contains("Metadata", ignoreCase = true)
+}
 
-        logger.lifecycle("kxsTsGen resolved files:")
-        resolvedGenJars.forEach { logger.lifecycle(" - $it") }
+val chosenKspTasks = if (kspMetadataTasks.isEmpty()) kspFallbackTasks else kspMetadataTasks
 
-        classpath =
-            files(
-                kotlinJvmClassesDir.get().asFile,
-                jvmResourcesDirA.get().asFile,
-                jvmResourcesDirB.get().asFile
-            ) +
-                    configurations.getByName("jvmRuntimeClasspath") +
-                    files(resolvedGenJars)
+// Clean task blijft hetzelfde (Delete)
+val cleanTsTypes = tasks.register<Delete>("cleanTsTypes") {
+    delete(resolvedOutDir)
+}
+
+// Configureer alle gevonden KSP metadata tasks
+chosenKspTasks.configureEach {
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+    dependsOn(cleanTsTypes)
+}
+
+// Alias task
+tasks.register("generateTsTypes") {
+    group = "codegen"
+    description = "Generate TypeScript types into the configured tsgenOutDir from Kotlin @Serializable models"
+
+    if (chosenKspTasks.isEmpty()) {
+        throw GradleException(
+            "No KSP metadata task found. Make sure KSP is applied and commonMain is configured. " +
+                    "Run `./gradlew :shared:tasks --all | grep ksp` to see available tasks."
+        )
     }
 
-    mainClass.set("eu.vitamoments.app.tsgen.GenerateAllTsKt")
-    args(generatedTsDir.get().asFile.absolutePath)
-}
-
-val syncTsModelsToWeb = tasks.register("syncTsModelsToWeb", Copy::class.java) {
-    group = "typescript"
-    description = "Copy generated TS models into webApp/src/data/types"
-
-    dependsOn(generateTsModels)
-
-    from(generatedTsDir)
-    include("**/*.ts")
-    into(rootProject.layout.projectDirectory.dir("webApp/src/data/types"))
+    dependsOn(chosenKspTasks)
 }

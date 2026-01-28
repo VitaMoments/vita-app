@@ -7,7 +7,7 @@
     "shared/build/dist/js/developmentLibrary"
   ],
   "scripts": {
-    "gen:ts": "chmod +x ./gradlew && ./gradlew :shared:syncTsModelsToWeb --no-configuration-cache",
+    "gen:ts": "chmod +x ./gradlew && ./gradlew :shared:generateTsTypes",
     "build": "npm run gen:ts && cd webApp && npm run build",
     "start": "npm run gen:ts && cd webApp && npm run start"
   },

@@ -2,7 +2,8 @@ import React from "react";
 import styles from "./UserCard.module.css";
 
 import type { User } from "../../data/types";
-import { getUserDisplayName, getUserImageUrl, unwrapUser } from "../../data/ui/userHelpers";
+import { isUserPublic } from "../../data/types"
+import { getUserDisplayName } from "../../data/ui/userHelpers";
 import { MdPersonAdd, MdPersonRemove } from "react-icons/md";
 
 type UserCardProps = {
@@ -20,20 +21,14 @@ export function UserCard({
   disabled = false,
   loading = false,
 }: UserCardProps) {
-  // In jouw model is "PUBLIC" meestal "nog geen friend / discover"
-  // Andere types kunnen friend-context of private/account zijn
-  const base = unwrapUser(user);
-  const isPublic = base.type === "PUBLIC";
-
-  const img = getUserImageUrl(user);
+  const img = user.imageUrl;
   const name = getUserDisplayName(user);
 
   // bio bestaat op PUBLIC/PRIVATE/ACCOUNT in jouw output, maar niet altijd gegarandeerd
-  const bio =
-    "bio" in base && typeof base.bio === "string" && base.bio.length > 0 ? base.bio : null;
+    const bio = user.bio
 
   // uuid zit op de "echte" user, niet op CONTEXT
-  const uuid = "uuid" in base ? base.uuid : "";
+  const uuid = user.uuid
 
   return (
     <article className={styles.card}>
@@ -50,7 +45,7 @@ export function UserCard({
         </div>
 
         <div className={styles.actionButtonBar}>
-          {isPublic ? (
+          { isUserPublic(user) ? (
             <button
               type="button"
               disabled={disabled || loading || !uuid}

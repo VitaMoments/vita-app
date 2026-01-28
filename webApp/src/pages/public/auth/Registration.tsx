@@ -103,17 +103,19 @@ const Registration: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             required/>
         <PasswordInput
-            type="password"
-            value={password}
-            placeholder="Password"
-            onChange={onPasswordChange}
-            required />
+          label="password"
+          value={password}
+          placeholder="password"
+          onChange={(e) => onPasswordChange(e)}
+          required
+        />
         <PasswordInput
-            type="password"
-            value={confirmPassword}
-            placeholder="Repeat password"
-            onChange={onPasswordRepeatChange}
-            required />
+          label="confirm password"
+          value={confirmPassword}
+          placeholder="password"
+          onChange={(e) => onPasswordRepeatChange(e)}
+          required
+        />
         <Button type="submit" disabled={loading || ((pwError?.length ?? 0) > 0 || !hasBothPasswords ) }>
           {loading ? "Bezig met registreren..." : "Account aanmaken"}
         </Button>

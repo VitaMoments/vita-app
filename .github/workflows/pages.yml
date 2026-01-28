@@ -39,8 +39,7 @@ jobs:
       - name: Generate TS types
         run: |
           chmod +x ./gradlew
-          rm -rf webApp/src/generated/*.ts
-          ./gradlew :shared:syncTsModelsToWeb --no-configuration-cache
+          ./gradlew :shared:generateTsTypes 
 
       # Node voor React/Vite build
       - uses: actions/setup-node@v4

@@ -1,10 +1,12 @@
 // src/api/axios.ts
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: apiBaseUrl,
   withCredentials: true,
 });
 

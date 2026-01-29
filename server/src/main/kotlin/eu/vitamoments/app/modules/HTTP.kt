@@ -30,43 +30,29 @@ fun Application.configureHTTP() {
 
     install(CORS) {
         allowCredentials = true
-//        allowHeaders { true }
-        allowHeader(HttpHeaders.ContentType)
 
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Options)
-        allowMethod(HttpMethod.Post)
-        allowMethod(HttpMethod.Get)
+
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.Accept)
 
         exposeHeader(HttpHeaders.ContentDisposition)
         maxAgeInSeconds = 3600
 
-        // Voor dev + tests: localhost toestaan (alle poorten)
-        // Dit werkt voor:
-        // - je React dev server (bijv. localhost:5173)
-        // - je API zelf (localhost:8080)
-        // - Ktor test client (localhost)
-        allowHost("localhost:5174", schemes=listOf("http"))
-        allowHost("localhost:5175", schemes=listOf("http"))
-        allowHost("localhost:5176", schemes=listOf("http"))
-//        anyHost() // alleen voor development
+        // DEV
+        allowHost("localhost:5174", schemes = listOf("http"))
+        allowHost("localhost:5175", schemes = listOf("http"))
+        allowHost("localhost:5176", schemes = listOf("http"))
 
-        // Eventueel voor productie:
-        // val frontendHost = System.getenv("FRONTEND_HOST") // bijv. "app.healthyproduct.nl"
-        // if (!frontendHost.isNullOrBlank()) {
-        //     allowHost(frontendHost, schemes = listOf("https"))
-        // }
+        // PROD (GitHub Pages origin)
+        allowHost("vitamoments.github.io", schemes = listOf("https"))
 
-        // ---- PROD (GitHub Pages) ----
-        // 1) Standaard GitHub Pages host: <username>.github.io
-        // Dit dekt je repo site: https://<username>.github.io/<repo>/
-        val ghPagesHost = System.getenv("GH_PAGES_HOST") // bv "falcoberendhaus.github.io"
-        if (!ghPagesHost.isNullOrBlank()) {
-            allowHost(ghPagesHost, schemes = listOf("https"))
-        }
-
-        // Optioneel: als je later een custom domain gebruikt (bijv. app.vitamoments.eu)
+        // Later custom domain (optioneel)
         val frontendHost = System.getenv("FRONTEND_HOST")
         if (!frontendHost.isNullOrBlank()) {
             allowHost(frontendHost, schemes = listOf("https"))

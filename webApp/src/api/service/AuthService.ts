@@ -1,5 +1,6 @@
+// AuthService.ts
 import api from "../axios";
-import { User } from "../../data/types"
+import { User } from "../../data/types";
 
 export const AuthService = {
   async login(email: string, password: string): Promise<User.ACCOUNT> {
@@ -17,15 +18,11 @@ export const AuthService = {
     return res.data;
   },
 
-  async refreshSession(): Promise<User.ACCOUNT> {
-    const res = await api.post<User.ACCOUNT>("/auth/refresh");
-    return res.data;
+  async refreshSession(): Promise<void> {
+    await api.post("/auth/refresh");
   },
 
-  async logout(): Promise<boolean> {
-    const res = await api.post<boolean>("/auth/logout");
-    return res.data;
+  async logout(): Promise<void> {
+    await api.post("/auth/logout");
   },
 };
-
-

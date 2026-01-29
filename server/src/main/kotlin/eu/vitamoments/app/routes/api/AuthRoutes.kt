@@ -28,34 +28,34 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 fun Route.authRoutes() {
-    val authRepo : ServerAuthRepository by inject()
-    val userRepo : UserRepository by inject()
+    val authRepo: ServerAuthRepository by inject()
+    val userRepo: UserRepository by inject()
 
     route("/auth") {
+
         post("/register") {
             val request: RegistrationRequest = call.receive()
-            val result: RepositoryResponse<AuthSession> = authRepo.register(username = request.username, email = request.email, password = request.password)
+            val result: RepositoryResponse<AuthSession> =
+                authRepo.register(username = request.username, email = request.email, password = request.password)
 
-            when (result) {
-                is RepositoryResponse.Success -> {
-                    val session = result.body
-                    call.setAuthCookies(session)
-                }
-                else -> result
+            if (result is RepositoryResponse.Success) {
+                call.setAuthCookies(result.body)
+                call.respondRepository(RepositoryResponse.Success(result.body.user), HttpStatusCode.Created)
+            } else {
+                call.respondRepository(result)
             }
-            call.respond(result)
-            call.respondRepository(result)
         }
 
         post("/login") {
-            val request : LoginRequest = call.receive()
-            val result: RepositoryResponse<AuthSession> = authRepo.login(email = request.email, password = request.password)
+            val request: LoginRequest = call.receive()
+            val result: RepositoryResponse<AuthSession> =
+                authRepo.login(email = request.email, password = request.password)
+
             if (result is RepositoryResponse.Success) {
-                val session = result.body
-                call.setAuthCookies(session)
+                call.setAuthCookies(result.body)
                 call.respondRepository(RepositoryResponse.Success(result.body.user))
             } else {
-                call.respond(result)
+                call.respondRepository(result)
             }
         }
 
@@ -64,25 +64,24 @@ fun Route.authRoutes() {
             val result: RepositoryResponse<AuthSession> = authRepo.refresh(refresh)
 
             if (result is RepositoryResponse.Success) {
-                val session = result.body
-                call.setAuthCookies(session)
-                call.respondRepository(RepositoryResponse.Success(result.body.user))
+                call.setAuthCookies(result.body)
+                call.respond(HttpStatusCode.NoContent)
             } else {
-                call.respond(result)
+                call.respondRepository(result)
             }
         }
 
         post("/logout") {
             val refreshToken = call.requireRefreshToken()
             authRepo.logout(refreshToken)
-//            force logout, refresh token will expire sometime
+
             call.clearAuthCookies()
-            call.respond(HttpStatusCode.OK)
+            call.respond(HttpStatusCode.NoContent)
         }
 
         authenticate("cookie-jwt-authentication") {
             get("/session") {
-                val userId : Uuid = call.requireUserId()
+                val userId: Uuid = call.requireUserId()
                 val result: RepositoryResponse<AccountUser> = userRepo.getMyAccount(userId = userId)
                 call.respondRepository(result)
             }

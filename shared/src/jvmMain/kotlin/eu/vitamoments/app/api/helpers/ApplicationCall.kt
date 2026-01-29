@@ -1,7 +1,6 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.api.helpers
 
+import eu.vitamoments.app.config.BuildConfig
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -10,8 +9,8 @@ import io.ktor.server.response.respond
 import eu.vitamoments.app.config.JWTConfig
 import eu.vitamoments.app.config.JWTConfigLoader
 import eu.vitamoments.app.data.models.domain.AuthSession
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+import io.ktor.http.Cookie
 
 val ApplicationCall.userId: Uuid?
     get() = principal<JWTPrincipal>()
@@ -44,44 +43,37 @@ suspend fun ApplicationCall.requireAccessToken() : String = accessToken ?: run {
 }
 
 fun ApplicationCall.clearAuthCookies() {
-    appendCookie(
-        key = "access_token",
-        value = "",
-        maxAge = 0,
-        path = "/api"
-    )
-    appendCookie(
-        key = "refresh_token",
-        value = "",
-        maxAge = 0,
-        path = "/api/auth/refresh"
-    )
-
+    appendCookie("access_token", "", maxAge = 0, path = "/api")
+    appendCookie("refresh_token", "", maxAge = 0, path = "/api/auth")
 }
 
 fun ApplicationCall.setAuthCookies(session: AuthSession) {
     val jwtConfig = JWTConfigLoader.loadOrThrow()
-    appendCookie(
-        key = "access_token",
-        value = session.accessToken.token,
-        maxAge = jwtConfig.jwtExpirationSeconds,
-        path = "/api"
-    )
-    appendCookie(
-        key = "refresh_token",
-        value = session.refreshToken.token,
-        maxAge = jwtConfig.refreshExpirationSeconds,
-        path = "/api/auth"
-    )
+    appendCookie("access_token", session.accessToken.token, jwtConfig.jwtExpirationSeconds, path = "/api")
+    appendCookie("refresh_token", session.refreshToken.token, jwtConfig.refreshExpirationSeconds, path = "/api/auth")
 }
 
-private fun ApplicationCall.appendCookie(key: String, value: String, maxAge: Long? = null, path: String? = null) {
+private fun ApplicationCall.appendCookie(
+    key: String,
+    value: String,
+    maxAge: Long? = null,
+    path: String
+) {
+    val env = BuildConfig.ENVIRONMENT
+    val isProdLike = env in setOf("prod", "production", "acc", "accept", "demo")
+
     response.cookies.append(
-        name = key,
-        value = value,
-        maxAge = maxAge,
-        httpOnly = true,
-        path = path,
-        secure = false,
+        Cookie(
+            name = key,
+            value = value,
+            path = path,
+            maxAge = maxAge?.toInt(),
+            httpOnly = true,
+            secure = isProdLike, // ✅ in prod https: true
+            extensions = mapOf(
+                // ✅ cross-site cookies: MUST be None + Secure
+                "SameSite" to if (isProdLike) "None" else "Lax"
+            )
+        )
     )
 }

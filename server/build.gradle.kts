@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     application
+    id("com.github.johnrengelman.shadow")
 }
 
 group = "eu.vitamoments.app"
@@ -83,8 +84,8 @@ dependencies {
 
     implementation(libs.postgresql)
 
-    implementation(libs.flyway.core)
     implementation(libs.flyway.database.postgresql)
+    implementation(libs.flyway.core)
 
     // Image processing
     implementation(libs.thumbnailator)
@@ -103,4 +104,10 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().con
             "-opt-in=kotlin.time.ExperimentalTime",
         )
     }
+}
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    archiveClassifier.set("all")
+    mergeServiceFiles()
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }

@@ -12,7 +12,7 @@ import eu.vitamoments.app.modules.security.configureSecurity
 import eu.vitamoments.app.modules.configureSerialization
 
 fun main() {
-    val port = System.getenv("SERVER_PORT")?.toInt() ?: 8080
+    val port = System.getenv("PORT")?.toInt() ?: 8080
     embeddedServer(Netty, port = port, module = Application::module)
         .start(wait = true)
 }

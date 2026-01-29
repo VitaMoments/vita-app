@@ -62,7 +62,7 @@ fun Route.friendRoutes() {
             val userId = call.requireUserId()
             val request: UpdateFriendshipRequest = call.receive()
 
-            val result = friendRepo.accept(userId, request.friendship.otherUserId)
+            val result = friendRepo.accept(userId, request.friendshipId)
             call.respondRepository(result)
         }
 
@@ -70,7 +70,7 @@ fun Route.friendRoutes() {
             val userId = call.requireUserId()
             val request: UpdateFriendshipRequest = call.receive()
 
-            val result = friendRepo.decline(userId, request.friendship.otherUserId)
+            val result = friendRepo.decline(userId, request.friendshipId)
             call.respondRepository(result)
         }
 
@@ -78,7 +78,7 @@ fun Route.friendRoutes() {
             val userId = call.requireUserId()
             val request: UpdateFriendshipRequest = call.receive()
 
-            val result = friendRepo.delete(userId, request.friendship.otherUserId)
+            val result = friendRepo.delete(userId, request.friendshipId)
             call.respondRepository(result)
         }
 

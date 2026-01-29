@@ -1,5 +1,6 @@
 package eu.vitamoments.app.api.helpers
 
+import eu.vitamoments.app.config.BuildConfig
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -58,7 +59,7 @@ private fun ApplicationCall.appendCookie(
     maxAge: Long? = null,
     path: String
 ) {
-    val env = (System.getenv("ENVIRONMENT") ?: "").trim().lowercase()
+    val env = BuildConfig.ENVIRONMENT
     val isProdLike = env in setOf("prod", "production", "acc", "accept", "demo")
 
     response.cookies.append(

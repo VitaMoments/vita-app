@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
-    base: "/",
+    base: mode === "production" ? "/vita-app/" : "/",
     build: {
       outDir: "dist",
       emptyOutDir: true,

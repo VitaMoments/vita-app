@@ -4,6 +4,7 @@ import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 
 
+@Deprecated("This will be removed")
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 class Greeting {

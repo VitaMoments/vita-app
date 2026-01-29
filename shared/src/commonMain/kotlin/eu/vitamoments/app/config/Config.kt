@@ -2,10 +2,10 @@ package eu.vitamoments.app.config
 
 object Config {
     private fun envName(): String =
-        getEnv("ENVIRONMENT")?.trim()?.lowercase()
-            ?: "dev"
-
-    val currentEnvironment: AppEnvironment = when (BuildConfig.ENVIRONMENT.lowercase()) {
+        (getEnv("APP_ENV") ?: BuildConfig.ENVIRONMENT)
+            .trim()
+            .lowercase()
+    val currentEnvironment: AppEnvironment = when (envName()) {
         "dev" -> AppEnvironment.Dev
         "test" -> AppEnvironment.Test
         "acc" -> AppEnvironment.Accept
@@ -13,6 +13,7 @@ object Config {
         "prod" -> AppEnvironment.Prod
         else -> AppEnvironment.Dev
     }
+
 
     val app: AppConfig
         get() = when (currentEnvironment) {

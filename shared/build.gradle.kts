@@ -150,16 +150,12 @@ kotlin.sourceSets.named("commonMain") {
     kotlin.srcDir(layout.buildDirectory.dir("generated/buildConfig/commonMain/kotlin"))
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    if (name.contains("commonMain", ignoreCase = true)) {
-        dependsOn(generateBuildConfig)
+kotlin.targets.all {
+    compilations.all {
+        compileTaskProvider.configure {
+            dependsOn(generateBuildConfig)
+        }
     }
 }
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>()
-    .matching { it.name.startsWith("compileKotlinJs") || it.name.contains("Js") }
-    .configureEach {
-        dependsOn(generateBuildConfig)
-    }
 
 apply(from = rootProject.file("gradle/tsgen.gradle.kts"))

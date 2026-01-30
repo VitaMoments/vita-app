@@ -3,26 +3,23 @@ import api from "../axios";
 import { User } from "../../data/types";
 
 export const AuthService = {
-  async login(email: string, password: string): Promise<User.ACCOUNT> {
-    const res = await api.post<User.ACCOUNT>("/auth/login", { email, password });
-    return res.data;
+  login(email: string, password: string) {
+    return api.post<User.ACCOUNT>("/auth/login", { email, password }).then(r => r.data);
   },
 
-  async register(username: string, email: string, password: string): Promise<User.ACCOUNT> {
-    const res = await api.post<User.ACCOUNT>("/auth/register", { username, email, password });
-    return res.data;
+  register(username: string, email: string, password: string) {
+    return api.post<User.ACCOUNT>("/auth/register", { username, email, password }).then(r => r.data);
   },
 
-  async fetchSession(): Promise<User.ACCOUNT> {
-    const res = await api.get<User.ACCOUNT>("/auth/session");
-    return res.data;
+  fetchSession() {
+    return api.get<User.ACCOUNT>("/auth/session").then(r => r.data);
   },
 
-  async refreshSession(): Promise<void> {
-    await api.post("/auth/refresh");
+  refreshSession() {
+    return api.post("/auth/refresh").then(() => {});
   },
 
-  async logout(): Promise<void> {
-    await api.post("/auth/logout");
+  logout() {
+    return api.post("/auth/logout").then(() => {});
   },
 };

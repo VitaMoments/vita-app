@@ -4,8 +4,10 @@ package eu.vitamoments.app.routes.api
 
 import eu.vitamoments.app.api.helpers.requireUserId
 import eu.vitamoments.app.config.JWTConfigLoader
+import eu.vitamoments.app.data.models.requests.respondError
 import eu.vitamoments.app.data.models.requests.respondRepository
-import eu.vitamoments.app.data.repository.RepositoryResponse
+import eu.vitamoments.app.data.repository.RepositoryError
+import eu.vitamoments.app.data.repository.RepositoryResult
 import eu.vitamoments.app.data.repository.ServerAuthRepository
 import eu.vitamoments.app.data.repository.UserRepository
 import eu.vitamoments.app.services.CropRect
@@ -123,7 +125,7 @@ fun Route.profileRoutes() {
                 call.respond(e.status, e.message)
             } catch (e: IllegalArgumentException) {
                 tmpFile?.delete()
-                call.respond(RepositoryResponse.Error.FieldError(field = "payload", message = "File to large"))
+                call.respondError(RepositoryError.BadRequest(listOf(RepositoryError.FieldError(field = "payload", message = "File to large"))))
             } catch (e: Exception) {
                 tmpFile?.delete()
                 call.respond(HttpStatusCode.InternalServerError, "Upload failed")

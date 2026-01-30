@@ -1,14 +1,15 @@
 package eu.vitamoments.app.api.helpers
 
 import eu.vitamoments.app.config.BuildConfig
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
-import io.ktor.server.response.respond
 import eu.vitamoments.app.config.JWTConfig
 import eu.vitamoments.app.config.JWTConfigLoader
 import eu.vitamoments.app.data.models.domain.AuthSession
+import eu.vitamoments.app.data.models.domain.api.ErrorCode
+import eu.vitamoments.app.data.models.requests.respondError
+import eu.vitamoments.app.data.repository.RepositoryError
 import kotlin.uuid.Uuid
 import io.ktor.http.Cookie
 
@@ -27,20 +28,28 @@ val ApplicationCall.refreshToken: String?
 val ApplicationCall.accessToken: String?
     get() = this.request.cookies["access_token"]
 
-suspend fun ApplicationCall.requireUserId() : Uuid = userId ?: run {
-    respond(HttpStatusCode.Unauthorized, "UserId not found in requireUserId")
-    error("Unauthorized call in requireUserId")
+suspend fun ApplicationCall.requireUserId() : Uuid = userId ?: unauthorized(
+    ErrorCode.ACCESS_TOKEN_NOT_VALID,
+    "Invalid AccessToken"
+)
+
+suspend fun ApplicationCall.requireRefreshToken(): String =
+    refreshToken ?: unauthorized(
+        ErrorCode.REFRESH_TOKEN_NOT_FOUND,
+        "RefreshToken not found")
+
+
+suspend fun ApplicationCall.requireAccessToken(): String =
+    accessToken ?: unauthorized(ErrorCode.ACCESS_TOKEN_NOT_FOUND, "AccessToken not found")
+
+
+
+
+suspend fun ApplicationCall.unauthorized(code: ErrorCode, message: String): Nothing {
+    respondError(RepositoryError.Unauthorized(message = message, code = code))
+    error("Unauthorized: $code - $message")
 }
 
-suspend fun ApplicationCall.requireRefreshToken() : String = refreshToken ?: run {
-    respond(HttpStatusCode.Unauthorized, "RefreshToken not found in request")
-    error("Unauthorized call in requireRefreshToken")
-}
-
-suspend fun ApplicationCall.requireAccessToken() : String = accessToken ?: run {
-    respond(HttpStatusCode.Unauthorized, "AccessToken not found in request")
-    error("Unauthorized call in requireAccessToken")
-}
 
 fun ApplicationCall.clearAuthCookies() {
     appendCookie("access_token", "", maxAge = 0, path = "/api")
@@ -69,9 +78,8 @@ private fun ApplicationCall.appendCookie(
             path = path,
             maxAge = maxAge?.toInt(),
             httpOnly = true,
-            secure = isProdLike, // ✅ in prod https: true
+            secure = isProdLike,
             extensions = mapOf(
-                // ✅ cross-site cookies: MUST be None + Secure
                 "SameSite" to if (isProdLike) "None" else "Lax"
             )
         )

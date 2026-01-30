@@ -1,54 +1,47 @@
 package eu.vitamoments.app.data.models.requests
 
-import eu.vitamoments.app.data.models.domain.api.ApiError
-import eu.vitamoments.app.data.models.domain.api.ApiFieldError
-import eu.vitamoments.app.data.repository.RepositoryResponse
+import eu.vitamoments.app.data.repository.RepositoryError
+import eu.vitamoments.app.data.repository.RepositoryResult
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respond
 import io.ktor.util.reflect.typeInfo
 
-suspend inline fun <reified T> ApplicationCall.respondRepository(rr: RepositoryResponse<T>, succesStatusCode: HttpStatusCode = HttpStatusCode.OK) {
+suspend fun ApplicationCall.respondError(err: RepositoryError) {
+    respond(err.statusCode(), err.toApiError())
+}
+
+suspend inline fun <reified T> ApplicationCall.respondRepository(
+    rr: RepositoryResult<T>,
+    successStatusCode: HttpStatusCode = HttpStatusCode.OK
+) {
     when (rr) {
-        is RepositoryResponse.Success -> {
-                respond(
-                    status = succesStatusCode,
-                    message = rr.body,
-                    messageType = typeInfo<T>()
-                )
+        is RepositoryResult.Success -> {
+            respond(
+                status = successStatusCode,
+                message = rr.body,
+                messageType = typeInfo<T>()
+            )
         }
-
-        is RepositoryResponse.Error.RequestLimitReached ->
-            respond(HttpStatusCode.TooManyRequests, rr.toApiError())
-
-        is RepositoryResponse.Error.Conflict ->
-            respond(HttpStatusCode.Conflict, rr.toApiError())
-
-        is RepositoryResponse.Error.Validation ->
-            respond(HttpStatusCode.BadRequest, rr.toApiError())
-
-        is RepositoryResponse.Error.Unauthorized ->
-            respond(HttpStatusCode.Unauthorized, rr.toApiError())
-
-        is RepositoryResponse.Error.NotFound ->
-            respond(HttpStatusCode.NotFound, rr.toApiError())
-
-        is RepositoryResponse.Error.Internal ->
-            respond(HttpStatusCode.InternalServerError, rr.toApiError())
+        is RepositoryResult.Error -> respondError(rr.error)
     }
 }
 
-fun RepositoryResponse.Error.toApiError(): ApiError {
-    val fieldErrors = when (this) {
-        is RepositoryResponse.Error.Validation -> this.errors
-        is RepositoryResponse.Error.Conflict -> this.errors
-        else -> emptyList()
-    }.map { ApiFieldError(field = it.field, message = it.message) }
+suspend inline fun <reified T> ApplicationCall.handleResult(
+    result: RepositoryResult<T>,
+    successStatusCode: HttpStatusCode = HttpStatusCode.OK,
+    noinline onSuccess: (suspend ApplicationCall.(T) -> Unit)? = null,
+    noinline onError: (suspend ApplicationCall.(RepositoryError) -> Unit)? = null
+) {
+    when (result) {
+        is RepositoryResult.Success -> {
+            if (onSuccess != null) onSuccess(result.body)
+            else respondRepository(result, successStatusCode)
+        }
 
-    return ApiError(
-        code = this.code,
-        message = this.message,
-        fieldErrors = fieldErrors,
-        traceId = this.traceId
-    )
+        is RepositoryResult.Error -> {
+            if (onError != null) onError(result.error)
+            else respondError(result.error)
+        }
+    }
 }

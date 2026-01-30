@@ -28,23 +28,23 @@ class JVMTimeLineRepository : TimeLineRepository {
     override suspend fun createPost(
         userId: Uuid,
         content: JsonObject
-    ): RepositoryResponse<TimelineItem> = dbQuery {
+    ): RepositoryResult<TimelineItem> = dbQuery {
         val viewerUuid = userId.toJavaUuid()
 
         //todo: maak van de Error.NotFound een InvalidData zodat NotFound meer slaat op routes
         val userEntity = UserEntity
             .find { UsersTable.id eq viewerUuid }
             .firstOrNull()
-            ?: return@dbQuery RepositoryResponse.Error.NotFound(
+            ?: return@dbQuery RepositoryResult.Error(RepositoryError.NotFound(
                 message = "This userId is not registered as User"
-            )
+            ))
 
         val entity = TimeLineItemEntity.new {
             this.createdBy = userEntity
             this.content = content
         }
 
-        RepositoryResponse.Success(entity.toDomain(userId))
+        RepositoryResult.Success(entity.toDomain(userId))
     }
 
     override suspend fun getTimeLine(
@@ -52,7 +52,7 @@ class JVMTimeLineRepository : TimeLineRepository {
         feed: TimeLineFeed,
         limit: Int,
         offset: Long
-    ): RepositoryResponse<List<TimelineItem>> = dbQuery {
+    ): RepositoryResult<List<TimelineItem>> = dbQuery {
         val viewerUuid: UUID = userId.toJavaUuid()
 
         // ✅ basic hardening
@@ -61,7 +61,7 @@ class JVMTimeLineRepository : TimeLineRepository {
 
         when (feed) {
             TimeLineFeed.GROUPS -> {
-                RepositoryResponse.Error.Internal("Groups feed is not implemented yet")
+                RepositoryResult.Error(RepositoryError.Internal("Groups feed is not implemented yet"))
             }
 
             TimeLineFeed.SELF -> {
@@ -72,7 +72,7 @@ class JVMTimeLineRepository : TimeLineRepository {
                     .offset(safeOffset)
                     .toList()
 
-                RepositoryResponse.Success(entities.map { it.toDomain(userId) })
+                RepositoryResult.Success(entities.map { it.toDomain(userId) })
             }
 
             TimeLineFeed.FRIENDS -> {
@@ -98,7 +98,7 @@ class JVMTimeLineRepository : TimeLineRepository {
                     if (friendSet.contains(authorUuid.toJavaUuid())) FriendshipStatus.ACCEPTED else null
                 }
 
-                RepositoryResponse.Success(entities.map { it.toDomain(userId, provider) })
+                RepositoryResult.Success(entities.map { it.toDomain(userId, provider) })
             }
 
             TimeLineFeed.DISCOVERY -> {
@@ -122,7 +122,7 @@ class JVMTimeLineRepository : TimeLineRepository {
 
                 // Discovery = authors are NOT friends by definition (we filtered them out),
                 // so provider is always null => just map without provider.
-                RepositoryResponse.Success(entities.map { it.toDomain(userId) })
+                RepositoryResult.Success(entities.map { it.toDomain(userId) })
             }
         }
     }

@@ -10,6 +10,7 @@ import eu.vitamoments.app.data.mapper.entity.toAccountDomain
 import eu.vitamoments.app.data.mapper.entity.toDomain
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.models.domain.AuthSession
+import eu.vitamoments.app.data.models.domain.api.ErrorCode
 import eu.vitamoments.app.data.tables.RefreshTokensTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.dbHelpers.PasswordHasher
@@ -22,15 +23,15 @@ class JVMAuthRepository() : ServerAuthRepository {
     override suspend fun login(
         email: String,
         password: String
-    ): RepositoryResponse<AuthSession> = dbQuery {
-        val userEntity = findUserByCredentials(email, password) ?: return@dbQuery RepositoryResponse.Error.Unauthorized("email / password combination not found")
+    ): RepositoryResult<AuthSession> = dbQuery {
+        val userEntity = findUserByCredentials(email, password) ?: return@dbQuery RepositoryResult.Error(RepositoryError.Unauthorized(message = "Username/password combination not found"))
 
         val accessToken = jwtConfig.generateAccessToken(userEntity.toAccountDomain())
         val refreshToken = jwtConfig.generateRefreshToken()
 
         RefreshTokenEntity.fromAuthToken(refreshToken, userEntity)
 
-        RepositoryResponse.Success(
+        RepositoryResult.Success(
             body = AuthSession(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
@@ -43,27 +44,29 @@ class JVMAuthRepository() : ServerAuthRepository {
         username: String,
         email: String,
         password: String
-    ): RepositoryResponse<AuthSession> = dbQuery {
+    ): RepositoryResult<AuthSession> = dbQuery {
 
-        val errors = mutableListOf<RepositoryResponse.Error.FieldError>()
+        val errors = mutableListOf<RepositoryError.FieldError>()
 
         if (usernameExists(username)) {
-            errors += RepositoryResponse.Error.FieldError(
+            errors += RepositoryError.FieldError(
                 field = "username",
                 message = "Username already exists"
             )
         }
         if (emailExists(email)) {
-            errors += RepositoryResponse.Error.FieldError(
+            errors += RepositoryError.FieldError(
                 field = "email",
                 message = "Email already exists"
             )
         }
 
         if (errors.isNotEmpty()) {
-            // Je kunt hier kiezen: Conflict of Validation
-            // Duplicate is typisch Conflict (409)
-            return@dbQuery RepositoryResponse.Error.Conflict(errors = errors)
+            return@dbQuery RepositoryResult.Error(
+                RepositoryError.Conflict(
+                    errors = errors
+                ),
+            )
         }
 
         val hashedPassword = PasswordHasher.hashPassword(password)
@@ -79,7 +82,7 @@ class JVMAuthRepository() : ServerAuthRepository {
 
         RefreshTokenEntity.fromAuthToken(refreshToken, userEntity)
 
-        RepositoryResponse.Success(
+        RepositoryResult.Success(
             body = AuthSession(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
@@ -88,21 +91,44 @@ class JVMAuthRepository() : ServerAuthRepository {
         )
     }
 
-    override suspend fun logout(refreshToken: String): RepositoryResponse<Boolean> = dbQuery {
-        val tokenEntity = RefreshTokenEntity.find { RefreshTokensTable.refreshToken eq refreshToken }.firstOrNull() ?: return@dbQuery RepositoryResponse.Error.NotFound("RefreshToken not found")
+    override suspend fun logout(refreshToken: String): RepositoryResult<Unit> = dbQuery {
+        val tokenEntity = RefreshTokenEntity
+            .find { RefreshTokensTable.refreshToken eq refreshToken }
+            .firstOrNull()
+            ?: return@dbQuery RepositoryResult.Error(
+                RepositoryError.NotFound(
+                    message = "Refresh token not found",
+                    code = ErrorCode.REFRESH_TOKEN_NOT_FOUND
+                )
+            )
         tokenEntity.revokedAt = LocalDateTime.nowUtc()
-        RepositoryResponse.Success(body = true)
+        RepositoryResult.Success(Unit)
     }
 
-    override suspend fun refresh(refreshToken: String?): RepositoryResponse<AuthSession> = dbQuery {
-        if (refreshToken.isNullOrEmpty()) return@dbQuery RepositoryResponse.Error.Unauthorized("No refresh token provided")
+    override suspend fun refresh(refreshToken: String?): RepositoryResult<AuthSession> = dbQuery {
+        if (refreshToken.isNullOrEmpty()) return@dbQuery RepositoryResult.Error(
+            RepositoryError.NotFound(
+                message = "Refresh token not found",
+                code = ErrorCode.REFRESH_TOKEN_NOT_FOUND
+            )
+        )
         val refreshTokenEntity = RefreshTokenEntity.find { RefreshTokensTable.refreshToken eq refreshToken }
             .firstOrNull()
             ?.takeIf {
                 it.revokedAt == null && !it.toDomain().isExpired
-            } ?: return@dbQuery RepositoryResponse.Error.Unauthorized("RefreshToken is not valid")
+            } ?: return@dbQuery RepositoryResult.Error(
+            RepositoryError.Unauthorized(
+                message = "Refresh token not valid",
+                code = ErrorCode.REFRESH_TOKEN_NOT_FOUND
+            )
+        )
 
-        val userEntity = UserEntity.find { UsersTable.id eq refreshTokenEntity.user.id }.firstOrNull() ?: return@dbQuery RepositoryResponse.Error.Internal("RefreshToken is not linked to an account")
+        val userEntity = UserEntity.find { UsersTable.id eq refreshTokenEntity.user.id }.firstOrNull() ?: return@dbQuery RepositoryResult.Error(
+            RepositoryError.NotFound(
+                message = "Refresh token not valid",
+                code = ErrorCode.REFRESH_TOKEN_NOT_VALID
+            )
+        )
 
         refreshTokenEntity.revokedAt = LocalDateTime.nowUtc()
 
@@ -110,7 +136,7 @@ class JVMAuthRepository() : ServerAuthRepository {
         val refreshToken = jwtConfig.generateRefreshToken()
         RefreshTokenEntity.fromAuthToken(refreshToken, userEntity)
 
-        RepositoryResponse.Success(
+        RepositoryResult.Success(
             body = AuthSession(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
@@ -123,7 +149,7 @@ class JVMAuthRepository() : ServerAuthRepository {
         message = "Not supported here. Use usersRepo + authentication module.",
         level = DeprecationLevel.WARNING
     )
-    override suspend fun session(): RepositoryResponse<AuthSession> =
+    override suspend fun session(): RepositoryResult<AuthSession> =
         throw UnsupportedOperationException("Not supported here; use usersRepo + authentication module")
 
     suspend fun validRefreshToken(refreshToken: String) = dbQuery {

@@ -5,6 +5,13 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
+// Optional hook for when refresh fails (e.g. clear auth state, redirect)
+let onAuthFailed: (() => void) | null = null;
+
+export function setOnAuthFailed(cb: (() => void) | null) {
+  onAuthFailed = cb;
+}
+
 const api = axios.create({
   baseURL: apiBaseUrl,
   withCredentials: true,
@@ -49,6 +56,8 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (refreshErr) {
       notify(false);
+      // refresh failed => consider session invalid
+      onAuthFailed?.();
       return Promise.reject(refreshErr);
     } finally {
       isRefreshing = false;

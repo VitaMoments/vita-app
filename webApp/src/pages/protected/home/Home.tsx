@@ -45,7 +45,7 @@ const Home: React.FC = () => {
         offset: 0,
         limit: LIMIT,
       });
-
+      console.log(data)
       setItems(data);
     } catch (e) {
       console.error(e);

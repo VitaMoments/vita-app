@@ -1,9 +1,10 @@
 package eu.vitamoments.app.data.models.domain.common
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class RichTextDocument(
-    val content: JsonObject
+    val type: String? = null,
+    val content: JsonElement? = null
 )

@@ -1,8 +1,8 @@
 package eu.vitamoments.app.data.repository
 
-import kotlinx.serialization.json.JsonObject
 import eu.vitamoments.app.data.entities.TimeLineItemEntity
 import eu.vitamoments.app.data.entities.UserEntity
+import eu.vitamoments.app.data.models.helpers.extension_functions.isBlankRichText
 import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.models.enums.TimeLineFeed
 import eu.vitamoments.app.data.mapper.entity.toDomain
@@ -11,8 +11,8 @@ import eu.vitamoments.app.data.tables.TimeLineItemsTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.dbHelpers.dbQuery
 import eu.vitamoments.app.dbHelpers.queries.getAcceptedFriendIds
+import kotlinx.serialization.json.JsonElement
 import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
@@ -27,24 +27,34 @@ class JVMTimeLineRepository : TimeLineRepository {
 
     override suspend fun createPost(
         userId: Uuid,
-        content: JsonObject
-    ): RepositoryResponse<TimelineItem> = dbQuery {
+        content: JsonElement
+    ): RepositoryResult<TimelineItem> = dbQuery {
         val viewerUuid = userId.toJavaUuid()
+        val errors = mutableListOf<RepositoryError.FieldError>()
 
-        //todo: maak van de Error.NotFound een InvalidData zodat NotFound meer slaat op routes
         val userEntity = UserEntity
             .find { UsersTable.id eq viewerUuid }
             .firstOrNull()
-            ?: return@dbQuery RepositoryResponse.Error.NotFound(
-                message = "This userId is not registered as User"
-            )
+
+        if (userEntity == null) {
+            errors += RepositoryError.FieldError(field = "author", "this userId is not registered as User")
+        }
+        if (content.isBlankRichText()) {
+            errors += RepositoryError.FieldError(field = "content", "Content cannot be empty")
+        }
+
+        if (errors.isNotEmpty()) {
+            return@dbQuery RepositoryResult.Error(RepositoryError.BadRequest(
+                errors = errors
+            ))
+        }
 
         val entity = TimeLineItemEntity.new {
-            this.createdBy = userEntity
+            this.createdBy = userEntity!!
             this.content = content
         }
 
-        RepositoryResponse.Success(entity.toDomain(userId))
+        RepositoryResult.Success(entity.toDomain(userId))
     }
 
     override suspend fun getTimeLine(
@@ -52,7 +62,7 @@ class JVMTimeLineRepository : TimeLineRepository {
         feed: TimeLineFeed,
         limit: Int,
         offset: Long
-    ): RepositoryResponse<List<TimelineItem>> = dbQuery {
+    ): RepositoryResult<List<TimelineItem>> = dbQuery {
         val viewerUuid: UUID = userId.toJavaUuid()
 
         // ✅ basic hardening
@@ -61,7 +71,7 @@ class JVMTimeLineRepository : TimeLineRepository {
 
         when (feed) {
             TimeLineFeed.GROUPS -> {
-                RepositoryResponse.Error.Internal("Groups feed is not implemented yet")
+                RepositoryResult.Error(RepositoryError.Internal("Groups feed is not implemented yet"))
             }
 
             TimeLineFeed.SELF -> {
@@ -72,7 +82,7 @@ class JVMTimeLineRepository : TimeLineRepository {
                     .offset(safeOffset)
                     .toList()
 
-                RepositoryResponse.Success(entities.map { it.toDomain(userId) })
+                RepositoryResult.Success(entities.map { it.toDomain(userId) })
             }
 
             TimeLineFeed.FRIENDS -> {
@@ -98,7 +108,7 @@ class JVMTimeLineRepository : TimeLineRepository {
                     if (friendSet.contains(authorUuid.toJavaUuid())) FriendshipStatus.ACCEPTED else null
                 }
 
-                RepositoryResponse.Success(entities.map { it.toDomain(userId, provider) })
+                RepositoryResult.Success(entities.map { it.toDomain(userId, provider) })
             }
 
             TimeLineFeed.DISCOVERY -> {
@@ -122,7 +132,7 @@ class JVMTimeLineRepository : TimeLineRepository {
 
                 // Discovery = authors are NOT friends by definition (we filtered them out),
                 // so provider is always null => just map without provider.
-                RepositoryResponse.Success(entities.map { it.toDomain(userId) })
+                RepositoryResult.Success(entities.map { it.toDomain(userId) })
             }
         }
     }

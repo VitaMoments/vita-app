@@ -16,11 +16,12 @@ import eu.vitamoments.app.api.helpers.requireUserId
 import eu.vitamoments.app.api.helpers.setAuthCookies
 import eu.vitamoments.app.data.models.domain.AuthSession
 import eu.vitamoments.app.data.models.domain.user.AccountUser
-import eu.vitamoments.app.data.models.domain.user.User
 import eu.vitamoments.app.data.models.requests.auth_requests.LoginRequest
 import eu.vitamoments.app.data.models.requests.auth_requests.RegistrationRequest
+import eu.vitamoments.app.data.models.requests.handleResult
+import eu.vitamoments.app.data.models.requests.respondError
 import eu.vitamoments.app.data.models.requests.respondRepository
-import eu.vitamoments.app.data.repository.RepositoryResponse
+import eu.vitamoments.app.data.repository.RepositoryResult
 import eu.vitamoments.app.data.repository.ServerAuthRepository
 import eu.vitamoments.app.data.repository.UserRepository
 import org.koin.ktor.ext.inject
@@ -32,49 +33,50 @@ fun Route.authRoutes() {
     val userRepo: UserRepository by inject()
 
     route("/auth") {
-
         post("/register") {
             val request: RegistrationRequest = call.receive()
-            val result: RepositoryResponse<AuthSession> =
+            val result: RepositoryResult<AuthSession> =
                 authRepo.register(username = request.username, email = request.email, password = request.password)
 
-            if (result is RepositoryResponse.Success) {
-                call.setAuthCookies(result.body)
-                call.respondRepository(RepositoryResponse.Success(result.body.user), HttpStatusCode.Created)
-            } else {
-                call.respondRepository(result)
-            }
+            call.handleResult(
+                result = result,
+                onSuccess = {session ->
+                    call.setAuthCookies(session)
+                    call.respond(status = HttpStatusCode.Created, session.user)
+                }
+            )
         }
 
         post("/login") {
             val request: LoginRequest = call.receive()
-            val result: RepositoryResponse<AuthSession> =
+            val result: RepositoryResult<AuthSession> =
                 authRepo.login(email = request.email, password = request.password)
 
-            if (result is RepositoryResponse.Success) {
-                call.setAuthCookies(result.body)
-                call.respondRepository(RepositoryResponse.Success(result.body.user))
-            } else {
-                call.respondRepository(result)
-            }
+            call.handleResult(
+                result = result,
+                onSuccess = { session ->
+                    call.setAuthCookies(session)
+                    call.respond(status = HttpStatusCode.OK, session.user)
+                }
+            )
         }
 
         post("/refresh") {
             val refresh = call.requireRefreshToken()
-            val result: RepositoryResponse<AuthSession> = authRepo.refresh(refresh)
+            val result: RepositoryResult<AuthSession> = authRepo.refresh(refresh)
 
-            if (result is RepositoryResponse.Success) {
-                call.setAuthCookies(result.body)
-                call.respond(HttpStatusCode.NoContent)
-            } else {
-                call.respondRepository(result)
-            }
+            call.handleResult(
+                result = result,
+                onSuccess = {session ->
+                    call.setAuthCookies(session)
+                    call.respond(HttpStatusCode.NoContent)
+                }
+            )
         }
 
         post("/logout") {
             val refreshToken = call.requireRefreshToken()
             authRepo.logout(refreshToken)
-
             call.clearAuthCookies()
             call.respond(HttpStatusCode.NoContent)
         }
@@ -82,8 +84,8 @@ fun Route.authRoutes() {
         authenticate("cookie-jwt-authentication") {
             get("/session") {
                 val userId: Uuid = call.requireUserId()
-                val result: RepositoryResponse<AccountUser> = userRepo.getMyAccount(userId = userId)
-                call.respondRepository(result)
+                val result: RepositoryResult<AccountUser> = userRepo.getMyAccount(userId = userId)
+                call.handleResult(result)
             }
         }
     }

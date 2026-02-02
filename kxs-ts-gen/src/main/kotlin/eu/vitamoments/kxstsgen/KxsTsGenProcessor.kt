@@ -75,6 +75,11 @@ class KxsTsGenProcessor(
             generatedModuleNames.add(mod)
         }
 
+        // Generate json.ts (shared JSON types used for kotlinx.serialization.json.*)
+        val jsonTs = JsonEmitter().emit()
+        writeText(File(outDir, "json.ts"), jsonTs)
+        generatedModuleNames.add("json")
+
         // Generate typeGuards.ts
         val sealedRoots = candidates
             .filter { it.modifiers.contains(Modifier.SEALED) }
@@ -299,6 +304,8 @@ class KxsTsGenProcessor(
             val ctor = decl.primaryConstructor
             val props = ctor?.parameters ?: emptyList()
 
+            val declFqn = decl.qualifiedName?.asString()
+
             val typeParams = decl.typeParameters.map { it.name.asString() }
             val generics = if (typeParams.isNotEmpty()) "<${typeParams.joinToString(", ")}>" else ""
 
@@ -306,28 +313,36 @@ class KxsTsGenProcessor(
 
             for (p in props) {
                 val name = p.name?.asString() ?: continue
-                val resolvedType = p.type.resolve()
+                val resolved = p.type.resolve()
+                val isNullable = resolved.nullability == Nullability.NULLABLE
+                val optional = p.hasDefault || isNullable
+                val opt = if (optional) "?" else ""
+
+                // ✅ Only for RichTextDocument.content -> JSONContent
+                if (
+                    declFqn == "eu.vitamoments.app.data.models.domain.common.RichTextDocument" &&
+                    name == "content"
+                ) {
+                    imports.getOrPut("@tiptap/core") { linkedSetOf() }.add("JSONContent")
+                    val ts = if (isNullable) "JSONContent | null" else "JSONContent"
+                    out.appendLine("  $name$opt: $ts;")
+                    continue
+                }
+
                 val override = serializerOverrideTsCoreType(p)
                 val tsType =
                     if (override != null) {
-                        if (resolvedType.nullability == Nullability.NULLABLE) "$override | null" else override
+                        if (isNullable) "$override | null" else override
                     } else {
-                        toTsType(resolvedType, imports)
+                        toTsType(resolved, imports)
                     }
 
-                val resolved = p.type.resolve()
-                val isNullable = resolved.nullability == Nullability.NULLABLE
-
-                // nullable => kan ontbreken (bij explicitNulls=false), default => kan ontbreken
-                val optional = p.hasDefault || isNullable
-
-                val tsTypes = toTsType(resolved, imports)
-                val opt = if (optional) "?" else ""
-                out.appendLine("  $name$opt: $tsTypes;")
-
+                out.appendLine("  $name$opt: $tsType;")
             }
+
             out.appendLine("}")
         }
+
 
         private fun emitSealedRoot(
             root: KSClassDeclaration,
@@ -415,10 +430,33 @@ class KxsTsGenProcessor(
                 qn in uuidFqns -> "string"
                 qn in instantFqns -> "number"
 
-                qn == "kotlinx.serialization.json.JsonObject" -> {
-                    imports.getOrPut("@tiptap/react") { linkedSetOf() }.add("JSONContent")
-                    "JSONContent"
+                qn == "kotlinx.serialization.json.JsonElement" -> {
+                    imports.getOrPut("json") { linkedSetOf() }.add("JsonValue")
+                    "JsonValue"
                 }
+
+                qn == "kotlinx.serialization.json.JsonObject" -> {
+                    imports.getOrPut("json") { linkedSetOf() }.add("JsonObject")
+                    "JsonObject"
+                }
+
+                qn == "kotlinx.serialization.json.JsonArray" -> {
+                    imports.getOrPut("json") { linkedSetOf() }.add("JsonArray")
+                    "JsonArray"
+                }
+
+                qn == "kotlinx.serialization.json.JsonPrimitive" -> {
+                    imports.getOrPut("json") { linkedSetOf() }.add("JsonPrimitive")
+                    "JsonPrimitive"
+                }
+
+                qn?.startsWith("kotlinx.serialization.json.") == true && qn.substringAfterLast('.').startsWith("Json") -> {
+                    // fallback: alle onbekende Json* -> JsonValue
+                    imports.getOrPut("json") { linkedSetOf() }.add("JsonValue")
+                    "JsonValue"
+                }
+
+                qn == "kotlinx.serialization.json.JsonNull" -> "null"
 
                 qn in setOf(
                     "kotlin.collections.List",
@@ -498,6 +536,19 @@ class KxsTsGenProcessor(
             } else null
         }
     }
+
+    private class JsonEmitter {
+        fun emit(): String = buildString {
+            appendLine("// GENERATED FILE - DO NOT EDIT")
+            appendLine()
+            appendLine("export type JsonPrimitive = string | number | boolean | null;")
+            appendLine("export type JsonArray = JsonValue[];")
+            appendLine("export type JsonObject = { [key: string]: JsonValue };")
+            appendLine("export type JsonValue = JsonPrimitive | JsonObject | JsonArray;")
+            appendLine()
+        }
+    }
+
 
     private class TypeGuardsEmitter(
         private val basePackage: String,

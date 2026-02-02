@@ -2,6 +2,10 @@
 .env.*
 !.env.example
 
+# generated files
+webApp/src/data/types/**
+webApp/dist/**
+
 # default
 *.iml
 .kotlin

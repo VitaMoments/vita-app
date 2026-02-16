@@ -1,7 +1,7 @@
 package eu.vitamoments.app.data.tables.nevo
 
 import org.jetbrains.exposed.v1.core.ReferenceOption
-import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 
 object ProductsTable : UUIDTable("products") {
     val nevoCode = integer("nevo_code").uniqueIndex()

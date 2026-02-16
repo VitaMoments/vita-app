@@ -89,8 +89,8 @@ object DatabaseFactory {
         )
 
         if (Config.currentEnvironment == AppEnvironment.Dev) transaction(database) {
-            seedUsers();
-            seedNevoProducts()
+            seedUsers()
+//            seedNevoProducts()
         }
         database
     }

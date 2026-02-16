@@ -1,7 +1,7 @@
 package eu.vitamoments.app.data.tables.nevo
 
 import org.jetbrains.exposed.v1.core.ReferenceOption
-import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 
 object ProductNutrientsTable : UUIDTable("product_nutrients") {
     val productId = reference("product_id", ProductsTable, onDelete = ReferenceOption.CASCADE)

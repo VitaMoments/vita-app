@@ -4,7 +4,7 @@ import eu.vitamoments.app.data.models.enums.FriendInviteEventType
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.ReferenceOption
-import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.datetime.datetime
 
 object FriendshipEventTable : UUIDTable("friendship_events") {

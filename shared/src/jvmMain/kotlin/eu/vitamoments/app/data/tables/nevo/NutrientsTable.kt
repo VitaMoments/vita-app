@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.tables.nevo
 
-import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 
 
 object NutrientsTable : UUIDTable("nutrients") {

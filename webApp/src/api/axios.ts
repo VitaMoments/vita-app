@@ -39,7 +39,17 @@ api.interceptors.response.use(
     if (error.response.status !== 401) return Promise.reject(error);
 
     const url = originalRequest.url ?? "";
-    if (url.includes("/auth/refresh")) return Promise.reject(error);
+
+    const noRefreshRoutes = [
+      "/auth/login",
+      "/auth/register",
+      "/auth/refresh",
+    ];
+
+    if (noRefreshRoutes.some((route) => url.includes(route))) {
+      return Promise.reject(error);
+    }
+
 
     if (originalRequest._retry) return Promise.reject(error);
     originalRequest._retry = true;

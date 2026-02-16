@@ -7,12 +7,12 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.jetbrains.exposed.v1.core.ReferenceOption
-import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.datetime.datetime
 import org.jetbrains.exposed.v1.json.jsonb
 
 object BlogItemsTable: UUIDTable("blog_items") {
-    val authorId = reference("user_id", UsersTable, onDelete = ReferenceOption.CASCADE)
+    val authorId = reference(name = "user_id", foreign = UsersTable, onDelete = ReferenceOption.CASCADE)
     val title = varchar("title", 200)
     val subTitle = varchar("subtitle", 255)
 

@@ -3,7 +3,7 @@ package eu.vitamoments.app.data.tables
 import kotlinx.datetime.LocalDateTime
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import org.jetbrains.exposed.v1.core.ReferenceOption
-import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.datetime.datetime
 
 object RefreshTokensTable: UUIDTable("refresh_tokens") {

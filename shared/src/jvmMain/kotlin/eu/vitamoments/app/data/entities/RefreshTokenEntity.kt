@@ -2,8 +2,8 @@ package eu.vitamoments.app.data.entities
 
 import eu.vitamoments.app.data.tables.RefreshTokensTable
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
-import org.jetbrains.exposed.v1.dao.UUIDEntity
-import org.jetbrains.exposed.v1.dao.UUIDEntityClass
+import org.jetbrains.exposed.v1.dao.java.UUIDEntity
+import org.jetbrains.exposed.v1.dao.java.UUIDEntityClass
 import java.util.UUID
 
 class RefreshTokenEntity(id: EntityID<UUID>) : UUIDEntity(id) {

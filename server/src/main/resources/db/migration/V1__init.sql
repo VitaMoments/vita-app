@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS friendships (
   pair_b       uuid             NOT NULL,
   status varchar(16) NOT NULL DEFAULT 'PENDING',
 
+  deleted_at   timestamp,
   created_at   timestamp        NOT NULL DEFAULT now(),
   updated_at   timestamp        NOT NULL DEFAULT now(),
 

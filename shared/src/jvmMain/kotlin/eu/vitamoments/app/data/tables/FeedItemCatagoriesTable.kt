@@ -4,7 +4,7 @@ import eu.vitamoments.app.data.models.enums.FeedCategory
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
-object FeedItemCatagoriesTable: Table("feed_item_categories") {
+object FeedItemCategoriesTable : Table("feed_item_categories") {
     val feedItemId = reference(
         name = "feed_item_id",
         foreign = FeedItemsTable,
@@ -20,5 +20,6 @@ object FeedItemCatagoriesTable: Table("feed_item_categories") {
 
     init {
         index(false, category)
+        index(false, feedItemId)
     }
 }

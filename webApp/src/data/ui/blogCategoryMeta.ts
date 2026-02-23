@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { BlogCategory } from "../types";
+import { FeedCategory } from "../types";
 
 import {
   MdPsychology,
@@ -24,72 +24,72 @@ export type BlogCategoryMeta = {
 };
 
 export const BLOG_CATEGORY_META = {
-  [BlogCategory.MENTAL]: {
+  [FeedCategory.MENTAL]: {
     label: "Mental Health",
     description: "Mindset, stress, focus, emotions",
     icon: MdPsychology,
   },
-  [BlogCategory.PHYSICAL]: {
+  [FeedCategory.PHYSICAL]: {
     label: "Physical Health",
     description: "Training, movement, recovery",
     icon: MdFitnessCenter,
   },
-  [BlogCategory.FOOD]: {
+  [FeedCategory.FOOD]: {
     label: "Food & Nutrition",
     description: "Meals, nutrition, healthy habits",
     icon: MdRestaurant,
   },
-  [BlogCategory.LIFESTYLE]: {
+  [FeedCategory.LIFESTYLE]: {
     label: "Lifestyle",
     description: "Routine, balance, daily life",
     icon: MdSpa,
   },
 
-  [BlogCategory.MINDFULNESS]: {
+  [FeedCategory.MINDFULNESS]: {
     label: "Mindfulness",
     description: "Presence, calm, awareness",
     icon: MdSelfImprovement,
   },
-  [BlogCategory.HABITS]: {
+  [FeedCategory.HABITS]: {
     label: "Habits & Routines",
     description: "Systems that stick",
     icon: MdChecklist,
   },
-  [BlogCategory.SLEEP]: {
+  [FeedCategory.SLEEP]: {
     label: "Sleep & Rest",
     description: "Sleep quality, rest, recovery",
     icon: MdBedtime,
   },
-  [BlogCategory.ENERGY]: {
+  [FeedCategory.ENERGY]: {
     label: "Energy & Vitality",
     description: "Energy management and stamina",
     icon: MdBolt,
   },
 
-  [BlogCategory.RELATIONSHIPS]: {
+  [FeedCategory.RELATIONSHIPS]: {
     label: "Relationships",
     description: "Connection and communication",
     icon: MdHandshake,
   },
-  [BlogCategory.COMMUNITY]: {
+  [FeedCategory.COMMUNITY]: {
     label: "Community",
     description: "Belonging and support",
     icon: MdGroups,
   },
-  [BlogCategory.PURPOSE]: {
+  [FeedCategory.PURPOSE]: {
     label: "Purpose & Meaning",
     description: "Values, direction, meaning",
     icon: MdTrackChanges,
   },
 
-  [BlogCategory.PERSONAL_GROWTH]: {
+  [FeedCategory.PERSONAL_GROWTH]: {
     label: "Personal Growth",
     description: "Learning and improvement",
     icon: MdTrendingUp,
   },
-  [BlogCategory.REFLECTION]: {
+  [FeedCategory.REFLECTION]: {
     label: "Reflection",
     description: "Review, journaling, insights",
     icon: MdAutoStories,
   },
-} satisfies Record<BlogCategory, BlogCategoryMeta>;
+} satisfies Record<FeedCategory, BlogCategoryMeta>;

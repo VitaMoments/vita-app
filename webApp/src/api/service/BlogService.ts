@@ -1,7 +1,7 @@
 // src/api/service/BlogService.ts
 import api from "../axios";
 
-import type { BlogCategory, FeedItem, RichTextDocument } from "../../data/types";
+import type { FeedCategory, FeedItem, RichTextDocument } from "../../data/types";
 
 /**
  * Frontend request shape (until you create the Kotlin contract).
@@ -12,9 +12,9 @@ export type CreateBlogRequest = {
   subtitle?: string | null;
   coverImageUrl?: string | null;
   coverImageAlt?: string | null;
-  categories: BlogCategory[];
-  content: RichTextDocument;
-  mode: "DRAFT" | "PUBLISH";
+  categories: FeedCategory[];
+  document: RichTextDocument;
+  status: "DRAFT" | "PUBLISHED";
 
   // Optional: if you later add privacy to the create flow.
   // privacy?: PrivacyStatus;

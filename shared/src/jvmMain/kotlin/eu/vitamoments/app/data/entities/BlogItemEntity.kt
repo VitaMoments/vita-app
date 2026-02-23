@@ -1,6 +1,7 @@
 package eu.vitamoments.app.data.entities
 
 import eu.vitamoments.app.data.tables.BlogItemsTable
+import eu.vitamoments.app.data.tables.TimelineItemsTable
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.dao.java.UUIDEntity
 import org.jetbrains.exposed.v1.dao.java.UUIDEntityClass
@@ -10,6 +11,7 @@ class BlogItemEntity(id: EntityID<UUID>) : UUIDEntity(id) {
 
     companion object : UUIDEntityClass<BlogItemEntity>(BlogItemsTable)
 
+    var feedItem by FeedItemEntity referencedOn BlogItemsTable.feedItemId
     var feedItemId by BlogItemsTable.feedItemId
     var title by BlogItemsTable.title
     var subtitle by BlogItemsTable.subtitle

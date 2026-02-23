@@ -14,10 +14,12 @@ import eu.vitamoments.app.data.models.enums.TimeLineFeed
 import eu.vitamoments.app.data.models.domain.feed.TimelineItem
 import eu.vitamoments.app.data.models.requests.handleResult
 import eu.vitamoments.app.data.models.requests.respondError
-import eu.vitamoments.app.data.models.requests.timeline_requests.CreateTimelineItemRequest
+import eu.vitamoments.app.data.models.requests.feed_requests.CreateTimelineItemRequest
+import eu.vitamoments.app.data.models.requests.feed_requests.UpdateFeedItemRequest
 import eu.vitamoments.app.data.repository.RepositoryError
 import eu.vitamoments.app.data.repository.RepositoryResult
 import eu.vitamoments.app.data.repository.TimeLineRepository
+import io.ktor.server.http.content.static
 import io.ktor.server.response.respond
 import io.ktor.util.reflect.typeInfo
 import org.koin.ktor.ext.inject
@@ -61,7 +63,14 @@ fun Route.timelineRoutes() {
         }
 
         put {
+            val request: UpdateFeedItemRequest = call.receive()
+            val userId: Uuid = call.requireUserId()
+            if (request.item !is TimelineItem) return@put call.respondError(RepositoryError.BadRequest(
+                message = "Request should be of type FeedItem.TimelineItem"
+            ))
 
+            val result: RepositoryResult<TimelineItem> = timeLineRepo.updateItem(userId, request.item)
+            call.handleResult(result)
         }
     }
 }

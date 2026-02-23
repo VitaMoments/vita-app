@@ -50,7 +50,6 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-
     if (originalRequest._retry) return Promise.reject(error);
     originalRequest._retry = true;
 

@@ -4,8 +4,9 @@ import eu.vitamoments.app.api.service.TimeLineService
 import eu.vitamoments.app.data.mapper.toRepositoryResult
 import eu.vitamoments.app.data.models.enums.TimeLineFeed
 import eu.vitamoments.app.data.models.domain.common.RichTextDocument
+import eu.vitamoments.app.data.models.domain.feed.FeedItem
 import eu.vitamoments.app.data.models.domain.feed.TimelineItem
-import eu.vitamoments.app.data.models.requests.timeline_requests.CreateTimelineItemRequest
+import eu.vitamoments.app.data.models.requests.feed_requests.CreateTimelineItemRequest
 import kotlinx.serialization.json.JsonElement
 import kotlin.uuid.Uuid
 
@@ -24,6 +25,13 @@ class TimeLineRepositoryImpl(
         limit: Int,
         offset: Long
     ): RepositoryResult<List<TimelineItem>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateItem(
+        userId: Uuid,
+        item: FeedItem
+    ): RepositoryResult<TimelineItem> {
         TODO("Not yet implemented")
     }
 }

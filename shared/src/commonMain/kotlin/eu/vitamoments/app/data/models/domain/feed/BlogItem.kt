@@ -1,6 +1,6 @@
 package eu.vitamoments.app.data.models.domain.feed
 
-import eu.vitamoments.app.data.models.enums.BlogCategory
+import eu.vitamoments.app.data.models.enums.FeedCategory
 import eu.vitamoments.app.data.models.enums.BlogStatus
 import eu.vitamoments.app.data.models.enums.PrivacyStatus
 import eu.vitamoments.app.data.models.domain.common.RichTextDocument
@@ -27,7 +27,7 @@ data class BlogItem(
     override val content: RichTextDocument,
     override val privacy: PrivacyStatus = PrivacyStatus.FRIENDS_ONLY,
 
-    val categories: List<BlogCategory> = emptyList(),
+    val categories: List<FeedCategory> = emptyList(),
     val status: BlogStatus = BlogStatus.DRAFT,
     @Serializable(with = InstantSerializer::class) val publishedAt: Instant? = null,
 

@@ -20,14 +20,21 @@ function normalizeParams(params: GetTimelineParams) {
 }
 
 export const TimelineService = {
-  async postContent(document: JSONContent): Promise<void> {
-    await api.post("/timeline", { document });
-  },
+    async postContent(document: JSONContent): Promise<void> {
+        await api.post("/timeline", { document });
+    },
 
-  async getTimeline(params: GetTimelineParams = {}): Promise<FeedItem.TIMELINEITEM[]> {
-    const res = await api.get<FeedItem.TIMELINEITEM[]>("/timeline", {
-      params: normalizeParams(params),
-    });
-    return res.data;
-  },
+    async updateContent(
+      item: FeedItem.TIMELINEITEM
+    ): Promise<FeedItem.TIMELINEITEM> {
+      const { data } = await api.put("/timeline",
+        { item: item }
+      );
+      return data;
+    },
+
+    async getTimeline(params: GetTimelineParams = {}): Promise<FeedItem.TIMELINEITEM[]> {
+        const res = await api.get<FeedItem.TIMELINEITEM[]>("/timeline", { params: normalizeParams(params) });
+        return res.data;
+    },
 };

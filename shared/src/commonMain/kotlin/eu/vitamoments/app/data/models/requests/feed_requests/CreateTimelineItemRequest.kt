@@ -1,4 +1,4 @@
-package eu.vitamoments.app.data.models.requests.timeline_requests
+package eu.vitamoments.app.data.models.requests.feed_requests
 
 import eu.vitamoments.app.data.models.domain.common.RichTextDocument
 import kotlinx.serialization.Serializable

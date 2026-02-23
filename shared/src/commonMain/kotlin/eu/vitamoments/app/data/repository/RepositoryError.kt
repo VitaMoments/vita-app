@@ -11,6 +11,10 @@ sealed class RepositoryError(
     open val traceId: String? = null
 ) {
 
+    sealed interface HasFieldErrors {
+        val errors: List<FieldError>
+    }
+
     data class FieldError(val field: String, val message: String)
 
     data class RequestLimitReached(
@@ -32,34 +36,39 @@ sealed class RepositoryError(
     ) : RepositoryError(message, code, traceId)
 
     data class Validation(
-        val errors: List<FieldError>,
-        override val message: String = if (errors.isEmpty()) "Invalid data" else
-            "Invalid data: " + errors.joinToString("; ") { "${it.field}: ${it.message}" },
+        override val errors: List<FieldError>,
+        override val message: String = "Invalid data",
         override val code: ErrorCode = ErrorCode.VALIDATION_ERROR,
         override val traceId: String? = null
-    ) : RepositoryError(message, code, traceId)
+    ) : RepositoryError(message, code, traceId), HasFieldErrors
 
     data class Conflict(
-        val errors: List<FieldError> = emptyList(),
-        override val message: String = if (errors.isEmpty()) "Conflict" else
-            "Conflict: " + errors.joinToString("; ") { "${it.field}: ${it.message}" },
+        override val errors: List<FieldError> = emptyList(),
+        override val message: String = "Invalid data",
         override val code: ErrorCode = ErrorCode.CONFLICT,
         override val traceId: String? = null
-    ) : RepositoryError(message, code, traceId)
+    ) : RepositoryError(message, code, traceId), HasFieldErrors
 
     data class BadRequest(
-        val errors: List<FieldError> = emptyList(),
+        override val errors: List<FieldError> = emptyList(),
         override val message: String = if (errors.isEmpty()) "Bad_Request" else
             "Bad Request: " + errors.joinToString("; ") { "${it.field}: ${it.message}" },
         override val code: ErrorCode = ErrorCode.BAD_REQUEST,
         override val traceId: String? = null
-    ) : RepositoryError(message, code, traceId)
+    ) : RepositoryError(message, code, traceId), HasFieldErrors
 
     data class Internal(
         override val message: String = "Something went wrong on our server. Please try again later",
         override val code: ErrorCode = ErrorCode.INTERNAL,
         override val traceId: String? = null
     ) : RepositoryError(message, code, traceId)
+
+    data class Forbidden(
+        override val message: String = "Forbidden",
+        override val code: ErrorCode = ErrorCode.FORBIDDEN,
+        override val traceId: String? = null
+    ) : RepositoryError(message, code, traceId)
+
 
     fun statusCode(): HttpStatusCode = when (this) {
         is RequestLimitReached -> HttpStatusCode.TooManyRequests
@@ -69,15 +78,14 @@ sealed class RepositoryError(
         is NotFound -> HttpStatusCode.NotFound
         is BadRequest -> HttpStatusCode.BadRequest
         is Internal -> HttpStatusCode.InternalServerError
-
+        is Forbidden -> HttpStatusCode.Forbidden
     }
 
     fun toApiError(): ApiError {
-        val fieldErrors = when (this) {
-            is Validation -> errors
-            is Conflict -> errors
-            else -> emptyList()
-        }.map { ApiFieldError(field = it.field, message = it.message) }
+        val fieldErrors = (this as? HasFieldErrors)
+            ?.errors
+            ?.map { ApiFieldError(it.field, it.message) }
+            ?: emptyList()
 
         return ApiError(
             code = code,

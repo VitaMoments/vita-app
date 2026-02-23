@@ -2,6 +2,8 @@ package eu.vitamoments.app.data.models.helpers.extension_functions
 
 import kotlinx.serialization.json.*
 
+fun JsonElement?.isBlankOrNullRichText(): Boolean = this == null || this.isBlankRichText()
+
 fun JsonElement.isBlankRichText(): Boolean {
     // Accept both:
     // 1) direct array of blocks  (content = [ ... ])

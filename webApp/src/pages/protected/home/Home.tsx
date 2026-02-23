@@ -4,6 +4,7 @@ import { TimelineService } from "../../../api/service/TimelineService";
 
 import type { FeedItem, TimeLineFeed } from "../../../data/types";
 
+import { TimelineItemCard } from "../../../components/timeline/TimelineItemCard"
 import { TimelinePostCard } from "../../../components/timeline/TimelinePostCard";
 import { TimelineInput } from "../../../components/input/TimelineInput";
 import { TimelineButtonBar } from "../../../components/buttons/TimelineButtonBar";
@@ -45,7 +46,6 @@ const Home: React.FC = () => {
         offset: 0,
         limit: LIMIT,
       });
-      console.log(data)
       setItems(data);
     } catch (e) {
       console.error(e);
@@ -87,7 +87,7 @@ const Home: React.FC = () => {
       <ul className="timeline-list">
         {items.map((item) => (
           <li key={item.uuid}>
-            <TimelinePostCard item={item} />
+            <TimelineItemCard item={item} />
           </li>
         ))}
       </ul>

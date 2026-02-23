@@ -1,7 +1,6 @@
 package eu.vitamoments.app.data.models.domain.api
 
 import eu.vitamoments.app.data.models.domain.api.ErrorCode.Companion.UNKNOWN
-import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -9,7 +8,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmInline
 
 @Serializable(with = ErrorCode.Serializer::class)
@@ -34,6 +32,7 @@ value class ErrorCode(val value: String) {
         val NOT_FOUND = ErrorCode("NOT_FOUND")
         val VALIDATION_ERROR = ErrorCode("VALIDATION_ERROR")
         val CONFLICT = ErrorCode("CONFLICT")
+        val FORBIDDEN = ErrorCode("FORBIDDEN")
         val INTERNAL = ErrorCode("INTERNAL")
         val SERIALIZATION = ErrorCode("SERIALIZATION")
         val NETWORK = ErrorCode("NETWORK")
@@ -54,6 +53,7 @@ value class ErrorCode(val value: String) {
             NOT_FOUND,
             VALIDATION_ERROR,
             CONFLICT,
+            FORBIDDEN,
             INTERNAL,
             SERIALIZATION,
             NETWORK,

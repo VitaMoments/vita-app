@@ -7,19 +7,16 @@ import org.jetbrains.exposed.v1.dao.java.UUIDEntityClass
 import java.util.UUID
 
 class BlogItemEntity(id: EntityID<UUID>) : UUIDEntity(id) {
-    companion object Companion : UUIDEntityClass<BlogItemEntity>(BlogItemsTable)
 
+    companion object : UUIDEntityClass<BlogItemEntity>(BlogItemsTable)
+
+    var feedItemId by BlogItemsTable.feedItemId
     var title by BlogItemsTable.title
-    var subtitle by BlogItemsTable.subTitle
+    var subtitle by BlogItemsTable.subtitle
     var slug by BlogItemsTable.slug
     var coverImageUrl by BlogItemsTable.coverImageUrl
     var coverImageAlt by BlogItemsTable.coverImageAlt
-    var privacyStatus by BlogItemsTable.privacyStatus
     var status by BlogItemsTable.status
     var publishedAt by BlogItemsTable.publishedAt
-    var author by UserEntity referencedOn BlogItemsTable.authorId
-    var createdAt by BlogItemsTable.createdAt
-    var updatedAt by BlogItemsTable.updatedAt
-    var deletedAt by BlogItemsTable.deletedAt
     var content by BlogItemsTable.content
 }

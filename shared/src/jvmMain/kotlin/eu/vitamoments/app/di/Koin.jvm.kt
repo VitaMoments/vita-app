@@ -9,8 +9,10 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import eu.vitamoments.app.config.JWTConfigLoader
+import eu.vitamoments.app.data.repository.BlogRepository
 import eu.vitamoments.app.data.repository.FriendRepository
 import eu.vitamoments.app.data.repository.JVMAuthRepository
+import eu.vitamoments.app.data.repository.JVMBlogRepository
 import eu.vitamoments.app.data.repository.JVMFriendRepository
 import eu.vitamoments.app.data.repository.JVMTimeLineRepository
 import eu.vitamoments.app.data.repository.JVMUserRepository
@@ -30,6 +32,7 @@ private val jvmRepositoryModule = module {
     single<UserRepository> { JVMUserRepository() }
     single<TimeLineRepository> { JVMTimeLineRepository()  }
     single<FriendRepository> { JVMFriendRepository() }
+    single<BlogRepository> { JVMBlogRepository() }
 }
 
 private val networkModule = module {

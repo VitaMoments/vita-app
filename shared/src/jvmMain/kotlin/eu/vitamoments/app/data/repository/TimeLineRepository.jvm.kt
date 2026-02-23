@@ -1,17 +1,25 @@
 package eu.vitamoments.app.data.repository
 
-import eu.vitamoments.app.data.entities.TimeLineItemEntity
+import eu.vitamoments.app.data.entities.TimelineItemEntity
 import eu.vitamoments.app.data.entities.UserEntity
+import eu.vitamoments.app.data.factory.FeedItemFactory
 import eu.vitamoments.app.data.models.helpers.extension_functions.isBlankRichText
 import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.models.enums.TimeLineFeed
 import eu.vitamoments.app.data.mapper.entity.toDomain
+import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
+import eu.vitamoments.app.data.models.domain.feed.FeedItem
 import eu.vitamoments.app.data.models.domain.feed.TimelineItem
-import eu.vitamoments.app.data.tables.TimeLineItemsTable
+import eu.vitamoments.app.data.models.helpers.extension_functions.isBlankOrNullRichText
+import eu.vitamoments.app.data.tables.FeedItemsTable
+import eu.vitamoments.app.data.tables.TimelineItemsTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.dbHelpers.dbQuery
 import eu.vitamoments.app.dbHelpers.queries.getAcceptedFriendIds
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.JsonElement
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -19,6 +27,8 @@ import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.UUID
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
@@ -49,10 +59,10 @@ class JVMTimeLineRepository : TimeLineRepository {
             ))
         }
 
-        val entity = TimeLineItemEntity.new {
-            this.createdBy = userEntity!!
-            this.content = content
-        }
+        val entity = FeedItemFactory.newTimelineItem(
+            author= userEntity!!,
+            content = content
+        )
 
         RepositoryResult.Success(entity.toDomain(userId))
     }
@@ -75,13 +85,11 @@ class JVMTimeLineRepository : TimeLineRepository {
             }
 
             TimeLineFeed.SELF -> {
-                val entities = TimeLineItemEntity
-                    .find { TimeLineItemsTable.createdBy eq viewerUuid }
-                    .orderBy(TimeLineItemsTable.createdAt to SortOrder.DESC)
-                    .limit(count = safeLimit)
-                    .offset(safeOffset)
-                    .toList()
-
+                val entities = fetchTimelineEntities(
+                    where = FeedItemsTable.author eq viewerUuid,
+                    limit = safeLimit,
+                    offset = safeOffset
+                )
                 RepositoryResult.Success(entities.map { it.toDomain(userId) })
             }
 
@@ -90,18 +98,16 @@ class JVMTimeLineRepository : TimeLineRepository {
 
                 // friends-feed = friends + self
                 val where = if (friendIds.isEmpty()) {
-                    TimeLineItemsTable.createdBy eq viewerUuid
+                    FeedItemsTable.author eq viewerUuid
                 } else {
-                    (TimeLineItemsTable.createdBy inList friendIds) or
-                            (TimeLineItemsTable.createdBy eq viewerUuid)
+                    (FeedItemsTable.author inList friendIds) or (FeedItemsTable.author eq viewerUuid)
                 }
 
-                val entities = TimeLineItemEntity
-                    .find { where }
-                    .orderBy(TimeLineItemsTable.createdAt to SortOrder.DESC)
-                    .limit(count = safeLimit)
-                    .offset(safeOffset)
-                    .toList()
+                val entities = fetchTimelineEntities(
+                    where = where,
+                    limit = safeLimit,
+                    offset = safeOffset
+                )
 
                 val friendSet = friendIds.toHashSet()
                 val provider: (Uuid) -> FriendshipStatus? = { authorUuid ->
@@ -115,20 +121,16 @@ class JVMTimeLineRepository : TimeLineRepository {
                 val friendIds = getAcceptedFriendIds(viewerUuid)
 
                 val where = if (friendIds.isEmpty()) {
-                    // not me
-                    TimeLineItemsTable.createdBy neq viewerUuid
+                    FeedItemsTable.author neq viewerUuid
                 } else {
-                    // not me AND not friends
-                    (TimeLineItemsTable.createdBy neq viewerUuid) and
-                            (TimeLineItemsTable.createdBy notInList friendIds)
+                    (FeedItemsTable.author notInList friendIds) and (FeedItemsTable.author neq viewerUuid)
                 }
 
-                val entities = TimeLineItemEntity
-                    .find { where }
-                    .orderBy(TimeLineItemsTable.createdAt to SortOrder.DESC)
-                    .limit(count = safeLimit)
-                    .offset(safeOffset)
-                    .toList()
+                val entities = fetchTimelineEntities(
+                    where = where,
+                    limit = safeLimit,
+                    offset = safeOffset
+                )
 
                 // Discovery = authors are NOT friends by definition (we filtered them out),
                 // so provider is always null => just map without provider.
@@ -136,4 +138,58 @@ class JVMTimeLineRepository : TimeLineRepository {
             }
         }
     }
+
+    override suspend fun updateItem(
+        userId: Uuid,
+        item: FeedItem
+    ): RepositoryResult<TimelineItem> = dbQuery {
+        val viewerUuid = userId.toJavaUuid()
+        val errors = mutableListOf<RepositoryError.FieldError>()
+        val itemEntity = TimelineItemEntity.findById(item.uuid.toJavaUuid())
+
+        val userEntity = UserEntity
+            .find { UsersTable.id eq viewerUuid }
+            .firstOrNull()
+
+        if (userEntity == null) {
+            errors += RepositoryError.FieldError(field = "author", "this userId is not registered as User")
+        }
+
+        if (itemEntity != null && userEntity != itemEntity.feedItem.author) {
+            errors += RepositoryError.FieldError(field = "author", "User is not the author of this item")
+        }
+
+        if (item.content.content.isBlankOrNullRichText()) {
+            errors += RepositoryError.FieldError(field = "content", "Content cannot be empty")
+        }
+
+        if (errors.isNotEmpty()) {
+            return@dbQuery RepositoryResult.Error(RepositoryError.BadRequest(
+                errors = errors
+            ))
+        }
+
+        require(itemEntity != null) { "TimelineItemEntity should not be null at this stage" }
+
+        itemEntity.feedItem.updatedAt = LocalDateTime.nowUtc()
+        itemEntity.content = item.content.content!!
+        RepositoryResult.Success(itemEntity.toDomain(userId))
+    }
+
+    private fun fetchTimelineEntities(
+        where: Op<Boolean>,
+        limit: Int,
+        offset: Long
+    ): List<TimelineItemEntity> = TimelineItemsTable
+            .join(
+                FeedItemsTable,
+                JoinType.INNER,
+                additionalConstraint = { TimelineItemsTable.feedItemId eq FeedItemsTable.id }
+            )
+            .select(TimelineItemsTable.columns)
+            .where { where }
+            .orderBy(FeedItemsTable.createdAt, SortOrder.DESC)
+            .offset(start = offset)
+            .limit(count = limit)
+            .map { TimelineItemEntity.wrapRow(it) }
 }

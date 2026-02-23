@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at    timestamp    NOT NULL DEFAULT now(),
   updated_at    timestamp    NOT NULL DEFAULT now(),
   deleted_at    timestamp,
-  image_url     varchar(255)
+  image_url     varchar(255),
 
   CONSTRAINT users_role_chk CHECK (role IN ('USER','MODERATOR','ADMIN'))
 );
@@ -20,26 +20,80 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_uq    ON users (email);
 CREATE UNIQUE INDEX IF NOT EXISTS users_username_uq ON users (username);
 
+-- =========================
+-- FEED ITEMS (root table)
+-- =========================
+CREATE TABLE IF NOT EXISTS feed_items (
+  id         uuid PRIMARY KEY,
+  type       varchar(20) NOT NULL,
+  user_id    uuid NOT NULL,
+  privacy    varchar(15) NOT NULL DEFAULT 'FRIENDS_ONLY',
+  created_at timestamp NOT NULL DEFAULT now(),
+  updated_at timestamp NOT NULL DEFAULT now(),
+  deleted_at timestamp,
+
+  CONSTRAINT feed_items_type_chk    CHECK (type IN ('BLOG','TIMELINE')),
+  CONSTRAINT feed_items_privacy_chk CHECK (privacy IN ('OPEN','FRIENDS_ONLY','PRIVATE')),
+  CONSTRAINT feed_items_user_fk     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS feed_items_user_id_idx ON feed_items (user_id);
+CREATE INDEX IF NOT EXISTS feed_items_type_idx    ON feed_items (type);
+CREATE INDEX IF NOT EXISTS feed_items_created_at_idx ON feed_items (created_at);
+
+-- =========================
+-- BLOG ITEMS
+-- =========================
+CREATE TABLE IF NOT EXISTS blog_items (
+  id              uuid PRIMARY KEY,
+  feed_item_id    uuid NOT NULL,
+  title           varchar(200) NOT NULL,
+  subtitle        varchar(255),
+  slug            varchar(250) NOT NULL,
+  cover_image_url varchar(500),
+  cover_image_alt varchar(200),
+  blog_status     varchar(15) NOT NULL DEFAULT 'DRAFT',
+  published_at    timestamp,
+  content         jsonb NOT NULL,
+
+  CONSTRAINT blog_items_status_chk CHECK (blog_status IN ('DRAFT','PUBLISHED','ARCHIVED')),
+  CONSTRAINT blog_items_feed_item_fk
+    FOREIGN KEY (feed_item_id) REFERENCES feed_items(id)
+    ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS blog_items_slug_uq   ON blog_items (slug);
+CREATE INDEX IF NOT EXISTS blog_items_status_idx       ON blog_items (blog_status);
+CREATE INDEX IF NOT EXISTS blog_items_published_at_idx ON blog_items (published_at);
 
 -- =========================
 -- TIMELINE POSTS
 -- =========================
-CREATE TABLE IF NOT EXISTS timeline_posts (
-  id         uuid PRIMARY KEY,
-  created_at timestamp NOT NULL DEFAULT now(),
-  updated_at timestamp NOT NULL DEFAULT now(),
-  deleted_at timestamp,
-  user_id    uuid      NOT NULL,
-  content    jsonb     NOT NULL,
+CREATE TABLE IF NOT EXISTS timeline_items (
+  id              uuid PRIMARY KEY,
+  feed_item_id uuid  NOT NULL,
+  content      jsonb NOT NULL,
 
-  CONSTRAINT timeline_posts_user_fk
-    FOREIGN KEY (user_id) REFERENCES users(id)
+  CONSTRAINT timeline_items_feed_item_fk
+    FOREIGN KEY (feed_item_id) REFERENCES feed_items(id)
     ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS timeline_posts_user_id_idx    ON timeline_posts (user_id);
-CREATE INDEX IF NOT EXISTS timeline_posts_created_at_idx ON timeline_posts (created_at);
+-- =========================
+-- CATEGORIES (nieuw)
+-- =========================
+CREATE TABLE IF NOT EXISTS feed_item_categories (
+  id           uuid PRIMARY KEY,
+  feed_item_id uuid NOT NULL,
+  category     varchar(32) NOT NULL,
 
+  CONSTRAINT feed_item_categories_feed_item_fk
+    FOREIGN KEY (feed_item_id) REFERENCES feed_items(id)
+    ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS feed_item_categories_feed_item_idx ON feed_item_categories (feed_item_id);
+CREATE INDEX IF NOT EXISTS feed_item_categories_category_idx  ON feed_item_categories (category);
 
 -- =========================
 -- REFRESH TOKENS
@@ -116,54 +170,6 @@ CREATE TABLE IF NOT EXISTS friendship_events (
 
 CREATE INDEX IF NOT EXISTS friendship_events_lookup_idx
   ON friendship_events (pair_a, pair_b, event_type, created_at);
-
-
--- =========================
--- BLOG ITEMS
--- =========================
-CREATE TABLE IF NOT EXISTS blog_items (
-  id              uuid PRIMARY KEY,
-  user_id         uuid NOT NULL,
-
-  title           varchar(200) NOT NULL,
-  subtitle        varchar(255),
-
-  slug            varchar(250) NOT NULL,
-  cover_image_url varchar(500),
-  cover_image_alt varchar(200),
-
-  categories text[] NOT NULL DEFAULT '{}',
-  privacy_status varchar(15) NOT NULL DEFAULT 'FRIENDS_ONLY',
-  blog_status varchar(15) NOT NULL DEFAULT 'DRAFT',
-
-  published_at    timestamp,
-
-  created_at      timestamp NOT NULL DEFAULT now(),
-  updated_at      timestamp NOT NULL DEFAULT now(),
-  deleted_at      timestamp,
-
-  content         jsonb NOT NULL,
-
-  CONSTRAINT blog_items_categories_chk CHECK (categories <@ ARRAY[
-                                         'MENTAL','PHYSICAL','FOOD','LIFESTYLE',
-                                         'MINDFULNESS','HABITS','SLEEP','ENERGY',
-                                         'RELATIONSHIPS','COMMUNITY','PURPOSE',
-                                         'PERSONAL_GROWTH','REFLECTION'
-                                       ]::text[]),
-  CONSTRAINT blog_items_privacy_chk CHECK (privacy_status IN ('OPEN','FRIENDS_ONLY','PRIVATE')),
-  CONSTRAINT blog_items_status_chk CHECK (blog_status IN ('DRAFT','PUBLISHED','ARCHIVED')),
-
-  CONSTRAINT blog_items_user_fk
-    FOREIGN KEY (user_id) REFERENCES users(id)
-    ON DELETE CASCADE
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS blog_items_slug_uq   ON blog_items (slug);
-CREATE INDEX IF NOT EXISTS blog_items_user_id_idx      ON blog_items (user_id);
-CREATE INDEX IF NOT EXISTS blog_items_status_idx       ON blog_items (blog_status);
-CREATE INDEX IF NOT EXISTS blog_items_published_at_idx ON blog_items (published_at);
-
-CREATE INDEX IF NOT EXISTS blog_items_categories_gin_idx ON blog_items USING GIN (categories);
 
 -- =========================
 -- NEVO TABLES

@@ -25,7 +25,7 @@ import Link from "@tiptap/extension-link";
 import styles from "./CreateBlogInput.module.css";
 
 // ✅ generated types (barrel)
-import type { BlogCategory, RichTextDocument } from "../../../data/types";
+import type { FeedCategory, RichTextDocument } from "../../../data/types";
 
 // ✅ UI-only metadata for labels/icons/descriptions
 import { BLOG_CATEGORY_META } from "../../../data/ui/blogCategoryMeta";
@@ -56,7 +56,7 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
   const [coverImageAlt, setCoverImageAlt] = useState("");
 
   // categories
-  const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [categories, setCategories] = useState<FeedCategory[]>([]);
 
   const editor = useEditor({
     extensions: [
@@ -135,7 +135,7 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
 
   const keepEditorFocus = (e: React.MouseEvent) => e.preventDefault();
 
-  const toggleCategory = (cat: BlogCategory) => {
+  const toggleCategory = (cat: FeedCategory) => {
     setCategories((prev) => {
       const exists = prev.includes(cat);
       if (exists) return prev.filter((x) => x !== cat);
@@ -229,21 +229,22 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
       onClearError?.();
 
       try {
-        // ✅ Convert TipTap JSON into your contract RichTextDocument
         const tiptapJson = editor.getJSON();
-        const content: RichTextDocument = { content: tiptapJson as any };
+        const document: RichTextDocument = { content: tiptapJson as any };
+
+        const status: "DRAFT" | "PUBLISHED" = mode === "PUBLISH" ? "PUBLISHED" : "DRAFT";
 
         const payload = {
           title: t,
           subtitle: subtitle.trim() || null,
           coverImageUrl: coverImageUrl.trim() || null,
           coverImageAlt: coverImageAlt.trim() || null,
-          categories, // ✅ BlogCategory[]
-          content, // ✅ RichTextDocument
-          mode, // backend: draft vs publish (until you define the contract)
+          categories,
+          document,
+          status,
         };
 
-        const res = await BlogService.create(payload as any);
+        const res = await BlogService.create(payload);
         onCreated?.((res as any).slug ?? (res as any).id);
       } catch (e: any) {
         const msg =
@@ -272,7 +273,7 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
   if (!editor) return null;
 
   const ALL_CATEGORIES = useMemo(
-    () => Object.keys(BLOG_CATEGORY_META) as BlogCategory[],
+    () => Object.keys(BLOG_CATEGORY_META) as FeedCategory[],
     []
   );
 

@@ -10,7 +10,7 @@ import { Button } from "../../../components/buttons/Button";
 import { CreateBlogInput } from "./CreateBlogInput";
 import BlogsTab from "./BlogsTab";
 
-import type { BlogCategory } from "../../../data/types";
+import type { FeedCategory } from "../../../data/types";
 import { BLOG_CATEGORY_META } from "../../../data/ui/blogCategoryMeta";
 
 type TabLabel = "FOLLOWING" | "DISCOVER" | "MY_BLOGS" | "NEW";

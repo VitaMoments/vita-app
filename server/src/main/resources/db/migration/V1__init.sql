@@ -82,14 +82,12 @@ CREATE TABLE IF NOT EXISTS timeline_items (
 -- =========================
 -- CATEGORIES (nieuw)
 -- =========================
-CREATE TABLE IF NOT EXISTS feed_item_categories (
-  id           uuid PRIMARY KEY,
-  feed_item_id uuid NOT NULL,
-  category     varchar(32) NOT NULL,
+DROP TABLE IF EXISTS feed_item_categories;
 
-  CONSTRAINT feed_item_categories_feed_item_fk
-    FOREIGN KEY (feed_item_id) REFERENCES feed_items(id)
-    ON DELETE CASCADE
+CREATE TABLE feed_item_categories (
+  feed_item_id uuid NOT NULL REFERENCES feed_items(id) ON DELETE CASCADE,
+  category     varchar(32) NOT NULL,
+  PRIMARY KEY (feed_item_id, category)
 );
 
 CREATE INDEX IF NOT EXISTS feed_item_categories_feed_item_idx ON feed_item_categories (feed_item_id);

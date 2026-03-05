@@ -7,7 +7,7 @@ import { PagedList } from "../../../components/pagination/PagedList";
 
 import { BlogService, type BlogListScope } from "../../../api/service/BlogService";
 
-import type { FeedItem, BlogCategory, User } from "../../../data/types";
+import type { FeedItem, FeedCategory, User } from "../../../data/types";
 import { BLOG_CATEGORY_META } from "../../../data/ui/blogCategoryMeta";
 
 const LIMIT = 20;
@@ -18,7 +18,7 @@ type Props = {
   isActive: boolean;
   scope: BlogListScope;
   query: string;
-  activeCategory: BlogCategory | null;
+  activeCategory: FeedCategory | null;
   sort: Sort;
   onOpenBlog: (slug: string) => void;
 };

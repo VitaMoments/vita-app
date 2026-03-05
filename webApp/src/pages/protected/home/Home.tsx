@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../../../auth/AuthContext";
 
 import { TimelineService } from "../../../api/service/TimelineService";
 
@@ -31,6 +32,9 @@ const Home: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+
+  const { user } = useAuth();
+  const myUserId = user?.uuid;
 
   const labels = useMemo(() => TABS.map((t) => t.label), []);
 
@@ -85,11 +89,14 @@ const Home: React.FC = () => {
       {loading && <p>Loading…</p>}
 
       <ul className="timeline-list">
-        {items.map((item) => (
-          <li key={item.uuid}>
-            <TimelineItemCard item={item} />
-          </li>
-        ))}
+        {items.map((item) => {
+          const isUserItem = item.author.uuid === myUserId;
+          return (
+            <li key={item.uuid}>
+              <TimelineItemCard item={item} isUserItem={!!isUserItem} />
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

@@ -1,5 +1,6 @@
 package eu.vitamoments.app.data.models.domain.user
 
+import eu.vitamoments.app.data.models.enums.PrivacyStatus
 import eu.vitamoments.app.data.models.enums.UserRole
 import eu.vitamoments.app.data.serializer.InstantSerializer
 import kotlinx.serialization.Contextual
@@ -19,11 +20,19 @@ data class AccountUser(
     val username: String,
     val email: String,
     val alias: String? = null,
-    override val displayName: String = username,
+    override val displayName: String = alias ?: username,
     override val bio: String? = null,
     override val role: UserRole = UserRole.USER,
     @Serializable(with = InstantSerializer::class) val createdAt: Instant,
     @Serializable(with = InstantSerializer::class) val updatedAt: Instant,
     @Serializable(with = InstantSerializer::class) val deletedAt: Instant?,
-    override val imageUrl: String? = null
+    override var imageUrl: String? = null,
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val phone: String? = null,
+    @Serializable(with = InstantSerializer::class) val birthDate: Instant?,
+    val coverImageUrl: String? = null,
+    val locale: String? = null,
+    val timeZone: String? = null,
+    val privacyDetails: PrivacyStatus = PrivacyStatus.PRIVATE
 ) : User

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   username      varchar(100) NOT NULL,
   alias         varchar(100),
   bio           varchar(255),
-  role varchar(10) NOT NULL DEFAULT 'USER',
+  role          varchar(10) NOT NULL DEFAULT 'USER',
   password      varchar(255) NOT NULL,
   created_at    timestamp    NOT NULL DEFAULT now(),
   updated_at    timestamp    NOT NULL DEFAULT now(),

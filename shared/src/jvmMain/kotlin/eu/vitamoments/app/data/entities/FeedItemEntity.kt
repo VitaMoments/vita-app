@@ -15,7 +15,6 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.UUID
 
 class FeedItemEntity(id: EntityID<UUID>) : UUIDEntity(id) {
-
     companion object : UUIDEntityClass<FeedItemEntity>(FeedItemsTable)
 
     var type by FeedItemsTable.type

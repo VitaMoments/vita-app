@@ -28,7 +28,7 @@ export type GetBlogsParams = {
   offset?: number;
 
   query?: string;
-  category?: BlogCategory;
+  category?: FeedCategory;
 
   // Optional: add sorting later (keep strings so backend can evolve)
   sort?: "NEWEST" | "OLDEST";
@@ -95,8 +95,8 @@ export const BlogService = {
   async getCategoryCounts(
     params: { scope?: BlogListScope; query?: string } = {},
     signal?: AbortSignal
-  ): Promise<Array<{ category: BlogCategory; count: number }>> {
-    const res = await api.get<Array<{ category: BlogCategory; count: number }>>("/blogs/categories", {
+  ): Promise<Array<{ category: FeedCategory; count: number }>> {
+    const res = await api.get<Array<{ category: FeedCategory; count: number }>>("/blogs/categories", {
       params: {
         scope: params.scope,
         query: params.query?.trim() || undefined,

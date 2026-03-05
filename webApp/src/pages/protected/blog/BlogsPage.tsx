@@ -23,11 +23,11 @@ const BlogsPage: React.FC = () => {
 
   // filters
   const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState<BlogCategory | null>(null);
+  const [activeCategory, setActiveCategory] = useState<FeedCategory | null>(null);
   const [sort, setSort] = useState<Sort>("NEWEST");
 
   const allCategories = useMemo(
-    () => Object.keys(BLOG_CATEGORY_META) as BlogCategory[],
+    () => Object.keys(BLOG_CATEGORY_META) as FeedCategory[],
     []
   );
 

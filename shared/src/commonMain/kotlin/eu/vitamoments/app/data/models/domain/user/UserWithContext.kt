@@ -1,5 +1,6 @@
 package eu.vitamoments.app.data.models.domain.user
 
+import eu.vitamoments.app.data.models.domain.address.Address
 import eu.vitamoments.app.data.models.domain.common.PagedResult
 import eu.vitamoments.app.data.models.domain.feed.BlogItem
 import eu.vitamoments.app.data.models.domain.feed.TimelineItem
@@ -12,4 +13,5 @@ data class UserWithContext(
     val friendship: Friendship? = null,
     val blogs: PagedResult<BlogItem>? = null,
     val timeline: PagedResult<TimelineItem>? = null,
+    val addresses: PagedResult<Address>? = null
 )

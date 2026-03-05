@@ -6,11 +6,13 @@ import io.ktor.server.application.Application
 import eu.vitamoments.app.config.Config
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.config.helpers.findProjectRoot
+import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.models.enums.UserRole.ADMIN
 import eu.vitamoments.app.data.models.enums.UserRole.USER
 import eu.vitamoments.app.data.tables.nevo.ProductsTable
 import eu.vitamoments.app.dbHelpers.PasswordHasher
 import eu.vitamoments.app.services.importNevoCsvIntoPostgres
+import kotlinx.datetime.LocalDateTime
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -88,10 +90,10 @@ object DatabaseFactory {
             password = password
         )
 
-        if (Config.currentEnvironment == AppEnvironment.Dev) transaction(database) {
-            seedUsers()
+
+        seedUsers(database)
 //            seedNevoProducts()
-        }
+
         database
     }
 
@@ -104,38 +106,43 @@ object DatabaseFactory {
             .migrate()
     }
 
-    private fun seedUsers() {
-        val hasAnyUser = UsersTable
-            .selectAll()
-            .limit(1)
-            .any()
+    private fun seedUsers(database: Database) {
+        transaction(database) {
+            val hasAnyUser = UsersTable
+                .selectAll()
+                .limit(1)
+                .any()
 
-        if (hasAnyUser) return
+            if (hasAnyUser) return@transaction
 
-        UsersTable.insert {
-            it[id] = UUID.randomUUID()
-            it[username] = "paccie"
-            it[email] = "falcoberendhaus@gmail.com"
-            it[alias] = "Falco"
-            it[bio] = "Hello, I am Falco"
-            it[imageUrl] = null
-            it[role] = ADMIN
-            it[password] = PasswordHasher.hashPassword("Falco123!")
-        }
-
-        for (i in 1..100) {
             UsersTable.insert {
                 it[id] = UUID.randomUUID()
-                it[username] = "user_$i"
-                it[email] = "user_$i@vitamoments.eu"
-                it[alias] = "User $i"
-                it[bio] = "Hello, I am a Demo User $i. Welcome to my profile"
+                it[username] = "falco.berendhaus"
+                it[email] = "falco.berendhaus@vitamoments.eu"
+                it[alias] = "Falco"
+                it[bio] = "Hello, I am Falco, co-founder of vitamoments"
                 it[imageUrl] = null
-                it[role] = USER
-                it[password] = PasswordHasher.hashPassword("User123!$i")
+                it[role] = ADMIN
+                it[password] = PasswordHasher.hashPassword("Falco123!")
+                it[emailVerifiedAt] = LocalDateTime.nowUtc()
+            }
+
+            if (Config.currentEnvironment == AppEnvironment.Dev) {
+                for (i in 1..25) {
+                    UsersTable.insert {
+                        it[id] = UUID.randomUUID()
+                        it[username] = "user_$i"
+                        it[email] = "user_$i@vitamoments.eu"
+                        it[alias] = "User $i"
+                        it[bio] = "Hello, I am a Demo User $i. Welcome to my profile"
+                        it[imageUrl] = null
+                        it[role] = USER
+                        it[password] = PasswordHasher.hashPassword("User123!$i")
+                        it[emailVerifiedAt] = LocalDateTime.nowUtc()
+                    }
+                }
             }
         }
-
     }
 
     private fun seedNevoProducts() {

@@ -5,7 +5,7 @@ import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.models.domain.feed.TimelineItem
 import eu.vitamoments.app.data.models.domain.common.RichTextDocument
-import eu.vitamoments.app.dbHelpers.kotinUuid
+import eu.vitamoments.app.dbHelpers.kotlinUuid
 import kotlin.uuid.Uuid
 import kotlin.uuid.toKotlinUuid
 
@@ -16,7 +16,7 @@ fun TimelineItemEntity.toDomain(
     val authorUuid = this.feedItem.author.id.value.toKotlinUuid()
     val status = friendshipStatusProvider(authorUuid)
     return TimelineItem(
-    uuid = this.kotinUuid,
+    uuid = this.kotlinUuid,
     createdAt = this.feedItem.createdAt.toInstant(),
     updatedAt = this.feedItem.updatedAt.toInstant(),
     deletedAt = this.feedItem.deletedAt?.toInstant(),

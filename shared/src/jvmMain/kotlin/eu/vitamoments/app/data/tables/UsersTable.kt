@@ -1,20 +1,33 @@
 package eu.vitamoments.app.data.tables
 
 import eu.vitamoments.app.data.models.enums.UserRole
-import kotlinx.datetime.LocalDateTime
-import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
-import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
+import eu.vitamoments.app.data.models.enums.PrivacyStatus
+import eu.vitamoments.app.data.tables.base.BaseUUIDTable
+import org.jetbrains.exposed.v1.datetime.date
 import org.jetbrains.exposed.v1.datetime.datetime
 
-object UsersTable : UUIDTable("users") {
+object UsersTable : BaseUUIDTable("users") {
+//    Auth
     val email = varchar("email", 150).uniqueIndex()
     val username = varchar("username", 100).uniqueIndex()
+    val password = varchar("password", 255)
+    val role = enumerationByName<UserRole>("role", 10).default(UserRole.USER)
+    val emailVerifiedAt = datetime("email_verified_at").nullable()
+
+//    Profile
+    val firstname = varchar("first_name", 80).nullable()
+    val lastname = varchar("last_name", 80).nullable()
     val alias = varchar("alias", 100).nullable()
     val bio = varchar("bio", 255).nullable()
-    val role = enumerationByName<UserRole>("role", 10).default(UserRole.USER)
-    val password = varchar("password", 255)
-    val createdAt = datetime("created_at").clientDefault { LocalDateTime.nowUtc() }
-    val updatedAt = datetime("updated_at").clientDefault { LocalDateTime.nowUtc() }
-    val deletedAt = datetime("deleted_at").nullable()
+    val phone = varchar("phone", 32).nullable()
+    val birthDate = date("birth_date").nullable()
     val imageUrl = varchar("image_url", 255).nullable()
+    val coverImageUrl = varchar("cover_image_url", 255).nullable()
+
+//    localization
+    val locale = varchar("locale", 50).nullable()
+    val timeZone = varchar("time_zone", 64).nullable()
+
+//    privacy
+    val detailsPrivacy = enumerationByName<PrivacyStatus>("details_privacy", 16).default(PrivacyStatus.PRIVATE)
 }

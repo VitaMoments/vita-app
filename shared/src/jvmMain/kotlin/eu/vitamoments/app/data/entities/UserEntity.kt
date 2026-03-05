@@ -9,18 +9,33 @@ import java.util.UUID
 class UserEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<UserEntity>(UsersTable)
 
-    var username by UsersTable.username
+    // Auth
     var email by UsersTable.email
+    var username by UsersTable.username
+    var password by UsersTable.password
+    var role by UsersTable.role
+    var emailVerifiedAt by UsersTable.emailVerifiedAt
+
+    // Profile
+    var firstname by UsersTable.firstname
+    var lastname by UsersTable.lastname
     var alias by UsersTable.alias
     var bio by UsersTable.bio
-    var role by UsersTable.role
-    var password by UsersTable.password
+    var phone by UsersTable.phone
+    var birthDate by UsersTable.birthDate
+    var imageUrl by UsersTable.imageUrl
+    var coverImageUrl by UsersTable.coverImageUrl
+
+    // Localization
+    var locale by UsersTable.locale
+    var timeZone by UsersTable.timeZone
+
+    // Audit
     var createdAt by UsersTable.createdAt
     var updatedAt by UsersTable.updatedAt
     var deletedAt by UsersTable.deletedAt
-    var imageUrl by UsersTable.imageUrl
 
-
-
+//    privacy
+    var detailsPrivacy by UsersTable.detailsPrivacy
 }
 

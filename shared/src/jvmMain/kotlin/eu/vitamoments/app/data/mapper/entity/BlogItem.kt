@@ -5,7 +5,7 @@ import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.models.domain.common.RichTextDocument
 import eu.vitamoments.app.data.models.domain.feed.BlogItem
 import eu.vitamoments.app.data.models.enums.FriendshipStatus
-import eu.vitamoments.app.dbHelpers.kotinUuid
+import eu.vitamoments.app.dbHelpers.kotlinUuid
 import kotlin.uuid.Uuid
 import kotlin.uuid.toKotlinUuid
 
@@ -17,7 +17,7 @@ fun BlogItemEntity.toDomain(
     val status = friendshipStatusProvider(authorUuid)
 
     return BlogItem(
-        this.kotinUuid,
+        this.kotlinUuid,
         title = this.title,
         subtitle = this.subtitle,
         slug = this.slug,

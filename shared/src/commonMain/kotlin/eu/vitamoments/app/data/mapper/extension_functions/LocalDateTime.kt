@@ -1,20 +1,36 @@
 package eu.vitamoments.app.data.mapper.extension_functions
 
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 fun LocalDateTime.toLong() : Long = this.toInstant(TimeZone.UTC).toEpochMilliseconds()
 
 fun LocalDateTime.toInstant() : Instant = this.toInstant(TimeZone.UTC)
+
+/**
+ * Converts this LocalDate to an Instant at the start of the day (00:00) in the given timezone.
+ */
+fun LocalDate.toInstantStartOfDay(timeZone: TimeZone = TimeZone.UTC): Instant =
+    this.atStartOfDayIn(timeZone)
+
+/**
+ * Converts this LocalDate to an Instant at the end of the day (23:59:59.999999999) in the given timezone.
+ * Useful for inclusive date range filters.
+ */
+fun LocalDate.toInstantEndOfDay(timeZone: TimeZone = TimeZone.UTC): Instant {
+    val endOfDay = LocalDateTime(this.year, this.monthNumber, this.dayOfMonth, 23, 59, 59, 999_999_999)
+    return endOfDay.toInstant(timeZone)
+}
 
 fun LocalDateTime.nowUtc() : LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.UTC)
 

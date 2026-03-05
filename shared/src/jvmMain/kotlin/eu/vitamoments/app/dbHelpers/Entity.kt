@@ -5,4 +5,4 @@ import java.util.UUID
 import kotlin.uuid.Uuid
 import kotlin.uuid.toKotlinUuid
 
-val Entity<UUID>.kotinUuid : Uuid get() = this.id.value.toKotlinUuid()
+val Entity<UUID>.kotlinUuid : Uuid get() = this.id.value.toKotlinUuid()

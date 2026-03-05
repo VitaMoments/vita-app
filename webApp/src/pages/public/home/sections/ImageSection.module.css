@@ -1,0 +1,156 @@
+/* ImageSection.module.css */
+.content {
+  width: 100%;
+  height: 90vh;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* Handig voor overlays */
+  position: relative;
+}
+
+/* Donkere gradient zodat tekst goed leesbaar blijft */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.35) 45%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+
+  height: 90%;
+  max-width: 1100px;
+
+  padding: 96px 40px 64px 40px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+}
+
+.pill {
+  width: fit-content;
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  background: rgba(22, 163, 74, 0.22);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  backdrop-filter: blur(6px);
+}
+
+.title {
+  margin: 0;
+  color: #ffffff;
+
+  font-size: clamp(44px, 6vw, 78px);
+  line-height: 0.95;
+  font-weight: 800;
+
+  /* beetje “hero” look */
+  text-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+}
+
+.brand {
+  font-style: italic;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 720px;
+
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  line-height: 1.65;
+
+  text-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.primary {
+  border: none;
+  cursor: pointer;
+  width: 200px !important;
+
+  padding: 12px 18px;
+  border-radius: 12px;
+
+  background: #1f7a52;
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 700;
+
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+.primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.secondary {
+  cursor: pointer;
+
+  padding: 12px 18px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+
+  border: 1px solid rgba(255, 255, 255, 0.28);
+
+  font-size: 15px;
+  font-weight: 700;
+
+  backdrop-filter: blur(6px);
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.secondary:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.arrow {
+  margin-left: 6px;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .inner {
+    padding: 84px 20px 48px 20px;
+  }
+
+  .actions {
+    gap: 10px;
+  }
+
+  .primary,
+  .secondary {
+    width: 100% !important;
+    justify-content: center;
+  }
+}

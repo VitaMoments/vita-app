@@ -13,7 +13,7 @@ import layoutStyles from "../../../components/page/feed-layout/FeedPageLayout.mo
 
 import { Button } from "../../../components/buttons/Button";
 import { TimelineItemCard } from "../../../components/timeline/TimelineItemCard";
-import { TimelineInput } from "../../../components/input/TimelineInput";
+import { FeedEditor } from "../../../components/editor/feed-editor/FeedEditor"
 import { TimelineButtonBar } from "../../../components/buttons/TimelineButtonBar";
 import {
   ErrorBanner,
@@ -31,8 +31,6 @@ const TABS = [
   { label: "Groups", feed: "GROUPS" },
   { label: "Discovery", feed: "DISCOVERY" },
 ] as const satisfies ReadonlyArray<{ label: string; feed: TimeLineFeed }>;
-
-type TimelineCategory = "ALL" | "POSTS" | "MEDIA";
 
 const Home: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -96,36 +94,32 @@ const Home: React.FC = () => {
     void loadPosts(0);
   }, []);
 
-  const filteredItems = useMemo(() => {
-    let result = [...items];
+    const filteredItems = useMemo(() => {
+      let result = [...items];
 
-    if (query.trim()) {
-      const q = query.trim().toLowerCase();
+      if (query.trim()) {
+        const q = query.trim().toLowerCase();
 
-      result = result.filter((item) => {
-        const title = item.title?.toLowerCase?.() ?? "";
-        const text = item.text?.toLowerCase?.() ?? "";
-        const author =
-          item.author?.displayName?.toLowerCase?.() ??
-          item.author?.email?.toLowerCase?.() ??
-          "";
+        result = result.filter((item) => {
+          const title = item.title?.toLowerCase?.() ?? "";
+          const text = item.text?.toLowerCase?.() ?? "";
+          const author =
+            item.author?.displayName?.toLowerCase?.() ??
+            item.author?.email?.toLowerCase?.() ??
+            "";
 
-        return title.includes(q) || text.includes(q) || author.includes(q);
-      });
-    }
-
-    if (activeCategory && activeCategory !== "ALL") {
-      if (activeCategory === "POSTS") {
-        result = result.filter((item) => !item.mediaItems || item.mediaItems.length === 0);
+          return title.includes(q) || text.includes(q) || author.includes(q);
+        });
       }
 
-      if (activeCategory === "MEDIA") {
-        result = result.filter((item) => item.mediaItems && item.mediaItems.length > 0);
+      if (activeCategory) {
+        result = result.filter((item) =>
+          Array.isArray(item.categories) && item.categories.includes(activeCategory)
+        );
       }
-    }
 
-    return result;
-  }, [items, query, activeCategory]);
+      return result;
+    }, [items, query, activeCategory]);
 
   return (
     <FeedPageLayout
@@ -135,9 +129,7 @@ const Home: React.FC = () => {
       categories={categoryItems}
       activeCategory={activeCategory}
       onToggleCategory={(value) =>
-        setActiveCategory((prev) =>
-          prev === value ? null : (value as TimelineCategory)
-        )
+        setActiveCategory((prev) => (prev === value ? null : (value as FeedCategory)))
       }
       sidebarActions={
         <>
@@ -176,11 +168,24 @@ const Home: React.FC = () => {
         <InfoBanner message={info} />
 
         <div className={styles.inputCard}>
-          <TimelineInput
-            onPosted={() => handleTabChange(activeIndex)}
-            onError={(msg) => setError(msg)}
-            onClearError={() => setError(null)}
-          />
+         <FeedEditor
+           placeholder="Share something with your timeline..."
+           showCategories={true}
+           showDraftButton={false}
+           publishLabel="Post"
+           onError={(msg) => setError(msg)}
+           onClearError={() => setError(null)}
+           onSubmit={async ({ categories, document }) => {
+             await TimelineService.createPost({
+               feed: TABS[activeIndex].feed,
+               categories,
+               document,
+             });
+
+             await loadPosts(activeIndex);
+             setInfo("Post geplaatst.");
+           }}
+         />
         </div>
 
         <div className={styles.tabsCard}>

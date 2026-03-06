@@ -12,7 +12,7 @@ import BaseDialog from "../dialog/BaseDialog";
 
 import { TimelineService } from "../../api/service/TimelineService";
 import type { FeedItem } from "../../data/types";
-import styles from "./TimelinePostCard.module.css";
+import styles from "./TimelineItemCard.module.css";
 import { getUserDisplayName } from "../../data/ui/userHelpers";
 
 type Props = {

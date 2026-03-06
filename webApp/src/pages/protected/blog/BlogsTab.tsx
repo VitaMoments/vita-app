@@ -8,7 +8,7 @@ import { PagedList } from "../../../components/pagination/PagedList";
 import { BlogService, type BlogListScope } from "../../../api/service/BlogService";
 
 import type { FeedItem, FeedCategory, User } from "../../../data/types";
-import { BLOG_CATEGORY_META } from "../../../data/ui/blogCategoryMeta";
+import { FEED_CATEGORY_META } from "../../../data/ui/feedCategoryMeta";
 
 const LIMIT = 20;
 

@@ -28,7 +28,7 @@ import styles from "./CreateBlogInput.module.css";
 import type { FeedCategory, RichTextDocument } from "../../../data/types";
 
 // ✅ UI-only metadata for labels/icons/descriptions
-import { BLOG_CATEGORY_META } from "../../../data/ui/blogCategoryMeta";
+import { FEED_CATEGORY_META } from "../../../data/ui/feedCategoryMeta";
 
 // ✅ service
 import { BlogService } from "../../../api/service/BlogService";
@@ -273,7 +273,7 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
   if (!editor) return null;
 
   const ALL_CATEGORIES = useMemo(
-    () => Object.keys(BLOG_CATEGORY_META) as FeedCategory[],
+    () => Object.keys(FEED_CATEGORY_META) as FeedCategory[],
     []
   );
 
@@ -325,7 +325,7 @@ export const CreateBlogInput: React.FC<CreateBlogInputProps> = ({
         <div className={styles.categoryChips}>
           {ALL_CATEGORIES.map((c) => {
             const active = categories.includes(c);
-            const meta = BLOG_CATEGORY_META[c];
+            const meta = FEED_CATEGORY_META[c];
             const label = meta?.label ?? c;
             const Icon = meta?.icon;
             return (

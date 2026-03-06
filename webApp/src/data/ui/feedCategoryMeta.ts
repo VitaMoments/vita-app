@@ -17,13 +17,13 @@ import {
   MdAutoStories,
 } from "react-icons/md";
 
-export type BlogCategoryMeta = {
+export type FeedCategoryMeta = {
   label: string;
   description?: string;
   icon?: ComponentType<{ className?: string }>;
 };
 
-export const BLOG_CATEGORY_META = {
+export const FEED_CATEGORY_META = {
   [FeedCategory.MENTAL]: {
     label: "Mental Health",
     description: "Mindset, stress, focus, emotions",
@@ -92,4 +92,4 @@ export const BLOG_CATEGORY_META = {
     description: "Review, journaling, insights",
     icon: MdAutoStories,
   },
-} satisfies Record<FeedCategory, BlogCategoryMeta>;
+} satisfies Record<FeedCategory, FeedCategoryMeta>;

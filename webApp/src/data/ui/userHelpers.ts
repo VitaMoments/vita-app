@@ -15,3 +15,11 @@ export function getUserEmail(u: User): string {
         }
     return ""
     }
+
+export function getUserProfileImageUrl(u: User): string | null {
+  return u.profileImageAsset?.url ?? null;
+}
+
+export function getUserCoverImgeUrl(u: User): string | null {
+  return u.coverImageAsset?.url ?? null;
+}

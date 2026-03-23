@@ -25,7 +25,7 @@ export function UserCard({
   const name = getUserDisplayName(user);
 
   // bio bestaat op PUBLIC/PRIVATE/ACCOUNT in jouw output, maar niet altijd gegarandeerd
-    const bio = user.bio
+  const bio = user.bio
 
   // uuid zit op de "echte" user, niet op CONTEXT
   const uuid = user.uuid

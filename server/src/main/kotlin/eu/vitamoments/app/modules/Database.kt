@@ -121,9 +121,19 @@ object DatabaseFactory {
                 it[email] = "falco.berendhaus@vitamoments.eu"
                 it[alias] = "Falco"
                 it[bio] = "Hello, I am Falco, co-founder of vitamoments"
-                it[imageUrl] = null
                 it[role] = ADMIN
                 it[password] = PasswordHasher.hashPassword("Falco123!")
+                it[emailVerifiedAt] = LocalDateTime.nowUtc()
+            }
+
+            UsersTable.insert {
+                it[id] = UUID.randomUUID()
+                it[username] = "Nick.Overbeek"
+                it[email] = "nick.overbeek@vitamoments.eu"
+                it[alias] = "F12"
+                it[bio] = "Hello, I am Nick, co-founder of vitamoments"
+                it[role] = ADMIN
+                it[password] = PasswordHasher.hashPassword("Nick123!")
                 it[emailVerifiedAt] = LocalDateTime.nowUtc()
             }
 
@@ -135,7 +145,6 @@ object DatabaseFactory {
                         it[email] = "user_$i@vitamoments.eu"
                         it[alias] = "User $i"
                         it[bio] = "Hello, I am a Demo User $i. Welcome to my profile"
-                        it[imageUrl] = null
                         it[role] = USER
                         it[password] = PasswordHasher.hashPassword("User123!$i")
                         it[emailVerifiedAt] = LocalDateTime.nowUtc()

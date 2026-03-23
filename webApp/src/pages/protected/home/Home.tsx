@@ -1,15 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../../auth/AuthContext";
 
+import TripleColumnPageLayout from "../../../components/page/base_pages/TripleColumnPageLayout";
+
+import { LeftSideBar } from "./LeftSideBar"
+
+// oud
+
 import { TimelineService } from "../../../api/service/TimelineService";
 
 import type { FeedItem, TimeLineFeed } from "../../../data/types";
 
 import type { FeedCategory } from "../../../data/types";
 import { FEED_CATEGORY_META } from "../../../data/ui/feedCategoryMeta";
-
-import FeedPageLayout from "../../../components/page/feed-layout/FeedPageLayout";
-import layoutStyles from "../../../components/page/feed-layout/FeedPageLayout.module.css";
 
 import { Button } from "../../../components/buttons/Button";
 import { TimelineItemCard } from "../../../components/timeline/TimelineItemCard";
@@ -121,105 +124,155 @@ const Home: React.FC = () => {
       return result;
     }, [items, query, activeCategory]);
 
-  return (
-    <FeedPageLayout
-      searchValue={query}
-      onSearchChange={setQuery}
-      searchPlaceholder="Search timeline..."
-      categories={categoryItems}
-      activeCategory={activeCategory}
-      onToggleCategory={(value) =>
-        setActiveCategory((prev) => (prev === value ? null : (value as FeedCategory)))
-      }
-      sidebarActions={
-        <>
-          <Button onClick={() => void loadPosts(activeIndex)}>Refresh</Button>
-        </>
-      }
-      activeFilters={
-        <>
-          {activeCategory ? (
-            <button
-              type="button"
-              className={layoutStyles.chip}
-              onClick={() => setActiveCategory(null)}
-              title="Clear category"
-            >
-              {activeCategory} ×
-            </button>
-          ) : null}
+    return (
+        <TripleColumnPageLayout
+            leftSidebar={
+                <LeftSideBar user={user} />
+                }
+        >
+          <div>
+            <FeedEditor
+                placeholder="Share something with your timeline..."
+                showCategories={true}
+                showDraftButton={false}
+                publishLabel="Post"
+                onError={(msg) => setError(msg)}
+                onClearError={() => setError(null)}
+                onSubmit={
+                    async ({ categories, document }) => {
+                        await TimelineService.createPost({
+                        feed: TABS[activeIndex].feed,
+                        categories,
+                        document,
+                    });
+                    await loadPosts(activeIndex);
+                    setInfo("Post geplaatst.");
+                }}/>
 
-          {query.trim() ? (
-            <button
-              type="button"
-              className={layoutStyles.chip}
-              onClick={() => setQuery("")}
-              title="Clear search"
-            >
-              Search: {query.trim()} ×
-            </button>
-          ) : null}
-        </>
-      }
-    >
-      <div className={styles.mainContent}>
-        <ErrorBanner message={error} />
-        <WarningBanner message={warning} />
-        <InfoBanner message={info} />
+                {loading && <p className={styles.stateText}>Loading…</p>}
 
-        <div className={styles.inputCard}>
-         <FeedEditor
-           placeholder="Share something with your timeline..."
-           showCategories={true}
-           showDraftButton={false}
-           publishLabel="Post"
-           onError={(msg) => setError(msg)}
-           onClearError={() => setError(null)}
-           onSubmit={async ({ categories, document }) => {
-             await TimelineService.createPost({
-               feed: TABS[activeIndex].feed,
-               categories,
-               document,
-             });
-
-             await loadPosts(activeIndex);
-             setInfo("Post geplaatst.");
-           }}
-         />
-        </div>
-
-        <div className={styles.tabsCard}>
-          <TimelineButtonBar
-            activeIndex={activeIndex}
-            onChange={handleTabChange}
-            labels={labels}
-          />
-        </div>
-
-        {loading && <p className={styles.stateText}>Loading…</p>}
-
-        {!loading && filteredItems.length === 0 ? (
-          <div className={styles.emptyState}>
-            <h3 className={styles.emptyTitle}>No timeline items found</h3>
-            <p className={styles.emptyText}>
-              Er zijn geen timeline items gevonden voor deze selectie.
-            </p>
+                {!loading && filteredItems.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    <h3 className={styles.emptyTitle}>No timeline items found</h3>
+                    <p className={styles.emptyText}>
+                      Er zijn geen timeline items gevonden voor deze selectie.
+                    </p>
+                  </div>
+                ) : (
+                  <ul className={styles.timelineList}>
+                    {filteredItems.map((item) => {
+                      const isUserItem = item.author.uuid === myUserId;
+                      return (
+                        <li key={item.uuid} className={styles.timelineListItem}>
+                          <TimelineItemCard item={item} isUserItem={isUserItem} />
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
           </div>
-        ) : (
-          <ul className={styles.timelineList}>
-            {filteredItems.map((item) => {
-              const isUserItem = item.author.uuid === myUserId;
-              return (
-                <li key={item.uuid} className={styles.timelineListItem}>
-                  <TimelineItemCard item={item} isUserItem={isUserItem} />
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    </FeedPageLayout>
-  );
+        </TripleColumnPageLayout>
+        );
+
+//   return (
+//     <FeedPageLayout
+//       searchValue={query}
+//       onSearchChange={setQuery}
+//       searchPlaceholder="Search timeline..."
+//       categories={categoryItems}
+//       activeCategory={activeCategory}
+//       onToggleCategory={(value) =>
+//         setActiveCategory((prev) => (prev === value ? null : (value as FeedCategory)))
+//       }
+//       sidebarActions={
+//         <>
+//           <Button onClick={() => void loadPosts(activeIndex)}>Refresh</Button>
+//         </>
+//       }
+//       activeFilters={
+//         <>
+//           {activeCategory ? (
+//             <button
+//               type="button"
+//               className={layoutStyles.chip}
+//               onClick={() => setActiveCategory(null)}
+//               title="Clear category"
+//             >
+//               {activeCategory} ×
+//             </button>
+//           ) : null}
+//
+//           {query.trim() ? (
+//             <button
+//               type="button"
+//               className={layoutStyles.chip}
+//               onClick={() => setQuery("")}
+//               title="Clear search"
+//             >
+//               Search: {query.trim()} ×
+//             </button>
+//           ) : null}
+//         </>
+//       }
+//     >
+//       <div className={styles.mainContent}>
+//         <ErrorBanner message={error} />
+//         <WarningBanner message={warning} />
+//         <InfoBanner message={info} />
+//
+//         <div className={styles.inputCard}>
+//          <FeedEditor
+//            placeholder="Share something with your timeline..."
+//            showCategories={true}
+//            showDraftButton={false}
+//            publishLabel="Post"
+//            onError={(msg) => setError(msg)}
+//            onClearError={() => setError(null)}
+//            onSubmit={async ({ categories, document }) => {
+//              await TimelineService.createPost({
+//                feed: TABS[activeIndex].feed,
+//                categories,
+//                document,
+//              });
+//
+//              await loadPosts(activeIndex);
+//              setInfo("Post geplaatst.");
+//            }}
+//          />
+//         </div>
+//
+//         <div className={styles.tabsCard}>
+//           <TimelineButtonBar
+//             activeIndex={activeIndex}
+//             onChange={handleTabChange}
+//             labels={labels}
+//           />
+//         </div>
+//
+//         {loading && <p className={styles.stateText}>Loading…</p>}
+//
+//         {!loading && filteredItems.length === 0 ? (
+//           <div className={styles.emptyState}>
+//             <h3 className={styles.emptyTitle}>No timeline items found</h3>
+//             <p className={styles.emptyText}>
+//               Er zijn geen timeline items gevonden voor deze selectie.
+//             </p>
+//           </div>
+//         ) : (
+//           <ul className={styles.timelineList}>
+//             {filteredItems.map((item) => {
+//               const isUserItem = item.author.uuid === myUserId;
+//               return (
+//                 <li key={item.uuid} className={styles.timelineListItem}>
+//                   <TimelineItemCard item={item} isUserItem={isUserItem} />
+//                 </li>
+//               );
+//             })}
+//           </ul>
+//         )}
+//       </div>
+//     </FeedPageLayout>
+//   );
 };
 
 export default Home;

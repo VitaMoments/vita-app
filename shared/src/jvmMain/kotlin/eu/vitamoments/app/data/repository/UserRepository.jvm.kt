@@ -5,16 +5,20 @@ import eu.vitamoments.app.data.models.enums.FriendshipStatus
 import eu.vitamoments.app.data.mapper.entity.toAccountDomain
 import eu.vitamoments.app.data.mapper.entity.toPrivateDomain
 import eu.vitamoments.app.data.mapper.entity.toPublicDomain
-import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
+import eu.vitamoments.app.data.models.domain.media.MediaAsset
 import eu.vitamoments.app.data.models.domain.user.AccountUser
 import eu.vitamoments.app.data.models.domain.user.User
+import eu.vitamoments.app.data.models.enums.MediaPurposeType
+import eu.vitamoments.app.data.models.enums.MediaReferenceType
 import eu.vitamoments.app.dbHelpers.dbQuery
+import eu.vitamoments.app.dbHelpers.kotlinUuid
 import eu.vitamoments.app.dbHelpers.queries.findFriendshipByPair
-import kotlinx.datetime.LocalDateTime
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
-class JVMUserRepository() : UserRepository {
+class JVMUserRepository(
+    val mediaRepository: MediaRepository
+) : UserRepository {
     override suspend fun getUser(currentUserId: Uuid, userId: Uuid): RepositoryResult<User> = dbQuery {
         val entity = UserEntity.findById(userId.toJavaUuid())
             ?: return@dbQuery RepositoryResult.Error(RepositoryError.NotFound("User with id: $userId not found"))
@@ -24,12 +28,25 @@ class JVMUserRepository() : UserRepository {
         }
 
         val friends = findFriendshipByPair(currentUserId.toJavaUuid(), userId.toJavaUuid())
-        RepositoryResult.Success(if (friends?.status == FriendshipStatus.ACCEPTED) entity.toPrivateDomain() else entity.toPublicDomain())
+        val profileImageAsset = getUserProfileMedia(entity.kotlinUuid)
+        val coverImageAsset = getUserCoverMedia(entity.kotlinUuid)
+        RepositoryResult.Success(if (friends?.status == FriendshipStatus.ACCEPTED) entity.toPrivateDomain(
+            profileImageAsset = profileImageAsset,
+            coverImageAsset = coverImageAsset)
+        else entity.toPublicDomain(
+            profileImageAsset = profileImageAsset,
+            coverImageAsset = coverImageAsset)
+        )
     }
 
     override suspend fun getMyAccount(userId: Uuid): RepositoryResult<AccountUser> = dbQuery {
         val entity = UserEntity.findById(userId.toJavaUuid()) ?: return@dbQuery RepositoryResult.Error(RepositoryError.NotFound("User with id: $userId not found"))
-        RepositoryResult.Success(entity.toAccountDomain())
+        val profileImageAsset = getUserProfileMedia(entity.kotlinUuid)
+        val coverImageAsset = getUserCoverMedia(entity.kotlinUuid)
+        RepositoryResult.Success(entity.toAccountDomain(
+            profileImageAsset = profileImageAsset,
+            coverImageAsset = coverImageAsset
+        ))
     }
 
     override suspend fun updateMyAccount(): RepositoryResult<AccountUser> {
@@ -37,21 +54,26 @@ class JVMUserRepository() : UserRepository {
     }
 
     override suspend fun updateMyProfileImage(userId: Uuid, url: String): RepositoryResult<AccountUser> = dbQuery {
-        val entity = UserEntity.findByIdAndUpdate(id = userId.toJavaUuid()) {
-            it.updatedAt = LocalDateTime.nowUtc()
-            it.imageUrl = url
+        throw Exception("Gebruik media service om profiel fotos te uploaden")
+    }
+
+    suspend fun getUserProfileMedia(userId: Uuid): MediaAsset? =
+        when (
+            val result = mediaRepository.findProfileImage(userId)
+        ) {
+            is RepositoryResult.Error -> null
+            is RepositoryResult.Success -> result.body
         }
 
-        if (entity == null) {
-            RepositoryResult.Error(
-                RepositoryError.NotFound(
-                    message = "User with id $userId not found"
-                )
+    suspend fun getUserCoverMedia(userId: Uuid): MediaAsset? =
+        when (
+            val result = mediaRepository.findAllByReferenceAndPurpose(
+                referenceId = userId,
+                referenceType = MediaReferenceType.USER,
+                purpose = MediaPurposeType.COVER
             )
-        } else {
-            RepositoryResult.Success(
-                body = entity.toAccountDomain()
-            )
+        ) {
+            is RepositoryResult.Error -> null
+            is RepositoryResult.Success -> result.body.firstOrNull()
         }
-    }
 }

@@ -7,24 +7,21 @@ import Tabs, { TabItem } from "../../../components/tabs/Tabs";
 import ProfilePhotoUploader from "../../../components/image/ProfilePhotoUploader";
 
 import { useAuth } from "../../../auth/AuthContext";
-import type { User } from "../../../data/types";
+import type { MediaAssetResponse, User } from "../../../data/types";
 
 import styles from "./Profile.module.css";
 
 type ProfileTab = "info" | "friends" | "groups" | "settings";
-
-// Als jouw auth-user altijd ACCOUNT is:
 type AccountUser = User.ACCOUNT;
 
 const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const { user, logout, refreshSession } = useAuth();
+  const {user, logout } = useAuth();
   const [error, setError] = useState("");
   const [showEditImageDialog, setShowEditImageDialog] = useState(false);
+  const [uploadedProfileImage, setUploadedProfileImage] = useState<MediaAssetResponse | null>(null);
 
   const navigate = useNavigate();
-
-  // ✅ Narrow (als jouw session user altijd ACCOUNT is)
   const me = user as AccountUser;
 
   const handleLogout = async () => {
@@ -39,6 +36,12 @@ const Profile: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const displayedProfileImageUrl =
+    uploadedProfileImage?.url ??
+    me.profileImageAsset?.url ??
+    me.imageUrl ??
+    null;
 
   const tabs: TabItem<ProfileTab>[] = useMemo(
     () => [
@@ -78,17 +81,23 @@ const Profile: React.FC = () => {
           footer={<div />}
         >
           <ProfilePhotoUploader
+            userId={me.uuid}
             avatarSize={512}
-            onUpdatedUser={() => {
-              refreshSession();
+            privacy={me.privacyDetails ?? "PRIVATE"}
+            onUploadedMedia={(media) => {
+              setUploadedProfileImage(media);
               setShowEditImageDialog(false);
             }}
           />
         </BaseDialog>
 
         <div className={styles.imageContainer}>
-          {me.imageUrl ? (
-            <img src={me.imageUrl} alt={me.email} className={styles.avatar} />
+          {displayedProfileImageUrl ? (
+            <img
+              src={displayedProfileImageUrl}
+              alt={me.displayName ?? me.email ?? me.username}
+              className={styles.avatar}
+            />
           ) : (
             <div className={styles.avatar} />
           )}

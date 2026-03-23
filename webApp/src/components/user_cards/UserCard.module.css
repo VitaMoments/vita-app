@@ -13,7 +13,6 @@
   padding: 12px 14px;
 }
 
-/* Avatar links */
 .avatar {
   width: 44px;
   height: 44px;
@@ -23,12 +22,11 @@
   background: rgba(0, 0, 0, 0.08);
 }
 
-/* Info midden (displayName boven bio) */
 .userInfo {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 0; /* belangrijk voor ellipsis */
+  min-width: 0;
   flex: 1 1 auto;
 }
 

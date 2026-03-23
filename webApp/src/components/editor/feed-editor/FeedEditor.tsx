@@ -108,13 +108,8 @@ export const FeedEditor: React.FC<FeedEditorProps> = ({
       },
     },
     onFocus: () => setIsFocused(true),
-    onBlur: ({ editor }) => {
-      const hasAny = editor.getText().trim().length > 0 || categories.length > 0;
-      if (!hasAny) {
-        setIsFocused(false);
-      } else {
-        setIsFocused(false);
-      }
+    onBlur: () => {
+      setIsFocused(false);
     },
     onUpdate: ({ editor }) => {
       onClearError?.();
@@ -302,7 +297,7 @@ export const FeedEditor: React.FC<FeedEditorProps> = ({
             </span>
           </div>
 
-          <div className={styles.categoryChips}>
+          <div className={styles.categoryChips} onMouseDown={keepEditorFocus}>
             {ALL_CATEGORIES.map((c) => {
               const active = categories.includes(c);
               const meta = FEED_CATEGORY_META[c];

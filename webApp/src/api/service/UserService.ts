@@ -15,7 +15,7 @@ const postImage = async ({ file, fields = {} }: PostImageOptions): Promise<User>
     form.append(k, v);
   }
 
-  const res = await api.post<User>("/profile/image", form);
+  const res = await api.post<User>("/media", form);
   return res.data;
 };
 

@@ -14,10 +14,8 @@ import eu.vitamoments.app.data.media.MediaAccessService
 import eu.vitamoments.app.data.media.MediaService
 import eu.vitamoments.app.data.media.MediaStorage
 import eu.vitamoments.app.data.media.MediaValidationService
-import eu.vitamoments.app.data.repository.BlogRepository
 import eu.vitamoments.app.data.repository.FriendRepository
 import eu.vitamoments.app.data.repository.JVMAuthRepository
-import eu.vitamoments.app.data.repository.JVMBlogRepository
 import eu.vitamoments.app.data.repository.JVMFriendRepository
 import eu.vitamoments.app.data.repository.JVMMediaRepository
 import eu.vitamoments.app.data.repository.JVMTimeLineRepository
@@ -39,7 +37,6 @@ private val jvmRepositoryModule = module {
     single<UserRepository> { JVMUserRepository(mediaRepository = get()) }
     single<TimeLineRepository> { JVMTimeLineRepository()  }
     single<FriendRepository> { JVMFriendRepository() }
-    single<BlogRepository> { JVMBlogRepository() }
     single<MediaRepository> { JVMMediaRepository() }
 }
 

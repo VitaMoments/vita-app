@@ -3,8 +3,9 @@ import styles from "./UserCard.module.css";
 
 import type { User } from "../../data/types";
 import { isUserPublic } from "../../data/types"
-import { getUserDisplayName } from "../../data/ui/userHelpers";
 import { MdPersonAdd, MdPersonRemove } from "react-icons/md";
+
+import { getUserDisplayName, getUserProfileImageUrl } from "../../data/ui/userHelpers";
 
 type UserCardProps = {
   user: User;
@@ -21,8 +22,8 @@ export function UserCard({
   disabled = false,
   loading = false,
 }: UserCardProps) {
-  const img = user.imageUrl;
   const name = getUserDisplayName(user);
+  const imageUrl = getUserProfileImageUrl(user);
 
   // bio bestaat op PUBLIC/PRIVATE/ACCOUNT in jouw output, maar niet altijd gegarandeerd
   const bio = user.bio
@@ -33,8 +34,8 @@ export function UserCard({
   return (
     <article className={styles.card}>
       <div className={styles.cardContent}>
-        {img ? (
-          <img src={img} alt="profile image" className={styles.avatar} />
+        {imageUrl ? (
+          <img src={imageUrl} alt="profile image" className={styles.avatar} />
         ) : (
           <div className={styles.avatar} />
         )}

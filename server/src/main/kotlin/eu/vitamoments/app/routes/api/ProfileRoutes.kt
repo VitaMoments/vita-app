@@ -3,12 +3,10 @@
 package eu.vitamoments.app.routes.api
 
 import eu.vitamoments.app.api.helpers.requireUserId
-import eu.vitamoments.app.config.JWTConfigLoader
+import eu.vitamoments.app.data.models.requests.user_requests.UpdateMyAccountRequest
 import eu.vitamoments.app.data.models.requests.respondError
 import eu.vitamoments.app.data.models.requests.respondRepository
 import eu.vitamoments.app.data.repository.RepositoryError
-import eu.vitamoments.app.data.repository.RepositoryResult
-import eu.vitamoments.app.data.repository.ServerAuthRepository
 import eu.vitamoments.app.data.repository.UserRepository
 import eu.vitamoments.app.services.CropRect
 import eu.vitamoments.app.services.ProfileImageService
@@ -18,8 +16,10 @@ import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.http.content.streamProvider
 import io.ktor.server.request.receiveMultipart
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.put
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
@@ -36,11 +36,16 @@ private class HttpStatusException(
 ) : RuntimeException(message)
 
 fun Route.profileRoutes() {
-    val config = JWTConfigLoader.loadOrThrow()
-    val authRepo: ServerAuthRepository by inject()
     val userRepo: UserRepository by inject()
 
     route("/profile") {
+        put {
+            val userId = call.requireUserId()
+            val request: UpdateMyAccountRequest = call.receive()
+            val result = userRepo.updateMyAccount(userId, request)
+            call.respondRepository(result)
+        }
+
         post("/image") {
             val userId = call.requireUserId()
 

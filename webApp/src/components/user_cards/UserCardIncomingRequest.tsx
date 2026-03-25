@@ -3,7 +3,7 @@ import React from "react";
 import styles from "./UserCard.module.css";
 
 import type { User } from "../../data/types";
-import { getUserDisplayName } from "../../data/ui/userHelpers";
+import { getUserDisplayName, getUserProfileImageUrl } from "../../data/ui/userHelpers";
 
 type UserCardIncomingRequestProps = {
   user: User;
@@ -20,7 +20,7 @@ export function UserCardIncomingRequest({
   disabled = false,
   loading = false,
 }: UserCardIncomingRequestProps) {
-  const img = user.imageUrl;
+  const img = getUserProfileImageUrl(user);
   const name = getUserDisplayName(user);
   const uuid = user.uuid
 

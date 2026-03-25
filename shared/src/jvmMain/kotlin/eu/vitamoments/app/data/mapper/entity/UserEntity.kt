@@ -79,6 +79,8 @@ fun UserEntity.toAccountDomain(
     lastname = this.lastname,
     phone = this.phone,
     coverImageAsset = coverImageAsset,
+    locale = this.locale,
+    timeZone = this.timeZone,
     privacyDetails = this.detailsPrivacy
     )
 

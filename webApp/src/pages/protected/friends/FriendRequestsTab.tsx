@@ -6,7 +6,7 @@ import { Card } from "../../../components/card/Card";
 
 import { FriendService } from "../../../api/service/FriendService";
 import type { UserWithContext } from "../../../data/types";
-import { getUserDisplayName } from "../../../data/ui/userHelpers";
+import { getUserDisplayName, getUserProfileImageUrl } from "../../../data/ui/userHelpers";
 
 import { PagedList } from "../../../components/pagination/PagedList";
 
@@ -100,13 +100,15 @@ const FriendRequestsTab: React.FC<Props> = ({ isActive }) => {
         const u = ctx.user;
         const f = ctx.friendship;
 
+        const imageUrl = getUserProfileImageUrl(u);
+
         // Als er (om wat voor reden) geen friendship is, render dan zonder buttons
         if (!f || f.type !== "PENDING") {
           return (
             <Card>
               <div className={styles.cardContent}>
-                {u.imageUrl ? (
-                  <img src={u.imageUrl} alt="" className={styles.avatar} />
+                {imageUrl ? (
+                  <img src={imageUrl} alt="" className={styles.avatar} />
                 ) : (
                   <div className={styles.avatar} />
                 )}
@@ -126,8 +128,8 @@ const FriendRequestsTab: React.FC<Props> = ({ isActive }) => {
         return (
           <Card>
             <div className={styles.cardContent}>
-              {u.imageUrl ? (
-                <img src={u.imageUrl} alt="" className={styles.avatar} />
+              {imageUrl ? (
+                <img src={imageUrl} alt="" className={styles.avatar} />
               ) : (
                 <div className={styles.avatar} />
               )}

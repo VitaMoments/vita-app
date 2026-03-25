@@ -13,7 +13,7 @@ import BaseDialog from "../dialog/BaseDialog";
 import { TimelineService } from "../../api/service/TimelineService";
 import type { FeedItem } from "../../data/types";
 import styles from "./TimelineItemCard.module.css";
-import { getUserDisplayName } from "../../data/ui/userHelpers";
+import { getUserDisplayName, getUserProfileImageUrl } from "../../data/ui/userHelpers";
 
 type Props = {
     isUserItem: boolean,
@@ -55,7 +55,7 @@ export function TimelineItemCard({ isUserItem, item }: Props) {
 
   const created = new Date(item.createdAt);
   const authorName = getUserDisplayName(item.author);
-  const authorImage = item.author.imageUrl;
+  const authorImage = getUserProfileImageUrl(item.author);
 
   // 👉 Editor voor dialog
   const editor = useEditor({

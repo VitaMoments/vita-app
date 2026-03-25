@@ -1,9 +1,12 @@
 package eu.vitamoments.app.api.service
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import eu.vitamoments.app.data.models.requests.user_requests.UpdateMyAccountRequest
 import kotlin.uuid.Uuid
 
 class UserServiceImpl(private val client: HttpClient) : UserService {
@@ -21,9 +24,10 @@ class UserServiceImpl(private val client: HttpClient) : UserService {
 
     override suspend fun getMyAccount(): HttpResponse = client.get("/account")
 
-    override suspend fun updateMyAccount(): HttpResponse {
-        TODO("Not yet implemented")
-    }
+    override suspend fun updateMyAccount(request: UpdateMyAccountRequest): HttpResponse =
+        client.put("/profile") {
+            setBody(request)
+        }
 
     override suspend fun updateMyProfileImage(): HttpResponse {
         TODO("Not yet implemented")

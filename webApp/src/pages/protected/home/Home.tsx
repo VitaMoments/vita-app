@@ -5,6 +5,8 @@ import TripleColumnPageLayout from "../../../components/page/base_pages/TripleCo
 
 import { LeftSideBar } from "./LeftSideBar"
 
+import { getUserDisplayName, getUserProfileImageUrl } from "../../../data/ui/userHelpers";
+
 // oud
 
 import { TimelineService } from "../../../api/service/TimelineService";
@@ -97,38 +99,9 @@ const Home: React.FC = () => {
     void loadPosts(0);
   }, []);
 
-    const filteredItems = useMemo(() => {
-      let result = [...items];
-
-      if (query.trim()) {
-        const q = query.trim().toLowerCase();
-
-        result = result.filter((item) => {
-          const title = item.title?.toLowerCase?.() ?? "";
-          const text = item.text?.toLowerCase?.() ?? "";
-          const author =
-            item.author?.displayName?.toLowerCase?.() ??
-            item.author?.email?.toLowerCase?.() ??
-            "";
-
-          return title.includes(q) || text.includes(q) || author.includes(q);
-        });
-      }
-
-      if (activeCategory) {
-        result = result.filter((item) =>
-          Array.isArray(item.categories) && item.categories.includes(activeCategory)
-        );
-      }
-
-      return result;
-    }, [items, query, activeCategory]);
-
     return (
         <TripleColumnPageLayout
-            leftSidebar={
-                <LeftSideBar user={user} />
-                }
+            leftSidebar={ user ? <LeftSideBar user={user} /> : null }
         >
           <div>
             <FeedEditor
@@ -140,7 +113,7 @@ const Home: React.FC = () => {
                 onClearError={() => setError(null)}
                 onSubmit={
                     async ({ categories, document }) => {
-                        await TimelineService.createPost({
+                        await TimelineService.postContent({
                         feed: TABS[activeIndex].feed,
                         categories,
                         document,
@@ -149,27 +122,9 @@ const Home: React.FC = () => {
                     setInfo("Post geplaatst.");
                 }}/>
 
-                {loading && <p className={styles.stateText}>Loading…</p>}
+            {loading && <p className={styles.stateText}>Loading…</p>}
 
-                {!loading && filteredItems.length === 0 ? (
-                  <div className={styles.emptyState}>
-                    <h3 className={styles.emptyTitle}>No timeline items found</h3>
-                    <p className={styles.emptyText}>
-                      Er zijn geen timeline items gevonden voor deze selectie.
-                    </p>
-                  </div>
-                ) : (
-                  <ul className={styles.timelineList}>
-                    {filteredItems.map((item) => {
-                      const isUserItem = item.author.uuid === myUserId;
-                      return (
-                        <li key={item.uuid} className={styles.timelineListItem}>
-                          <TimelineItemCard item={item} isUserItem={isUserItem} />
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
+
           </div>
         </TripleColumnPageLayout>
         );

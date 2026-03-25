@@ -4,7 +4,7 @@ import eu.vitamoments.app.api.service.UserService
 import eu.vitamoments.app.data.mapper.toRepositoryResult
 import eu.vitamoments.app.data.models.domain.user.AccountUser
 import eu.vitamoments.app.data.models.domain.user.User
-import io.ktor.client.call.body
+import eu.vitamoments.app.data.models.requests.user_requests.UpdateMyAccountRequest
 import kotlin.uuid.Uuid
 
 class UserRepositoryImpl(private val service: UserService) : UserRepository {
@@ -14,10 +14,14 @@ class UserRepositoryImpl(private val service: UserService) : UserRepository {
     override suspend fun getMyAccount(userId: Uuid): RepositoryResult<AccountUser>  =
         service.getMyAccount().toRepositoryResult()
 
-    override suspend fun updateMyAccount(): RepositoryResult<AccountUser> =
-        service.updateMyAccount().toRepositoryResult()
+    override suspend fun updateMyAccount(
+        userId: Uuid,
+        request: UpdateMyAccountRequest
+    ): RepositoryResult<AccountUser> =
+        service.updateMyAccount(request).toRepositoryResult()
 
-    override suspend fun updateMyProfileImage(userId: Uuid, url: String): RepositoryResult<AccountUser> =
-        service.updateMyProfileImage().body()
+    override suspend fun updateMyProfileImage(userId: Uuid, url: String): RepositoryResult<AccountUser> {
+        throw UnsupportedOperationException("Use media upload flow to update profile image")
+    }
 
 }

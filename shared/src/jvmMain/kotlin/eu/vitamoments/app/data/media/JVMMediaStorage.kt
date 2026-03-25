@@ -3,7 +3,6 @@ package eu.vitamoments.app.data.media
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
-import kotlinx.io.write
 
 class LocalMediaStorage(
     private val baseDir: String

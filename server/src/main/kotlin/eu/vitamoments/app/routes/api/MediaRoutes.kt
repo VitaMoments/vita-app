@@ -9,14 +9,13 @@ import eu.vitamoments.app.data.models.enums.PrivacyStatus
 import eu.vitamoments.app.data.repository.RepositoryError
 import eu.vitamoments.app.data.repository.RepositoryResult
 import eu.vitamoments.app.data.media.MediaService
-import eu.vitamoments.app.data.repository.UserRepository
+import eu.vitamoments.app.services.CropRect
+import eu.vitamoments.app.services.ImageProcessor
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.server.request.receiveMultipart
-import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
@@ -42,6 +41,12 @@ fun Route.mediaRoutes() {
         var contentType: String? = null
         var fileBytes: ByteArray? = null
 
+        var cropX: Int? = null
+        var cropY: Int? = null
+        var cropW: Int? = null
+        var cropH: Int? = null
+        var avatarSize: Int? = null
+
         val multipart = call.receiveMultipart(
             formFieldLimit = 1024L * 1024L * 100L
         )
@@ -61,6 +66,11 @@ fun Route.mediaRoutes() {
                         "privacy" -> {
                             privacy = runCatching { PrivacyStatus.valueOf(part.value) }.getOrNull()
                         }
+                        "cropX" -> cropX = part.value.toIntOrNull()
+                        "cropY" -> cropY = part.value.toIntOrNull()
+                        "cropW" -> cropW = part.value.toIntOrNull()
+                        "cropH" -> cropH = part.value.toIntOrNull()
+                        "avatarSize" -> avatarSize = part.value.toIntOrNull()
                     }
                     part.dispose()
                 }
@@ -89,6 +99,51 @@ fun Route.mediaRoutes() {
             )
         }
 
+        val sourceBytes = fileBytes!!
+        var uploadBytes = sourceBytes
+        var uploadContentType = contentType
+
+        val shouldApplyProfileCrop =
+            referenceType == MediaReferenceType.USER &&
+                purpose == MediaPurposeType.PROFILE &&
+                (cropX != null || cropY != null || cropW != null || cropH != null || avatarSize != null)
+
+        if (shouldApplyProfileCrop) {
+            val requestedCrop = if (
+                cropX != null && cropY != null && cropW != null && cropH != null
+            ) {
+                CropRect(cropX!!, cropY!!, cropW!!, cropH!!)
+            } else {
+                null
+            }
+
+            val processor = ImageProcessor()
+            val targetSize = (avatarSize ?: 512).coerceIn(64, 2048)
+
+            val transformedBytes = runCatching {
+                val sourceImage = processor.read(sourceBytes)
+                val cropped = processor.crop(sourceImage, requestedCrop)
+                val resized = processor.resize(cropped, targetSize, targetSize)
+                val opaque = processor.toOpaqueRgb(resized)
+                processor.writeJpegToBytes(opaque)
+            }.getOrElse { err ->
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    RepositoryError.Validation(
+                        errors = listOf(
+                            RepositoryError.FieldError(
+                                field = "file",
+                                message = "Invalid image or crop parameters: ${err.message ?: "unknown"}"
+                            )
+                        )
+                    ).toApiError()
+                )
+            }
+
+            uploadBytes = transformedBytes
+            uploadContentType = "image/jpeg"
+        }
+
         when (
             val result = mediaService.uploadMedia(
                 referenceId = referenceId!!,
@@ -96,8 +151,8 @@ fun Route.mediaRoutes() {
                 purpose = purpose!!,
                 privacy = privacy!!,
                 originalFileName = originalFileName,
-                contentType = contentType,
-                bytes = fileBytes!!,
+                contentType = uploadContentType,
+                bytes = uploadBytes,
                 createdBy = currentUserId
             )
         ) {

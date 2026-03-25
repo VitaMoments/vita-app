@@ -18,6 +18,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import kotlin.uuid.Uuid
 import kotlin.uuid.toKotlinUuid
 
+fun UserEntity.toDomain(viewerUuid: Uuid): User = toDomainForViewer(viewerUuid)
 
 fun UserEntity.toDomainForViewer(
     viewerUuid: Uuid,

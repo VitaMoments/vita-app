@@ -16,7 +16,7 @@ type AccountUser = User.ACCOUNT;
 
 const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const {user, logout } = useAuth();
+  const { user, logout, refreshSession } = useAuth();
   const [error, setError] = useState("");
   const [showEditImageDialog, setShowEditImageDialog] = useState(false);
   const [uploadedProfileImage, setUploadedProfileImage] = useState<MediaAssetResponse | null>(null);
@@ -86,6 +86,9 @@ const Profile: React.FC = () => {
             privacy={me.privacyDetails ?? "PRIVATE"}
             onUploadedMedia={(media) => {
               setUploadedProfileImage(media);
+              void refreshSession().catch((err) => {
+                console.error("Failed to refresh auth session after image upload", err);
+              });
               setShowEditImageDialog(false);
             }}
           />

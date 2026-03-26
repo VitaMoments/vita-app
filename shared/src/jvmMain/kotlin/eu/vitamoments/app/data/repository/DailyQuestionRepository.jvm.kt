@@ -8,8 +8,9 @@ import eu.vitamoments.app.data.entities.UserStreakEntity
 import eu.vitamoments.app.data.factory.FeedItemFactory
 import eu.vitamoments.app.data.mapper.entity.toDomain
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
+import eu.vitamoments.app.data.models.domain.daily.DailyQuestion
 import eu.vitamoments.app.data.models.domain.daily.DailyQuestionAnswerResult
-import eu.vitamoments.app.data.models.domain.feed.DailyQuestionItem
+import eu.vitamoments.app.data.models.enums.FeedCategory
 import eu.vitamoments.app.data.models.enums.QuestionType
 import eu.vitamoments.app.data.models.requests.daily_questions_requests.SubmitDailyQuestionAnswerRequest
 import eu.vitamoments.app.data.tables.DailyQuestionAnswersTable
@@ -39,7 +40,7 @@ class JVMDailyQuestionRepository : DailyQuestionRepository {
      *   within that many days (exclusive: minDaysBetween=1 means ≥1 full day gap).
      * - If no eligible question remains, returns NotFound with a specific message.
      */
-    override suspend fun getOrCreateTodayQuestion(userId: Uuid): RepositoryResult<DailyQuestionItem> = dbQuery {
+    override suspend fun getOrCreateTodayQuestion(userId: Uuid): RepositoryResult<DailyQuestion> = dbQuery {
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         val nowTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
         val userIdJava = userId.toJavaUuid()
@@ -99,7 +100,7 @@ class JVMDailyQuestionRepository : DailyQuestionRepository {
                 questionDate = today
             )
 
-        RepositoryResult.Success(item.toDomain(userId))
+        RepositoryResult.Success(item.toQuestionDomain())
     }
 
     override suspend fun submitAnswer(
@@ -232,4 +233,23 @@ class JVMDailyQuestionRepository : DailyQuestionRepository {
         maxTime == null -> now >= minTime
         else -> now in minTime..<maxTime
     }
+}
+
+private fun DailyQuestionItemEntity.toQuestionDomain(): DailyQuestion {
+    val rawCategories = this.question.categories ?: emptyList()
+    val categories = rawCategories.mapNotNull { name ->
+        runCatching { enumValueOf<FeedCategory>(name) }.getOrNull()
+    }
+
+    return DailyQuestion(
+        questionItemId = this.id.value.toKotlinUuid(),
+        questionId = this.question.id.value.toKotlinUuid(),
+        question = this.question.question,
+        questionType = this.question.type,
+        categories = categories,
+        minTime = this.question.minTime?.toString(),
+        maxTime = this.question.maxTime?.toString(),
+        answers = this.question.answers,
+        questionDate = this.questionDate.toString(),
+    )
 }

@@ -1,0 +1,85 @@
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 4px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+
+.authorName {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.badge {
+  display: inline-block;
+  width: fit-content;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.question {
+  margin: 0;
+  font-size: 16px;
+  color: #111827;
+}
+
+.metaText {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.selectedAnswer {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #1f2937;
+}
+
+.content p {
+  margin: 0.2rem 0;
+}
+

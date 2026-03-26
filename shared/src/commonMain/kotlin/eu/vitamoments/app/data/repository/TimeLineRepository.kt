@@ -8,6 +8,6 @@ import kotlin.uuid.Uuid
 
 interface TimeLineRepository {
     suspend fun createPost(userId: Uuid, content: JsonElement) : RepositoryResult<TimelineItem>
-    suspend fun getTimeLine(userId: Uuid, feed: TimeLineFeed, limit: Int, offset: Long) : RepositoryResult<List<TimelineItem>>
+    suspend fun getTimeLine(userId: Uuid, feed: TimeLineFeed, limit: Int, offset: Long) : RepositoryResult<List<FeedItem>>
     suspend fun updateItem(userId: Uuid, item: FeedItem): RepositoryResult<TimelineItem>
 }

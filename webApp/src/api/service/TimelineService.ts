@@ -1,9 +1,7 @@
 // TimelineService.ts
-import type { JSONContent } from "@tiptap/core";
 import api from "../axios";
 
-import type { FeedItem, TimeLineFeed } from "../../data/types";
-import { isFeedItemTimelineitem } from "../../data/types";
+import type { CreateTimelineItemRequest, FeedItem, TimeLineFeed } from "../../data/types";
 
 export type GetTimelineParams = {
   feed?: TimeLineFeed; // default FRIENDS
@@ -20,21 +18,17 @@ function normalizeParams(params: GetTimelineParams) {
 }
 
 export const TimelineService = {
-    async postContent(document: JSONContent): Promise<void> {
-        await api.post("/timeline", { document });
-    },
+  async postContent(payload: CreateTimelineItemRequest): Promise<void> {
+    await api.post("/timeline", payload);
+  },
 
-    async updateContent(
-      item: FeedItem.TIMELINEITEM
-    ): Promise<FeedItem.TIMELINEITEM> {
-      const { data } = await api.put("/timeline",
-        { item: item }
-      );
-      return data;
-    },
+  async updateContent(item: FeedItem.TIMELINEITEM): Promise<FeedItem.TIMELINEITEM> {
+    const { data } = await api.put("/timeline", { item });
+    return data;
+  },
 
-    async getTimeline(params: GetTimelineParams = {}): Promise<FeedItem.TIMELINEITEM[]> {
-        const res = await api.get<FeedItem.TIMELINEITEM[]>("/timeline", { params: normalizeParams(params) });
-        return res.data;
-    },
+  async getTimeline(params: GetTimelineParams = {}): Promise<FeedItem[]> {
+    const res = await api.get<FeedItem[]>("/timeline", { params: normalizeParams(params) });
+    return res.data;
+  },
 };

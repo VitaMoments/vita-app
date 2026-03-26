@@ -15,14 +15,13 @@ import kotlin.uuid.Uuid
 @SerialName("DAILYQUESTIONITEM")
 data class DailyQuestionItem(
     override val uuid: Uuid,
+    val questionItemId: Uuid,
     val questionId: Uuid,
     val question: String,
     val questionType: QuestionType,
     val categories: List<FeedCategory> = emptyList(),
-    val minTime: String? = null,
-    val maxTime: String? = null,
-    val answers: List<String>? = null,
-    val questionDate: String,
+    val selectedAnswer: String? = null,
+    val answerText: String? = null,
     override val author: User,
     override val content: RichTextDocument,
     override val privacy: PrivacyStatus = PrivacyStatus.PRIVATE,

@@ -5,7 +5,7 @@ import { FeedEditor } from "../../components/editor/feed-editor/FeedEditor";
 import { DailyQuestionService } from "../../api/service/DailyQuestionService";
 import { FEED_CATEGORY_META } from "../../data/ui/feedCategoryMeta";
 
-import type { FeedItem, RichTextDocument } from "../../data/types";
+import type { DailyQuestion, RichTextDocument } from "../../data/types";
 import type { FeedCategory } from "../../data/types";
 
 import styles from "./DailyQuestionInput.module.css";
@@ -19,7 +19,7 @@ type Props = {
 const NO_MORE_QUESTIONS_MSG = "no_more_questions_today";
 
 export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitted }) => {
-  const [question, setQuestion] = useState<FeedItem.DAILYQUESTIONITEM | null>(null);
+  const [question, setQuestion] = useState<DailyQuestion | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,7 +86,7 @@ export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitt
 
     try {
       const result = await DailyQuestionService.submitAnswer({
-        questionItemId: question.uuid,
+        questionItemId: question.questionItemId,
         answerText: question.questionType === "OPEN" ? text || null : null,
         selectedAnswer: question.questionType === "MULTIPLE_CHOICE" ? selectedAnswer : null,
         answerDocument: question.questionType === "OPEN" ? document : null,
@@ -209,7 +209,7 @@ export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitt
                   <label key={option} className={styles.choiceItem}>
                     <input
                       type="radio"
-                      name={`dq-choice-${question.uuid}`}
+                      name={`dq-choice-${question.questionItemId}`}
                       value={option}
                       checked={selectedAnswer === option}
                       onChange={(e) => setSelectedAnswer(e.target.value)}

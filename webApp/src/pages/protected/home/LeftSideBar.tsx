@@ -61,7 +61,7 @@ export function LeftSideBar({
         </div>
 
         <div className={styles.horizontalDivider} />
-        <StreakCard streakDays={streak?.currentStreak ?? null} />
+        <StreakCard streakDays={streak?.currentStreak ?? 0} />
         <Button onClick={onOpenDailyQuestion}>Vraag van de dag</Button>
       </div>
     </article>

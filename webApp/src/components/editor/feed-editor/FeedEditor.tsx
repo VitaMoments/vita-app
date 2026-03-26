@@ -274,6 +274,10 @@ export const FeedEditor: React.FC<FeedEditorProps> = ({
           document,
           text,
         });
+
+        editor.commands.clearContent();
+        editor.commands.blur();
+        setCategories([]);
       } catch (e: any) {
         const msg = e?.message ?? "Error saving content. Please try again.";
         onError?.(msg, e);

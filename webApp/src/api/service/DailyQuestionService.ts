@@ -1,13 +1,13 @@
 import api from "../axios";
 import type {
+  DailyQuestion,
   DailyQuestionAnswerResult,
-  FeedItem,
   SubmitDailyQuestionAnswerRequest,
 } from "../../data/types";
 
 export const DailyQuestionService = {
-  async getNextQuestion(): Promise<FeedItem.DAILYQUESTIONITEM> {
-    const res = await api.get<FeedItem.DAILYQUESTIONITEM>("/daily-questions/next");
+  async getNextQuestion(): Promise<DailyQuestion> {
+    const res = await api.get<DailyQuestion>("/daily-questions/next");
     return res.data;
   },
 

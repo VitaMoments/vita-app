@@ -49,7 +49,7 @@ export function getStageProgress(days: number | null) {
     }
 
     const stageRange = next.minDays - current.minDays;
-    const progressed = days - current.minDays;
+    const progressed = daysNotNull - current.minDays;
     const progress = Math.max(0, Math.min(100, (progressed / stageRange) * 100));
 
     return {

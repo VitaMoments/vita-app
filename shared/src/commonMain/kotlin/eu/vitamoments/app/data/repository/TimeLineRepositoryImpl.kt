@@ -24,7 +24,7 @@ class TimeLineRepositoryImpl(
         feed: TimeLineFeed,
         limit: Int,
         offset: Long
-    ): RepositoryResult<List<TimelineItem>> {
+    ): RepositoryResult<List<FeedItem>> {
         TODO("Not yet implemented")
     }
 

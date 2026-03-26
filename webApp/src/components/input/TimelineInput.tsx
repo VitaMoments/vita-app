@@ -84,6 +84,7 @@ export function TimelineInput({ onPosted, onError, onClearError }: TimelineInput
     };
 
     const sendPost = useCallback(async () => {
+        console.log("send post")
       if (!editor) return;
 
       const plain = editor.getText().trim();
@@ -92,9 +93,17 @@ export function TimelineInput({ onPosted, onError, onClearError }: TimelineInput
       setIsPosting(true);
       onClearError?.();
 
+        console.log("Attempting to post content", { content: editor.getJSON() });
       try {
-        await TimelineService.postContent(editor.getJSON());
-        editor.commands.clearContent(true);
+          console.log("try post")
+        await TimelineService.postContent({
+          document: { content: editor.getJSON() as any },
+        });
+        editor.commands.clearContent();
+        editor.commands.blur();
+        console.log("Post successful");
+        setContent("");
+        setIsFocused(false);
         onPosted?.();
       } catch (e: any) {
           const msg =
@@ -103,9 +112,10 @@ export function TimelineInput({ onPosted, onError, onClearError }: TimelineInput
             "Error posting content. Please try again..";
           onError?.(msg, e);
       } finally {
-        setIsPosting(false);
+
+         setIsPosting(false);
       }
-    }, [editor, isPosting, onPosted, onError, onClearError]);
+    }, [editor, isPosting, onPosted, onError, onClearError, setContent]);
 
     if (!editor) return null;
 

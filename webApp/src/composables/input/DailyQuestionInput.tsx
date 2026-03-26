@@ -11,7 +11,6 @@ import type { FeedCategory } from "../../data/types";
 import styles from "./DailyQuestionInput.module.css";
 
 type Props = {
-  /** Controlled open state. Set to true to show the input and fetch a question. */
   isOpen: boolean;
   onClose: () => void;
   onSubmitted?: (result: { currentStreak: number; longestStreak: number }) => void;
@@ -172,7 +171,7 @@ export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitt
           </div>
 
           {/* Category badges */}
-          {question.categories.length > 0 && (
+          {question.categories != undefined && question.categories.length > 0 && (
             <div className={styles.categories}>
               {question.categories.map((cat: FeedCategory) => {
                 const meta = FEED_CATEGORY_META[cat];

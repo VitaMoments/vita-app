@@ -9,6 +9,7 @@ import eu.vitamoments.app.data.mapper.extension_functions.minus
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.mapper.extension_functions.toInstant
 import eu.vitamoments.app.data.models.domain.common.PagedResult
+import eu.vitamoments.app.data.models.domain.daily.StreakSummary
 import eu.vitamoments.app.data.models.domain.friendship.AcceptedFriendship
 import eu.vitamoments.app.data.models.domain.friendship.Friendship
 import eu.vitamoments.app.data.models.domain.friendship.PendingFriendship

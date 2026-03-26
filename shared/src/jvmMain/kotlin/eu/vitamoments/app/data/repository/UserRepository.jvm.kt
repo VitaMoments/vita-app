@@ -1,10 +1,13 @@
 package eu.vitamoments.app.data.repository
 
 import eu.vitamoments.app.data.entities.UserEntity
+import eu.vitamoments.app.data.entities.UserStreakEntity
 import eu.vitamoments.app.data.mapper.entity.toAccountDomain
 import eu.vitamoments.app.data.mapper.entity.toPrivateDomain
 import eu.vitamoments.app.data.mapper.entity.toPublicDomain
+import eu.vitamoments.app.data.mapper.extension_functions.toInstantStartOfDay
 import eu.vitamoments.app.data.models.domain.common.PagedResult
+import eu.vitamoments.app.data.models.domain.daily.StreakSummary
 import eu.vitamoments.app.data.models.domain.friendship.AcceptedFriendship
 import eu.vitamoments.app.data.models.domain.friendship.Friendship
 import eu.vitamoments.app.data.models.domain.friendship.PendingFriendship
@@ -18,6 +21,7 @@ import eu.vitamoments.app.data.models.enums.MediaPurposeType
 import eu.vitamoments.app.data.models.enums.MediaReferenceType
 import eu.vitamoments.app.data.models.requests.user_requests.UpdateMyAccountRequest
 import eu.vitamoments.app.data.records.FriendshipRecord
+import eu.vitamoments.app.data.tables.UserStreaksTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.dbHelpers.dbQuery
 import eu.vitamoments.app.dbHelpers.kotlinUuid
@@ -25,6 +29,7 @@ import eu.vitamoments.app.dbHelpers.queries.findFriendshipByUuid
 import eu.vitamoments.app.dbHelpers.queries.searchPredicate
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
@@ -42,8 +47,11 @@ class JVMUserRepository(
         val coverImageAsset = getUserCoverMedia(entity.kotlinUuid)
 
         if (currentUserId == userId) {
+            val streakSummary = getStreakSummary(userId)
+
             return@dbQuery RepositoryResult.Success(
                 UserWithContext(
+                    streak = streakSummary,
                     user = entity.toAccountDomain(
                         profileImageAsset = profileImageAsset,
                         coverImageAsset = coverImageAsset
@@ -135,19 +143,23 @@ class JVMUserRepository(
         )
     }
 
-    override suspend fun getMyAccount(userId: Uuid): RepositoryResult<AccountUser> = dbQuery {
+    override suspend fun getMyAccount(userId: Uuid): RepositoryResult<UserWithContext> = dbQuery {
         val entity = UserEntity.findById(userId.toJavaUuid())
             ?: return@dbQuery RepositoryResult.Error(
                 RepositoryError.NotFound("User with id: $userId not found")
             )
 
+        val streakSummary = getStreakSummary(userId)
         val profileImageAsset = getUserProfileMedia(entity.kotlinUuid)
         val coverImageAsset = getUserCoverMedia(entity.kotlinUuid)
 
         RepositoryResult.Success(
-            entity.toAccountDomain(
-                profileImageAsset = profileImageAsset,
-                coverImageAsset = coverImageAsset
+            UserWithContext(
+                streak = streakSummary,
+                user = entity.toAccountDomain(
+                    profileImageAsset = profileImageAsset,
+                    coverImageAsset = coverImageAsset
+                )
             )
         )
     }
@@ -204,6 +216,25 @@ class JVMUserRepository(
         throw Exception("Gebruik media service om profiel fotos te uploaden")
     }
 
+    override suspend fun getCurrentStreakSummary(uuid: Uuid): RepositoryResult<StreakSummary> = dbQuery {
+        val userEntity = UserEntity.findById(uuid.toJavaUuid())
+            ?: return@dbQuery RepositoryResult.Error(
+                RepositoryError.NotFound("User with id: $uuid not found")
+            )
+
+        val streakSummary = UserStreakEntity.find { UserStreaksTable.userId eq userEntity.id }.map {
+            StreakSummary(
+                currentStreak = it.currentStreak,
+                longestStreak = it.longestStreak,
+                lastAnsweredAt = null
+            )
+        }.getOrElse(0) {
+            StreakSummary()
+        }
+
+        RepositoryResult.Success(streakSummary)
+    }
+
     private suspend fun getUserProfileMedia(userId: Uuid): MediaAsset? =
         when (val result = mediaRepository.findProfileImage(userId)) {
             is RepositoryResult.Error -> null
@@ -221,6 +252,16 @@ class JVMUserRepository(
             is RepositoryResult.Error -> null
             is RepositoryResult.Success -> result.body.firstOrNull()
         }
+
+    private suspend fun getStreakSummary(userId: Uuid): StreakSummary = UserStreakEntity.find { UserStreaksTable.userId eq userId.toJavaUuid() }.map {
+        StreakSummary(
+            currentStreak = it.currentStreak,
+            longestStreak = it.longestStreak,
+            lastAnsweredAt = it.lastAnsweredDate?.toInstantStartOfDay()
+        )
+    }.getOrElse(0) {
+        StreakSummary()
+    }
 }
 
 private fun FriendshipRecord.toDomain(currentUserId: Uuid, otherUserId: Uuid): Friendship? {

@@ -1,7 +1,19 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package eu.vitamoments.app.routes.api
 
+import eu.vitamoments.app.api.helpers.clearAuthCookies
+import eu.vitamoments.app.api.helpers.requireRefreshToken
+import eu.vitamoments.app.api.helpers.requireUserId
+import eu.vitamoments.app.api.helpers.setAuthCookies
+import eu.vitamoments.app.data.models.domain.AuthSession
+import eu.vitamoments.app.data.models.domain.daily.StreakSummary
+import eu.vitamoments.app.data.models.domain.user.AccountUser
+import eu.vitamoments.app.data.models.domain.user.UserWithContext
+import eu.vitamoments.app.data.models.requests.auth_requests.LoginRequest
+import eu.vitamoments.app.data.models.requests.auth_requests.RegistrationRequest
+import eu.vitamoments.app.data.models.requests.handleResult
+import eu.vitamoments.app.data.repository.RepositoryResult
+import eu.vitamoments.app.data.repository.ServerAuthRepository
+import eu.vitamoments.app.data.repository.UserRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
@@ -10,22 +22,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import eu.vitamoments.app.api.helpers.clearAuthCookies
-import eu.vitamoments.app.api.helpers.requireRefreshToken
-import eu.vitamoments.app.api.helpers.requireUserId
-import eu.vitamoments.app.api.helpers.setAuthCookies
-import eu.vitamoments.app.data.models.domain.AuthSession
-import eu.vitamoments.app.data.models.domain.user.AccountUser
-import eu.vitamoments.app.data.models.requests.auth_requests.LoginRequest
-import eu.vitamoments.app.data.models.requests.auth_requests.RegistrationRequest
-import eu.vitamoments.app.data.models.requests.handleResult
-import eu.vitamoments.app.data.models.requests.respondError
-import eu.vitamoments.app.data.models.requests.respondRepository
-import eu.vitamoments.app.data.repository.RepositoryResult
-import eu.vitamoments.app.data.repository.ServerAuthRepository
-import eu.vitamoments.app.data.repository.UserRepository
 import org.koin.ktor.ext.inject
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 fun Route.authRoutes() {
@@ -40,9 +37,12 @@ fun Route.authRoutes() {
 
             call.handleResult(
                 result = result,
-                onSuccess = {session ->
+                onSuccess = { session ->
                     call.setAuthCookies(session)
-                    call.respond(status = HttpStatusCode.Created, session.user)
+                    call.respond(status = HttpStatusCode.Created, UserWithContext(
+                        user = session.user,
+                        streak = StreakSummary()
+                    ))
                 }
             )
         }
@@ -56,7 +56,13 @@ fun Route.authRoutes() {
                 result = result,
                 onSuccess = { session ->
                     call.setAuthCookies(session)
-                    call.respond(status = HttpStatusCode.OK, session.user)
+                    val currentStreakSummary = userRepo.getCurrentStreakSummary(session.user.uuid)
+                    val streak = when (currentStreakSummary) {
+                        is RepositoryResult.Success -> currentStreakSummary.body
+                        is RepositoryResult.Error -> StreakSummary()
+                    }
+
+                    call.respond(status = HttpStatusCode.OK, UserWithContext(user = session.user, streak = streak))
                 }
             )
         }
@@ -67,7 +73,7 @@ fun Route.authRoutes() {
 
             call.handleResult(
                 result = result,
-                onSuccess = {session ->
+                onSuccess = { session ->
                     call.setAuthCookies(session)
                     call.respond(HttpStatusCode.NoContent)
                 }
@@ -84,8 +90,11 @@ fun Route.authRoutes() {
         authenticate("cookie-jwt-authentication") {
             get("/session") {
                 val userId: Uuid = call.requireUserId()
-                val result: RepositoryResult<AccountUser> = userRepo.getMyAccount(userId = userId)
-                call.handleResult(result)
+                val result: RepositoryResult<UserWithContext> = userRepo.getMyAccount(userId = userId)
+                call.handleResult(
+                    result = result,
+                    onSuccess = { user -> call.respond(HttpStatusCode.OK, user) }
+                )
             }
         }
     }

@@ -3,6 +3,7 @@ package eu.vitamoments.app.data.repository
 import eu.vitamoments.app.api.service.UserService
 import eu.vitamoments.app.data.mapper.toRepositoryResult
 import eu.vitamoments.app.data.models.domain.common.PagedResult
+import eu.vitamoments.app.data.models.domain.daily.StreakSummary
 import eu.vitamoments.app.data.models.domain.user.AccountUser
 import eu.vitamoments.app.data.models.domain.user.User
 import eu.vitamoments.app.data.models.domain.user.UserWithContext
@@ -21,7 +22,7 @@ class UserRepositoryImpl(private val service: UserService) : UserRepository {
     ): RepositoryResult<PagedResult<User>> =
         service.searchUsers(query = query, limit = limit, offset = offset).toRepositoryResult()
 
-    override suspend fun getMyAccount(userId: Uuid): RepositoryResult<AccountUser>  =
+    override suspend fun getMyAccount(userId: Uuid): RepositoryResult<UserWithContext>  =
         service.getMyAccount().toRepositoryResult()
 
     override suspend fun updateMyAccount(
@@ -32,6 +33,10 @@ class UserRepositoryImpl(private val service: UserService) : UserRepository {
 
     override suspend fun updateMyProfileImage(userId: Uuid, url: String): RepositoryResult<AccountUser> {
         throw UnsupportedOperationException("Use media upload flow to update profile image")
+    }
+
+    override suspend fun getCurrentStreakSummary(uuid: Uuid): RepositoryResult<StreakSummary> {
+        TODO("Not yet implemented")
     }
 
 }

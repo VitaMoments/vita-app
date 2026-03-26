@@ -1,13 +1,14 @@
 import React from "react";
 import styles from "./LeftSideBar.module.css";
 
-import type { User } from "../../../data/types";
+import type { User, StreakSummary } from "../../../data/types";
 import { getUserDisplayName, getUserProfileImageUrl } from "../../../data/ui/userHelpers";
 import { StreakCard } from "../../../components/card/StreakCard";
 import { Button } from "../../../components/buttons/Button";
 
 type LeftSideBarProps = {
   user: User;
+  streak: StreakSummary | null;
   followingCount?: number;
   followersCount?: number;
   activitiesCount?: number;
@@ -16,6 +17,7 @@ type LeftSideBarProps = {
 
 export function LeftSideBar({
   user,
+  streak,
   followingCount = 0,
   followersCount = 0,
   activitiesCount = 0,
@@ -59,7 +61,7 @@ export function LeftSideBar({
         </div>
 
         <div className={styles.horizontalDivider} />
-        <StreakCard streakDays={18} />
+        <StreakCard streakDays={streak?.currentStreak ?? null} />
         <Button onClick={onOpenDailyQuestion}>Vraag van de dag</Button>
       </div>
     </article>

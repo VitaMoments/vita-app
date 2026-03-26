@@ -10,6 +10,7 @@ class UserStreakEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<UserStreakEntity>(UserStreaksTable)
 
     var user by UserEntity referencedOn UserStreaksTable.userId
+    var userId by UserStreaksTable.userId
     var currentStreak by UserStreaksTable.currentStreak
     var longestStreak by UserStreaksTable.longestStreak
     var lastAnsweredDate by UserStreaksTable.lastAnsweredDate

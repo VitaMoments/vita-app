@@ -8,6 +8,7 @@ import { TimelineService } from "../../../api/service/TimelineService";
 import { FeedEditor } from "../../../components/editor/feed-editor/FeedEditor";
 
 import type { FeedItem, TimeLineFeed } from "../../../data/types";
+import { didAnswerToday } from "../../../data/ui/streakHelpers";
 
 import styles from "./Home.module.css";
 
@@ -26,11 +27,10 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const { user, streak } = useAuth();
 
   // Daily question panel: open by default on first visit; hidden after first submit
-  const [dailyQuestionOpen, setDailyQuestionOpen] = useState(true);
-
-  const { user } = useAuth();
+  const [dailyQuestionOpen, setDailyQuestionOpen] = useState(!didAnswerToday(streak));
 
   const labels = useMemo(() => TABS.map((t) => t.label), []);
 
@@ -64,7 +64,8 @@ const Home: React.FC = () => {
         user ? (
           <LeftSideBar
             user={user}
-            activitiesCount={0}
+            streak = {streak ?? null}
+            activitiesCount={ streak?.currentStreak ?? -1 }
             onOpenDailyQuestion={() => setDailyQuestionOpen(true)}
           />
         ) : null

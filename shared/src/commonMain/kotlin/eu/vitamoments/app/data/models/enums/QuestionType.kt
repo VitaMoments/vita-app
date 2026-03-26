@@ -3,7 +3,8 @@ package eu.vitamoments.app.data.models.enums
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class FeedItemType {
-    TIMELINE,
-    DAILY_QUESTION
+enum class QuestionType {
+    OPEN,
+    MULTIPLE_CHOICE
 }
+

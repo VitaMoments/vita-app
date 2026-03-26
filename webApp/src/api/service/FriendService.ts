@@ -63,22 +63,22 @@ export const FriendService = {
 
   // Actions (laat even unknown, of typ later op Friendship/UserWithContext/etc)
   async invite(friendId: string, signal?: AbortSignal): Promise<unknown> {
-    const res = await api.post("/friends/invite", { friendId }, { signal });
+    const res = await api.post("/friends/invite", { userId: friendId }, { signal });
     return res.data;
   },
 
   async accept(friendId: string, signal?: AbortSignal): Promise<unknown> {
-    const res = await api.post("/friends/accept", { friendId }, { signal });
+    const res = await api.post("/friends/accept", { userId: friendId }, { signal });
     return res.data;
   },
 
   async reject(friendId: string, signal?: AbortSignal): Promise<unknown> {
-    const res = await api.post("/friends/reject", { friendId }, { signal });
+    const res = await api.post("/friends/reject", { userId: friendId }, { signal });
     return res.data;
   },
 
   async revoke(friendId: string, signal?: AbortSignal): Promise<unknown> {
-    const res = await api.post("/friends/revoke", { friendId }, { signal });
+    const res = await api.post("/friends/revoke", { userId: friendId }, { signal });
     return res.data;
   },
 };

@@ -13,7 +13,7 @@ import type { MediaAssetResponse, User } from "../../../data/types";
 
 import styles from "./Profile.module.css";
 
-type ProfileTab = "info" | "friends" | "groups" | "settings";
+type ProfileTab = "info" | "settings";
 type AccountUser = User.ACCOUNT;
 
 const formatBirthDate = (value?: number | null): string => {
@@ -97,8 +97,6 @@ const Profile: React.FC = () => {
   const tabs: TabItem<ProfileTab>[] = useMemo(
     () => [
       { value: "info", label: "Info", content: infoContent },
-      { value: "friends", label: "Friends", content: <div>Friends content</div> },
-      { value: "groups", label: "Groups", content: <div>Groups content</div> },
       {
         value: "settings",
         label: "Settings",

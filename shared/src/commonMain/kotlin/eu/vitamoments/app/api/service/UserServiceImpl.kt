@@ -22,7 +22,7 @@ class UserServiceImpl(private val client: HttpClient) : UserService {
         parameter("offset", offset)
     }
 
-    override suspend fun getMyAccount(): HttpResponse = client.get("/account")
+    override suspend fun getMyAccount(): HttpResponse = client.get("/auth/session")
 
     override suspend fun updateMyAccount(request: UpdateMyAccountRequest): HttpResponse =
         client.put("/profile") {

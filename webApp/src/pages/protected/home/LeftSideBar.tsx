@@ -4,15 +4,14 @@ import styles from "./LeftSideBar.module.css";
 import type { User } from "../../../data/types";
 import { getUserDisplayName, getUserProfileImageUrl } from "../../../data/ui/userHelpers";
 import { StreakCard } from "../../../components/card/StreakCard";
-
-import { Button } from "../../../components/buttons/Button"
-
+import { Button } from "../../../components/buttons/Button";
 
 type LeftSideBarProps = {
   user: User;
   followingCount?: number;
   followersCount?: number;
   activitiesCount?: number;
+  onOpenDailyQuestion?: () => void;
 };
 
 export function LeftSideBar({
@@ -20,9 +19,10 @@ export function LeftSideBar({
   followingCount = 0,
   followersCount = 0,
   activitiesCount = 0,
+  onOpenDailyQuestion,
 }: LeftSideBarProps) {
   const name = getUserDisplayName(user);
-  const profileImageAssetUrl = getUserProfileImageUrl(user)
+  const profileImageAssetUrl = getUserProfileImageUrl(user);
 
   return (
     <article className={styles.card}>
@@ -57,9 +57,10 @@ export function LeftSideBar({
             <span className={styles.statValue}>{activitiesCount}</span>
           </div>
         </div>
+
         <div className={styles.horizontalDivider} />
         <StreakCard streakDays={18} />
-        <Button onClick={()=> console.log("click")}>Extend</Button>
+        <Button onClick={onOpenDailyQuestion}>Vraag van de dag</Button>
       </div>
     </article>
   );

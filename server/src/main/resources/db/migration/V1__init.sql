@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS feed_items (
   updated_at timestamp    NOT NULL DEFAULT now(),
   deleted_at timestamp,
 
-  CONSTRAINT feed_items_type_chk    CHECK (type IN ('TIMELINE')),
+  CONSTRAINT feed_items_type_chk    CHECK (type IN ('TIMELINE','DAILY_QUESTION')),
   CONSTRAINT feed_items_privacy_chk CHECK (privacy IN ('OPEN','FRIENDS_ONLY','PRIVATE')),
   CONSTRAINT feed_items_user_fk     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -66,6 +66,85 @@ CREATE TABLE IF NOT EXISTS timeline_items (
 
   CONSTRAINT timeline_items_feed_item_fk
     FOREIGN KEY (feed_item_id) REFERENCES feed_items(id)
+    ON DELETE CASCADE
+);
+
+-- =========================
+-- DAILY QUESTIONS
+-- =========================
+CREATE TABLE IF NOT EXISTS daily_questions (
+  id          uuid PRIMARY KEY,
+  question    varchar(500) NOT NULL,
+  type        varchar(30) NOT NULL,
+  min_time    time,
+  max_time    time,
+  answers     jsonb,
+  created_at  timestamp NOT NULL DEFAULT now(),
+  updated_at  timestamp NOT NULL DEFAULT now(),
+  deleted_at  timestamp,
+
+  CONSTRAINT daily_questions_type_chk CHECK (type IN ('OPEN','MULTIPLE_CHOICE'))
+);
+
+CREATE INDEX IF NOT EXISTS daily_questions_type_idx ON daily_questions (type);
+
+CREATE TABLE IF NOT EXISTS daily_question_items (
+  id            uuid PRIMARY KEY,
+  feed_item_id  uuid NOT NULL UNIQUE,
+  question_id   uuid NOT NULL,
+  question_date date NOT NULL,
+
+  CONSTRAINT daily_question_items_feed_item_fk
+    FOREIGN KEY (feed_item_id) REFERENCES feed_items(id)
+    ON DELETE CASCADE,
+  CONSTRAINT daily_question_items_question_fk
+    FOREIGN KEY (question_id) REFERENCES daily_questions(id)
+    ON DELETE RESTRICT
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS daily_question_items_question_date_uq
+  ON daily_question_items (question_date);
+
+CREATE TABLE IF NOT EXISTS daily_question_answers (
+  id               uuid PRIMARY KEY,
+  question_item_id uuid NOT NULL,
+  user_id          uuid NOT NULL,
+  question_id_snapshot uuid NOT NULL,
+  question_text_snapshot varchar(500) NOT NULL,
+  question_type_snapshot varchar(30) NOT NULL,
+  question_min_time_snapshot time,
+  question_max_time_snapshot time,
+  question_answers_snapshot jsonb,
+  answer_text      text,
+  selected_answer  varchar(255),
+  answered_at      timestamp NOT NULL DEFAULT now(),
+  answer_date      date NOT NULL,
+
+  CONSTRAINT daily_question_answers_item_fk
+    FOREIGN KEY (question_item_id) REFERENCES daily_question_items(id)
+    ON DELETE CASCADE,
+  CONSTRAINT daily_question_answers_user_fk
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE,
+  CONSTRAINT daily_question_answers_type_snapshot_chk
+    CHECK (question_type_snapshot IN ('OPEN','MULTIPLE_CHOICE')),
+  CONSTRAINT daily_question_answers_one_per_user_per_item_uq
+    UNIQUE (question_item_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS daily_question_answers_user_date_idx
+  ON daily_question_answers (user_id, answer_date);
+
+CREATE TABLE IF NOT EXISTS user_streaks (
+  id                uuid PRIMARY KEY,
+  user_id           uuid NOT NULL UNIQUE,
+  current_streak    integer NOT NULL DEFAULT 0,
+  longest_streak    integer NOT NULL DEFAULT 0,
+  last_answered_date date,
+  updated_at        timestamp NOT NULL DEFAULT now(),
+
+  CONSTRAINT user_streaks_user_fk
+    FOREIGN KEY (user_id) REFERENCES users(id)
     ON DELETE CASCADE
 );
 
@@ -223,57 +302,3 @@ CREATE UNIQUE INDEX IF NOT EXISTS media_assets_object_key_uq            ON media
 CREATE INDEX        IF NOT EXISTS media_assets_reference_idx             ON media_assets (reference_id, reference_type);
 CREATE INDEX        IF NOT EXISTS media_assets_reference_type_purpose_idx ON media_assets (reference_type, purpose);
 CREATE INDEX        IF NOT EXISTS media_assets_privacy_idx               ON media_assets (privacy);
-
--- =========================
--- NEVO TABLES
--- =========================
-CREATE TABLE IF NOT EXISTS food_groups (
-  id       uuid         PRIMARY KEY,
-  group_no integer      NOT NULL UNIQUE,
-  name_nl  varchar(255) NOT NULL UNIQUE,
-  name_en  varchar(255) UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS nutrients (
-  id   uuid        PRIMARY KEY,
-  code varchar(32) NOT NULL UNIQUE,
-  unit varchar(16) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS products (
-  id               uuid         PRIMARY KEY,
-  nevo_code        integer      NOT NULL UNIQUE,
-  nevo_version     varchar(64)  NOT NULL,
-  food_group_id    uuid         NOT NULL,
-  name_nl          varchar(512) NOT NULL,
-  name_en          varchar(512),
-  synonym          text,
-  quantity         varchar(64),
-  remark           text,
-  contains_traces_of text,
-  fortified_with   text,
-
-  CONSTRAINT products_food_group_fk
-    FOREIGN KEY (food_group_id) REFERENCES food_groups(id)
-    ON DELETE RESTRICT
-);
-
-CREATE INDEX IF NOT EXISTS products_food_group_id_idx ON products (food_group_id);
-
-CREATE TABLE IF NOT EXISTS product_nutrients (
-  id          uuid   PRIMARY KEY,
-  product_id  uuid   NOT NULL,
-  nutrient_id uuid   NOT NULL,
-  value_scaled bigint,
-
-  CONSTRAINT product_nutrients_product_fk
-    FOREIGN KEY (product_id)  REFERENCES products(id)  ON DELETE CASCADE,
-  CONSTRAINT product_nutrients_nutrient_fk
-    FOREIGN KEY (nutrient_id) REFERENCES nutrients(id) ON DELETE RESTRICT
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS product_nutrients_product_nutrient_uq
-  ON product_nutrients (product_id, nutrient_id);
-
-CREATE INDEX IF NOT EXISTS product_nutrients_nutrient_id_idx
-  ON product_nutrients (nutrient_id);

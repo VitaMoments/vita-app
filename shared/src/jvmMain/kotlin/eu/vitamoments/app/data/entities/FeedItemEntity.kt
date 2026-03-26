@@ -1,6 +1,7 @@
 package eu.vitamoments.app.data.entities
 
 import eu.vitamoments.app.data.models.enums.FeedCategory
+import eu.vitamoments.app.data.tables.DailyQuestionItemsTable
 import eu.vitamoments.app.data.tables.FeedItemCategoriesTable
 import eu.vitamoments.app.data.tables.FeedItemsTable
 import eu.vitamoments.app.data.tables.TimelineItemsTable
@@ -46,4 +47,5 @@ class FeedItemEntity(id: EntityID<UUID>) : UUIDEntity(id) {
 
     // Optional helper relations
     val timeline by TimelineItemEntity optionalBackReferencedOn TimelineItemsTable.feedItemId
+    val dailyQuestion by DailyQuestionItemEntity optionalBackReferencedOn DailyQuestionItemsTable.feedItemId
 }

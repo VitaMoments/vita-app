@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Pagination } from "./Pagination";
 import type { PagedResult } from "../../data/types";
-import styles from "./PagedList.module.css";
 
 export type PagedListCtx<T> = {
   items: T[];

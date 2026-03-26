@@ -14,11 +14,23 @@ const FriendsPage: React.FC = () => {
 
   const tabs: TabItem<FriendsTabLabel>[] = useMemo(
     () => [
-      { value: "friends", label: "Friends", content: <FriendsTab isActive={activeTab === "friends"} /> },
-      { value: "search", label: "Search friends", content: <SearchNewFriendsTab isActive={activeTab === "search"} /> },
-      { value: "requests", label: "Friend requests", content: <FriendRequestsTab isActive={activeTab === "requests"} /> },
+      {
+        value: "friends",
+        label: "Friends",
+        content: <FriendsTab isActive={activeTab === "friends"} />,
+      },
+      {
+        value: "search",
+        label: "Search friends",
+        content: <SearchNewFriendsTab isActive={activeTab === "search"} />,
+      },
+      {
+        value: "requests",
+        label: "Friend requests",
+        content: <FriendRequestsTab isActive={activeTab === "requests"} />,
+      },
     ],
-    [activeTab]
+    [activeTab],
   );
 
   return (

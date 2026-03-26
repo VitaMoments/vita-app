@@ -13,12 +13,19 @@ import styles from "./DailyQuestionInput.module.css";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmitted?: (result: { currentStreak: number; longestStreak: number }) => void;
+  onSubmitted?: (result: {
+    currentStreak: number;
+    longestStreak: number;
+  }) => void;
 };
 
 const NO_MORE_QUESTIONS_MSG = "no_more_questions_today";
 
-export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitted }) => {
+export const DailyQuestionInput: React.FC<Props> = ({
+  isOpen,
+  onClose,
+  onSubmitted,
+}) => {
   const [question, setQuestion] = useState<DailyQuestion | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -55,8 +62,7 @@ export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitt
       const q = await DailyQuestionService.getNextQuestion();
       setQuestion(q);
     } catch (e: any) {
-      const msg: string =
-        e?.response?.data?.message ?? e?.message ?? "unknown";
+      const msg: string = e?.response?.data?.message ?? e?.message ?? "unknown";
       if (msg === NO_MORE_QUESTIONS_MSG || e?.response?.status === 404) {
         setNoMoreQuestions(true);
       } else {
@@ -88,15 +94,20 @@ export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitt
       const result = await DailyQuestionService.submitAnswer({
         questionItemId: question.questionItemId,
         answerText: question.questionType === "OPEN" ? text || null : null,
-        selectedAnswer: question.questionType === "MULTIPLE_CHOICE" ? selectedAnswer : null,
+        selectedAnswer:
+          question.questionType === "MULTIPLE_CHOICE" ? selectedAnswer : null,
         answerDocument: question.questionType === "OPEN" ? document : null,
       });
 
-      onSubmitted?.({ currentStreak: result.currentStreak, longestStreak: result.longestStreak });
+      onSubmitted?.({
+        currentStreak: result.currentStreak,
+        longestStreak: result.longestStreak,
+      });
       onClose();
     } catch (e: any) {
       setError(
-        e?.response?.data?.message ?? "Antwoord versturen mislukt. Probeer opnieuw."
+        e?.response?.data?.message ??
+          "Antwoord versturen mislukt. Probeer opnieuw.",
       );
     } finally {
       setSubmitting(false);
@@ -108,9 +119,7 @@ export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitt
   return (
     <div className={styles.card}>
       {/* Loading */}
-      {loading && (
-        <p className={styles.loadingText}>Vraag laden…</p>
-      )}
+      {loading && <p className={styles.loadingText}>Vraag laden…</p>}
 
       {/* No more questions */}
       {!loading && noMoreQuestions && (
@@ -130,7 +139,8 @@ export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitt
             <div className={styles.stateIcon}>🎉</div>
             <p className={styles.stateTitle}>Alle vragen beantwoord!</p>
             <p className={styles.stateSubtitle}>
-              Je hebt vandaag alle beschikbare vragen beantwoord. Kom morgen terug!
+              Je hebt vandaag alle beschikbare vragen beantwoord. Kom morgen
+              terug!
             </p>
           </div>
         </>
@@ -171,20 +181,21 @@ export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitt
           </div>
 
           {/* Category badges */}
-          {question.categories != undefined && question.categories.length > 0 && (
-            <div className={styles.categories}>
-              {question.categories.map((cat: FeedCategory) => {
-                const meta = FEED_CATEGORY_META[cat];
-                const Icon = meta?.icon;
-                return (
-                  <span key={cat} className={styles.categoryBadge}>
-                    {Icon && <Icon />}
-                    {meta?.label ?? cat}
-                  </span>
-                );
-              })}
-            </div>
-          )}
+          {question.categories != undefined &&
+            question.categories.length > 0 && (
+              <div className={styles.categories}>
+                {question.categories.map((cat: FeedCategory) => {
+                  const meta = FEED_CATEGORY_META[cat];
+                  const Icon = meta?.icon;
+                  return (
+                    <span key={cat} className={styles.categoryBadge}>
+                      {Icon && <Icon />}
+                      {meta?.label ?? cat}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
 
           {/* Open question: rich-text editor */}
           {question.questionType === "OPEN" && (
@@ -239,4 +250,3 @@ export const DailyQuestionInput: React.FC<Props> = ({ isOpen, onClose, onSubmitt
     </div>
   );
 };
-

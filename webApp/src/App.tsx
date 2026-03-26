@@ -15,9 +15,9 @@ const App = () => {
   return (
     <div className={styles.container}>
       <Header user={user} />
-        <main>
-          <AppRoutes />
-        </main>
+      <main>
+        <AppRoutes />
+      </main>
       <Footer />
     </div>
   );

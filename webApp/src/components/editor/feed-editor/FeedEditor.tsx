@@ -71,11 +71,12 @@ export const FeedEditor: React.FC<FeedEditorProps> = ({
 }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [categories, setCategories] = useState<FeedCategory[]>(initialCategories);
+  const [categories, setCategories] =
+    useState<FeedCategory[]>(initialCategories);
 
   const ALL_CATEGORIES = useMemo(
     () => Object.keys(FEED_CATEGORY_META) as FeedCategory[],
-    []
+    [],
   );
 
   const editor = useEditor({
@@ -203,7 +204,7 @@ export const FeedEditor: React.FC<FeedEditorProps> = ({
         | "ordered"
         | "blockquote"
         | "link"
-        | "unlink"
+        | "unlink",
     ) => {
       if (!editor) return;
 
@@ -238,7 +239,9 @@ export const FeedEditor: React.FC<FeedEditorProps> = ({
           chain.toggleBlockquote().run();
           break;
         case "link": {
-          const existing = editor.getAttributes("link")?.href as string | undefined;
+          const existing = editor.getAttributes("link")?.href as
+            | string
+            | undefined;
           const next = window.prompt("Link URL", existing ?? "https://");
           if (!next) return;
           chain.extendMarkRange("link").setLink({ href: next }).run();
@@ -249,7 +252,7 @@ export const FeedEditor: React.FC<FeedEditorProps> = ({
           break;
       }
     },
-    [editor]
+    [editor],
   );
 
   const submit = useCallback(
@@ -285,7 +288,7 @@ export const FeedEditor: React.FC<FeedEditorProps> = ({
         setIsSaving(false);
       }
     },
-    [editor, isSaving, onSubmit, categories, onError, onClearError]
+    [editor, isSaving, onSubmit, categories, onError, onClearError],
   );
 
   if (!editor) return null;

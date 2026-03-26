@@ -24,7 +24,9 @@ const ProfilePhotoUploader: React.FC<Props> = ({
 
   const [crop, setCrop] = React.useState({ x: 0, y: 0 });
   const [zoom, setZoom] = React.useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area | null>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area | null>(
+    null,
+  );
 
   const [uploading, setUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);

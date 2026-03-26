@@ -6,7 +6,10 @@ import { Card } from "../../../components/card/Card";
 
 import { FriendService } from "../../../api/service/FriendService";
 import type { UserWithContext } from "../../../data/types";
-import { getUserDisplayName, getUserProfileImageUrl } from "../../../data/ui/userHelpers";
+import {
+  getUserDisplayName,
+  getUserProfileImageUrl,
+} from "../../../data/ui/userHelpers";
 
 import { PagedList } from "../../../components/pagination/PagedList";
 
@@ -40,9 +43,9 @@ const FriendsTab: React.FC<Props> = ({ isActive }) => {
           limit,
           offset,
         },
-        signal
+        signal,
       ),
-    [query]
+    [query],
   );
 
   const listInstanceKey = `${TAB_KEY}:${query}:${reloadToken}`;

@@ -30,7 +30,7 @@ const Login: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setError(
-        err?.response?.data?.message || "Er is iets misgegaan bij het inloggen"
+        err?.response?.data?.message || "Er is iets misgegaan bij het inloggen",
       );
     } finally {
       setLoading(false);
@@ -49,20 +49,21 @@ const Login: React.FC = () => {
 
       <form onSubmit={handleSubmit}>
         <Input
-            placeholder="email"
-            type="email"
-            name="email"
-            value={email}
-            autoComplete="email"
-            onChange={(e) => setEmail(e.target.value)}
-            required/>
+          placeholder="email"
+          type="email"
+          name="email"
+          value={email}
+          autoComplete="email"
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
         <PasswordInput
-                  label="password"
-                  value={password}
-                  placeholder="password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+          label="password"
+          value={password}
+          placeholder="password"
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
         <Button type="submit" disabled={loading}>
           {loading ? "loading..." : "Login"}

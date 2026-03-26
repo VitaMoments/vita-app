@@ -28,9 +28,7 @@ const TripleColumnPageLayout: React.FC<Props> = ({
       <div className={styles.content}>
         <div className={layoutClassName}>
           {hasLeft ? (
-            <aside className={styles.sidebar}>
-              {leftSidebar}
-            </aside>
+            <aside className={styles.sidebar}>{leftSidebar}</aside>
           ) : null}
 
           <main className={styles.main}>

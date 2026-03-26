@@ -2,7 +2,10 @@ import React from "react";
 import styles from "./LeftSideBar.module.css";
 
 import type { User, StreakSummary } from "../../../data/types";
-import { getUserDisplayName, getUserProfileImageUrl } from "../../../data/ui/userHelpers";
+import {
+  getUserDisplayName,
+  getUserProfileImageUrl,
+} from "../../../data/ui/userHelpers";
 import { StreakCard } from "../../../components/card/StreakCard";
 import { Button } from "../../../components/buttons/Button";
 
@@ -30,7 +33,11 @@ export function LeftSideBar({
     <article className={styles.card}>
       <div className={styles.avatarWrapper}>
         {profileImageAssetUrl ? (
-          <img src={profileImageAssetUrl} alt={name} className={styles.avatar} />
+          <img
+            src={profileImageAssetUrl}
+            alt={name}
+            className={styles.avatar}
+          />
         ) : (
           <div className={styles.avatarPlaceholder} aria-hidden="true" />
         )}

@@ -3,7 +3,10 @@ import { generateHTML } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 
 import type { FeedItem } from "../../data/types";
-import { getUserDisplayName, getUserProfileImageUrl } from "../../data/ui/userHelpers";
+import {
+  getUserDisplayName,
+  getUserProfileImageUrl,
+} from "../../data/ui/userHelpers";
 
 import styles from "./DailyQuestionItemCard.module.css";
 
@@ -58,13 +61,17 @@ export function DailyQuestionItemCard({ item }: Props) {
       )}
 
       {item.selectedAnswer && (
-        <p className={styles.selectedAnswer}>Gekozen antwoord: {item.selectedAnswer}</p>
+        <p className={styles.selectedAnswer}>
+          Gekozen antwoord: {item.selectedAnswer}
+        </p>
       )}
 
       {html ? (
-        <div className={styles.content} dangerouslySetInnerHTML={{ __html: html }} />
+        <div
+          className={styles.content}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       ) : null}
     </article>
   );
 }
-

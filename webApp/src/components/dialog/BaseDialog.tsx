@@ -39,7 +39,7 @@ const FOCUSABLE = [
 function getFocusable(container: HTMLElement | null) {
   if (!container) return [];
   return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-    (el) => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden")
+    (el) => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden"),
   );
 }
 
@@ -135,11 +135,9 @@ export default function BaseDialog({
     >
       <div
         ref={panelRef}
-        className={[
-          styles.panel,
-          styles[`size_${size}`],
-          className ?? "",
-        ].join(" ")}
+        className={[styles.panel, styles[`size_${size}`], className ?? ""].join(
+          " ",
+        )}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}

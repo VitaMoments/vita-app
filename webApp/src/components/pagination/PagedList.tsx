@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Pagination } from "./Pagination";
-import type { PagedResult } from "../../data/types"
-import styles from "./PagedList.module.css"
-
+import type { PagedResult } from "../../data/types";
+import styles from "./PagedList.module.css";
 
 export type PagedListCtx<T> = {
   items: T[];
@@ -29,7 +28,11 @@ export type PagedListProps<T> = {
   resetKey?: string | number;
 
   /** Haal data op voor (limit, offset) */
-  fetchPage: (args: { limit: number; offset: number; signal?: AbortSignal }) => Promise<PagedResult<T>>;
+  fetchPage: (args: {
+    limit: number;
+    offset: number;
+    signal?: AbortSignal;
+  }) => Promise<PagedResult<T>>;
 
   /** Render 1 item */
   renderItem: (item: T) => React.ReactNode;
@@ -83,7 +86,7 @@ export function PagedList<T>(props: PagedListProps<T>) {
       const clamped = Math.min(Math.max(1, page), totalPages);
       setOffset((clamped - 1) * limit);
     },
-    [limit, totalPages]
+    [limit, totalPages],
   );
 
   const refresh = useCallback(() => {
@@ -104,7 +107,18 @@ export function PagedList<T>(props: PagedListProps<T>) {
       setOffset,
       refresh,
     }),
-    [items, total, limit, offset, currentPage, totalPages, loading, error, goToPage, refresh]
+    [
+      items,
+      total,
+      limit,
+      offset,
+      currentPage,
+      totalPages,
+      loading,
+      error,
+      goToPage,
+      refresh,
+    ],
   );
 
   useEffect(() => {
@@ -147,7 +161,7 @@ export function PagedList<T>(props: PagedListProps<T>) {
       {error && <p>{error}</p>}
 
       {isEmpty ? (
-        props.empty ?? <p>No results</p>
+        (props.empty ?? <p>No results</p>)
       ) : (
         <ul className={props.listClassName}>
           {items.map((item) => (

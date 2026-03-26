@@ -52,7 +52,11 @@ const ProfileEdit: React.FC = () => {
 
   const onChange =
     <K extends keyof EditableProfileFields>(key: K) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
+    ) => {
       setForm((prev) => ({
         ...prev,
         [key]: e.target.value,
@@ -101,13 +105,19 @@ const ProfileEdit: React.FC = () => {
         <div className={styles.header}>
           <h2 className={styles.title}>Edit profile info</h2>
           <p className={styles.help}>
-              Velden zijn vooraf ingevuld. Maak een veld leeg om de waarde te verwijderen.
+            Velden zijn vooraf ingevuld. Maak een veld leeg om de waarde te
+            verwijderen.
           </p>
         </div>
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <Input label="Alias" placeholder="Alias" value={form.alias} onChange={onChange("alias")} />
+        <Input
+          label="Alias"
+          placeholder="Alias"
+          value={form.alias}
+          onChange={onChange("alias")}
+        />
 
         <div className={styles.formGroup}>
           <label htmlFor="bio">Bio</label>
@@ -121,17 +131,42 @@ const ProfileEdit: React.FC = () => {
           />
         </div>
 
-        <Input label="First name" placeholder="First name" value={form.firstname} onChange={onChange("firstname")} />
-        <Input label="Last name" placeholder="Last name" value={form.lastname} onChange={onChange("lastname")} />
-        <Input label="Phone" placeholder="Phone" value={form.phone} onChange={onChange("phone")} />
+        <Input
+          label="First name"
+          placeholder="First name"
+          value={form.firstname}
+          onChange={onChange("firstname")}
+        />
+        <Input
+          label="Last name"
+          placeholder="Last name"
+          value={form.lastname}
+          onChange={onChange("lastname")}
+        />
+        <Input
+          label="Phone"
+          placeholder="Phone"
+          value={form.phone}
+          onChange={onChange("phone")}
+        />
         <Input
           label="Birth date"
           type="date"
           value={form.birthDate}
           onChange={onChange("birthDate")}
         />
-        <Input label="Locale" placeholder="bijv. nl-NL" value={form.locale} onChange={onChange("locale")} />
-        <Input label="Time zone" placeholder="bijv. Europe/Amsterdam" value={form.timeZone} onChange={onChange("timeZone")} />
+        <Input
+          label="Locale"
+          placeholder="bijv. nl-NL"
+          value={form.locale}
+          onChange={onChange("locale")}
+        />
+        <Input
+          label="Time zone"
+          placeholder="bijv. Europe/Amsterdam"
+          value={form.timeZone}
+          onChange={onChange("timeZone")}
+        />
 
         <div className={styles.formGroup}>
           <label htmlFor="privacyDetails">Privacy details</label>
@@ -148,7 +183,13 @@ const ProfileEdit: React.FC = () => {
         </div>
 
         <div className={styles.actions}>
-          <Button type="button" className={styles.secondaryBtn} onClick={() => navigate("/profile")}>Cancel</Button>
+          <Button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => navigate("/profile")}
+          >
+            Cancel
+          </Button>
           <Button type="button" disabled={saving} onClick={handleSave}>
             {saving ? "Saving..." : "Save"}
           </Button>
@@ -159,4 +200,3 @@ const ProfileEdit: React.FC = () => {
 };
 
 export default ProfileEdit;
-

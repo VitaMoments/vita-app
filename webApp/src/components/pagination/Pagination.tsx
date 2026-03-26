@@ -4,7 +4,11 @@ import styles from "./Pagination.module.css";
 
 type PageButton = number | "…";
 
-function buildPageButtons(current: number, totalPages: number, windowSize = 2): PageButton[] {
+function buildPageButtons(
+  current: number,
+  totalPages: number,
+  windowSize = 2,
+): PageButton[] {
   if (totalPages <= 1) return [1];
 
   const pages: PageButton[] = [];
@@ -26,8 +30,8 @@ function buildPageButtons(current: number, totalPages: number, windowSize = 2): 
 }
 
 export type PaginationProps = {
-  currentPage: number;          // 1-based
-  totalPages: number;           // >= 1
+  currentPage: number; // 1-based
+  totalPages: number; // >= 1
   disabled?: boolean;
 
   onPageChange: (page: number) => void;
@@ -53,7 +57,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   const pageButtons = useMemo(
     () => buildPageButtons(currentPage, totalPages, 2),
-    [currentPage, totalPages]
+    [currentPage, totalPages],
   );
 
   const canPrev = currentPage > 1;
@@ -80,14 +84,20 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className={styles.paginationBar}>
-      <button className={styles.pageBtn} onClick={goPrev} disabled={disabled || !canPrev}>
+      <button
+        className={styles.pageBtn}
+        onClick={goPrev}
+        disabled={disabled || !canPrev}
+      >
         {labels.prev ?? "← Terug"}
       </button>
 
       <div className={styles.pageNumbers}>
         {pageButtons.map((p, idx) =>
           p === "…" ? (
-            <span key={`ellipsis-${idx}`} className={styles.ellipsis}>…</span>
+            <span key={`ellipsis-${idx}`} className={styles.ellipsis}>
+              …
+            </span>
           ) : (
             <button
               key={p}
@@ -97,7 +107,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             >
               {p}
             </button>
-          )
+          ),
         )}
       </div>
 
@@ -107,18 +117,28 @@ export const Pagination: React.FC<PaginationProps> = ({
             className={styles.gotoInput}
             value={pageInput}
             onChange={(e) => setPageInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") submitGoTo(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") submitGoTo();
+            }}
             placeholder={labels.pagePlaceholder ?? "Page"}
             inputMode="numeric"
             disabled={disabled}
           />
-          <button className={styles.pageBtn} onClick={submitGoTo} disabled={disabled}>
+          <button
+            className={styles.pageBtn}
+            onClick={submitGoTo}
+            disabled={disabled}
+          >
             {labels.go ?? "Go"}
           </button>
         </div>
       )}
 
-      <button className={styles.pageBtn} onClick={goNext} disabled={disabled || !canNext}>
+      <button
+        className={styles.pageBtn}
+        onClick={goNext}
+        disabled={disabled || !canNext}
+      >
         {labels.next ?? "Volgende →"}
       </button>
     </div>

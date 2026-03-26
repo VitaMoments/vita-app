@@ -14,7 +14,11 @@ type AuthContextValue = {
   streak: StreakSummary | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  register: (
+    username: string,
+    email: string,
+    password: string,
+  ) => Promise<void>;
   refreshSession: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -28,29 +32,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     setOnAuthFailed(() => {
-      clearContext()
-//       window.location.href = "/login";
+      clearContext();
+      //       window.location.href = "/login";
     });
 
     return () => setOnAuthFailed(null);
   }, []);
 
-    function handleContext(context: UserWithContext) {
-      setUser(context.user);
-      console.log("Setting streak from context", context.streak);
-      setStreak(context.streak ?? null);
-    };
+  function handleContext(context: UserWithContext) {
+    setUser(context.user);
+    console.log("Setting streak from context", context.streak);
+    setStreak(context.streak ?? null);
+  }
 
-    function clearContext() {
-      setUser(null);
-      setStreak(null);
-    };
+  function clearContext() {
+    setUser(null);
+    setStreak(null);
+  }
 
   useEffect(() => {
     const checkSession = async () => {
       try {
         const context = await AuthService.fetchSession();
-        handleContext(context)
+        handleContext(context);
       } catch (err: any) {
         if (err?.response?.status !== 401) {
           console.error("Auth session check failed", err);
@@ -74,7 +78,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     clearContext();
   };
 
-  const register = async (username: string, email: string, password: string) => {
+  const register = async (
+    username: string,
+    email: string,
+    password: string,
+  ) => {
     const context = await AuthService.register(username, email, password);
     handleContext(context);
   };

@@ -11,7 +11,10 @@ import { DailyQuestionItemCard } from "../../../components/timeline/DailyQuestio
 
 import type { FeedItem, TimeLineFeed } from "../../../data/types";
 import { didAnswerToday } from "../../../data/ui/streakHelpers";
-import { isFeedItemDailyquestionitem, isFeedItemTimelineitem } from "../../../data/types";
+import {
+  isFeedItemDailyquestionitem,
+  isFeedItemTimelineitem,
+} from "../../../data/types";
 
 import styles from "./Home.module.css";
 
@@ -44,7 +47,9 @@ const Home: React.FC = () => {
   const loadMoreRetryTimerRef = useRef<number | null>(null);
 
   // Daily question panel: open by default on first visit; hidden after first submit
-  const [dailyQuestionOpen, setDailyQuestionOpen] = useState(!didAnswerToday(streak));
+  const [dailyQuestionOpen, setDailyQuestionOpen] = useState(
+    !didAnswerToday(streak),
+  );
 
   const clearLoadMoreRetryTimer = useCallback(() => {
     if (loadMoreRetryTimerRef.current != null) {
@@ -66,72 +71,87 @@ const Home: React.FC = () => {
     return [...prev, ...uniqueNew];
   };
 
-  const loadInitialPosts = useCallback(async (index: number) => {
-    const feed = TABS[index].feed;
-    try {
-      setLoading(true);
-      setError(null);
-      resetLoadMoreRetryState();
+  const loadInitialPosts = useCallback(
+    async (index: number) => {
+      const feed = TABS[index].feed;
+      try {
+        setLoading(true);
+        setError(null);
+        resetLoadMoreRetryState();
 
-      const data = await TimelineService.getTimeline({
-        feed,
-        offset: 0,
-        limit: LIMIT,
-      });
+        const data = await TimelineService.getTimeline({
+          feed,
+          offset: 0,
+          limit: LIMIT,
+        });
 
-      setItems(data);
-      setOffset(data.length);
-      setHasMore(data.length === LIMIT);
-    } catch (e) {
-      console.error(e);
-      setError("Het ophalen van posts is mislukt.");
-    } finally {
-      setLoading(false);
-    }
-  }, [resetLoadMoreRetryState]);
-
-  const loadMorePosts = useCallback(async (options?: { manualRetry?: boolean; isAutoRetry?: boolean }) => {
-    const manualRetry = options?.manualRetry ?? false;
-    const isAutoRetry = options?.isAutoRetry ?? false;
-
-    if (loading || loadingMore || !hasMore) return;
-    if (loadMoreError && !manualRetry && !isAutoRetry) return;
-
-    const feed = TABS[activeIndex].feed;
-    try {
-      setLoadingMore(true);
-      if (manualRetry) setLoadMoreError(null);
-
-      const data = await TimelineService.getTimeline({
-        feed,
-        offset,
-        limit: LIMIT,
-      });
-
-      setItems((prev) => mergeUnique(prev, data));
-      setOffset((prev) => prev + data.length);
-      setHasMore(data.length === LIMIT);
-      clearLoadMoreRetryTimer();
-      loadMoreRetryCountRef.current = 0;
-      setLoadMoreError(null);
-    } catch (e) {
-      console.error(e);
-      setLoadMoreError("Meer posts laden is mislukt.");
-
-      const canAutoRetry = loadMoreRetryCountRef.current < MAX_LOAD_MORE_AUTO_RETRIES;
-      if (!manualRetry && !isAutoRetry && canAutoRetry) {
-        const attempt = loadMoreRetryCountRef.current;
-        const delay = LOAD_MORE_RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
-        loadMoreRetryCountRef.current += 1;
-        clearLoadMoreRetryTimer();
-        loadMoreRetryTimerRef.current = window.setTimeout(() => {
-          void loadMorePosts({ isAutoRetry: true });
-        }, delay);
+        setItems(data);
+        setOffset(data.length);
+        setHasMore(data.length === LIMIT);
+      } catch (e) {
+        console.error(e);
+        setError("Het ophalen van posts is mislukt.");
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [activeIndex, clearLoadMoreRetryTimer, hasMore, loadMoreError, loading, loadingMore, offset]);
+    },
+    [resetLoadMoreRetryState],
+  );
+
+  const loadMorePosts = useCallback(
+    async (options?: { manualRetry?: boolean; isAutoRetry?: boolean }) => {
+      const manualRetry = options?.manualRetry ?? false;
+      const isAutoRetry = options?.isAutoRetry ?? false;
+
+      if (loading || loadingMore || !hasMore) return;
+      if (loadMoreError && !manualRetry && !isAutoRetry) return;
+
+      const feed = TABS[activeIndex].feed;
+      try {
+        setLoadingMore(true);
+        if (manualRetry) setLoadMoreError(null);
+
+        const data = await TimelineService.getTimeline({
+          feed,
+          offset,
+          limit: LIMIT,
+        });
+
+        setItems((prev) => mergeUnique(prev, data));
+        setOffset((prev) => prev + data.length);
+        setHasMore(data.length === LIMIT);
+        clearLoadMoreRetryTimer();
+        loadMoreRetryCountRef.current = 0;
+        setLoadMoreError(null);
+      } catch (e) {
+        console.error(e);
+        setLoadMoreError("Meer posts laden is mislukt.");
+
+        const canAutoRetry =
+          loadMoreRetryCountRef.current < MAX_LOAD_MORE_AUTO_RETRIES;
+        if (!manualRetry && !isAutoRetry && canAutoRetry) {
+          const attempt = loadMoreRetryCountRef.current;
+          const delay = LOAD_MORE_RETRY_BASE_DELAY_MS * Math.pow(2, attempt);
+          loadMoreRetryCountRef.current += 1;
+          clearLoadMoreRetryTimer();
+          loadMoreRetryTimerRef.current = window.setTimeout(() => {
+            void loadMorePosts({ isAutoRetry: true });
+          }, delay);
+        }
+      } finally {
+        setLoadingMore(false);
+      }
+    },
+    [
+      activeIndex,
+      clearLoadMoreRetryTimer,
+      hasMore,
+      loadMoreError,
+      loading,
+      loadingMore,
+      offset,
+    ],
+  );
 
   const handleTabChange = (index: number) => {
     if (index === activeIndex) return;
@@ -163,7 +183,7 @@ const Home: React.FC = () => {
         root: null,
         rootMargin: "300px 0px",
         threshold: 0.01,
-      }
+      },
     );
 
     observer.observe(sentinel);
@@ -236,7 +256,9 @@ const Home: React.FC = () => {
         {!loading && !error && items.length === 0 && (
           <div className={styles.emptyState}>
             <h3 className={styles.emptyTitle}>Nog geen feed items</h3>
-            <p className={styles.emptyText}>Er zijn nog geen posts beschikbaar voor deze timeline.</p>
+            <p className={styles.emptyText}>
+              Er zijn nog geen posts beschikbaar voor deze timeline.
+            </p>
           </div>
         )}
 
@@ -246,7 +268,10 @@ const Home: React.FC = () => {
               {items.map((item) => (
                 <li key={item.uuid} className={styles.timelineListItem}>
                   {isFeedItemTimelineitem(item) ? (
-                    <TimelineItemCard item={item} isUserItem={item.author.uuid === myUserId} />
+                    <TimelineItemCard
+                      item={item}
+                      isUserItem={item.author.uuid === myUserId}
+                    />
                   ) : isFeedItemDailyquestionitem(item) ? (
                     <DailyQuestionItemCard item={item} />
                   ) : null}
@@ -254,9 +279,15 @@ const Home: React.FC = () => {
               ))}
             </ul>
 
-            <div ref={loadMoreRef} className={styles.loadMoreSentinel} aria-hidden="true" />
+            <div
+              ref={loadMoreRef}
+              className={styles.loadMoreSentinel}
+              aria-hidden="true"
+            />
 
-            {loadingMore && <p className={styles.loadMoreText}>Meer posts laden…</p>}
+            {loadingMore && (
+              <p className={styles.loadMoreText}>Meer posts laden…</p>
+            )}
             {loadMoreError && hasMore && !loadingMore && (
               <div className={styles.loadMoreErrorBox}>
                 <p className={styles.loadMoreErrorText}>{loadMoreError}</p>
@@ -271,7 +302,9 @@ const Home: React.FC = () => {
                 </button>
               </div>
             )}
-            {!hasMore && <p className={styles.loadMoreText}>Geen extra posts meer.</p>}
+            {!hasMore && (
+              <p className={styles.loadMoreText}>Geen extra posts meer.</p>
+            )}
           </>
         )}
       </div>
@@ -280,4 +313,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-

@@ -9,8 +9,12 @@ const Footer = () => {
           <span>© {new Date().getFullYear()}</span>
         </div>
         <div className={styles.footerRight}>
-          <a href="/privacy" className={styles.link}>Privacy</a>
-          <a href="/terms" className={styles.link}>Voorwaarden</a>
+          <a href="/privacy" className={styles.link}>
+            Privacy
+          </a>
+          <a href="/terms" className={styles.link}>
+            Voorwaarden
+          </a>
         </div>
       </div>
     </footer>

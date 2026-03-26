@@ -17,11 +17,9 @@ type Props = {
 };
 
 const WriteBlogTab: React.FC<Props> = ({ isActive }) => {
-    const [title, setTitle] = useState<string | null>(null)
-    const [subtitle, setSubtitle] = useState<string | null>(null)
+  const [title, setTitle] = useState<string | null>(null);
+  const [subtitle, setSubtitle] = useState<string | null>(null);
 
-    return (
-            <div> test </div>
-        )
-    }
+  return <div> test </div>;
+};
 export default WriteBlogTab;

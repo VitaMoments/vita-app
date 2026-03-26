@@ -2,20 +2,26 @@ import React, { forwardRef, useId, useState } from "react";
 import styles from "./Input.module.css";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
-type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "className"> & {
+type InputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "className"
+> & {
   label?: string;
   rightAdornment?: React.ReactNode;
   className?: string;
 };
 
-type PasswordInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "className"> & {
+type PasswordInputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "type" | "className"
+> & {
   label?: string;
   value: string;
 };
 
 const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, id, name, rightAdornment, className, ...rest },
-  ref
+  ref,
 ) {
   const reactId = useId();
 
@@ -55,17 +61,17 @@ export function PasswordInput({ label, value, ...rest }: PasswordInputProps) {
       {...safeRest}
       type={visible ? "text" : "password"}
       rightAdornment={
-          <button
-              type="button"
-              className={styles.iconButton}
-              onClick={() => setVisible((v) => !v)}
-              onMouseDown={(e) => e.preventDefault()}
-              aria-label={toggleLabel}
-              aria-pressed={visible}
-              title={toggleLabel}
-            >
-              {visible ? <FiEyeOff /> : <FiEye />}
-            </button>
+        <button
+          type="button"
+          className={styles.iconButton}
+          onClick={() => setVisible((v) => !v)}
+          onMouseDown={(e) => e.preventDefault()}
+          aria-label={toggleLabel}
+          aria-pressed={visible}
+          title={toggleLabel}
+        >
+          {visible ? <FiEyeOff /> : <FiEye />}
+        </button>
       }
     />
   );

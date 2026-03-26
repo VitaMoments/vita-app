@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./RecipesSection.module.css";
 import { useNavigate } from "react-router-dom";
 
-import { Button } from "../../../../components/buttons/Button"
+import { Button } from "../../../../components/buttons/Button";
 
 type Recipe = {
   id: string;
@@ -44,7 +44,7 @@ const recipes: Recipe[] = [
 ];
 
 const RecipesSection: React.FC = () => {
-        const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <section className={styles.section}>
       <div className={styles.container}>
@@ -60,8 +60,13 @@ const RecipesSection: React.FC = () => {
             <article key={r.id} className={styles.card}>
               <div className={styles.imageWrap}>
                 <img className={styles.image} src={r.imageUrl} alt={r.title} />
-                <div className={styles.likesBadge} aria-label={`${r.likes} likes`}>
-                  <span className={styles.heart} aria-hidden="true">❤</span>
+                <div
+                  className={styles.likesBadge}
+                  aria-label={`${r.likes} likes`}
+                >
+                  <span className={styles.heart} aria-hidden="true">
+                    ❤
+                  </span>
                   <span className={styles.likesText}>{r.likes}</span>
                 </div>
               </div>
@@ -72,7 +77,9 @@ const RecipesSection: React.FC = () => {
 
                 <div className={styles.meta}>
                   <span className={styles.metaItem}>
-                    <span className={styles.metaIcon} aria-hidden="true">🕒</span>
+                    <span className={styles.metaIcon} aria-hidden="true">
+                      🕒
+                    </span>
                     {r.minutes} min
                   </span>
                 </div>
@@ -81,7 +88,10 @@ const RecipesSection: React.FC = () => {
           ))}
         </div>
         <div className={styles.ctaRow}>
-          <Button className={styles.primary} onClick={()=> navigate("/registration")}>
+          <Button
+            className={styles.primary}
+            onClick={() => navigate("/registration")}
+          >
             Maak je profiel <span className={styles.arrow}>→</span>
           </Button>
         </div>

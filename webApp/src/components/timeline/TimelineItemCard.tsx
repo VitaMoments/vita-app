@@ -13,12 +13,15 @@ import BaseDialog from "../dialog/BaseDialog";
 import { TimelineService } from "../../api/service/TimelineService";
 import type { FeedItem } from "../../data/types";
 import styles from "./TimelineItemCard.module.css";
-import { getUserDisplayName, getUserProfileImageUrl } from "../../data/ui/userHelpers";
+import {
+  getUserDisplayName,
+  getUserProfileImageUrl,
+} from "../../data/ui/userHelpers";
 
 type Props = {
-    isUserItem: boolean,
-    item: FeedItem.TIMELINEITEM
-    };
+  isUserItem: boolean;
+  item: FeedItem.TIMELINEITEM;
+};
 
 function sanitizeTiptapJson(input: any): JSONContent {
   let node: any = input?.type ? input : input?.content;
@@ -50,7 +53,7 @@ export function TimelineItemCard({ isUserItem, item }: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<JSONContent>(
-    sanitizeTiptapJson(item.content)
+    sanitizeTiptapJson(item.content),
   );
 
   const created = new Date(item.createdAt);
@@ -100,30 +103,30 @@ export function TimelineItemCard({ isUserItem, item }: Props) {
           </div>
 
           <div className={styles.optionButtonBar}>
-          { isUserItem ?
+            {isUserItem ? (
               <>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => setOpen(true)}
-                  >
-                    <HiOutlinePencilSquare />
-                  </button>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => setOpen(true)}
-                  >
-                    <FaTrashCan />
-                  </button>
-              </> :
+                <button
+                  className={styles.editButton}
+                  onClick={() => setOpen(true)}
+                >
+                  <HiOutlinePencilSquare />
+                </button>
+                <button
+                  className={styles.editButton}
+                  onClick={() => setOpen(true)}
+                >
+                  <FaTrashCan />
+                </button>
+              </>
+            ) : (
               <button
                 className={styles.editButton}
                 onClick={() => setOpen(true)}
               >
                 <PiFlagPennantFill />
               </button>
-              }
+            )}
           </div>
-
         </header>
 
         <div
@@ -139,37 +142,37 @@ export function TimelineItemCard({ isUserItem, item }: Props) {
         title="Bericht bewerken"
         size="lg"
         footer={
-            <>
-              <button onClick={() => setOpen(false)}>Annuleren</button>
+          <>
+            <button onClick={() => setOpen(false)}>Annuleren</button>
 
-              <button
-                disabled={loading}
-                onClick={async () => {
-                  if (!editor) return;
+            <button
+              disabled={loading}
+              onClick={async () => {
+                if (!editor) return;
 
-                  const newJson = editor.getJSON();
+                const newJson = editor.getJSON();
 
-                  const updatedItem = {
-                    ...item,
-                    content: newJson,
-                  };
+                const updatedItem = {
+                  ...item,
+                  content: newJson,
+                };
 
-                  try {
-                    setLoading(true);
-                    const data = await TimelineService.updateContent(updatedItem);
-                    setContent(sanitizeTiptapJson(data.content));
-                    setOpen(false);
-                  } catch (e) {
-                    console.error("Update failed", e);
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-              >
-                {loading ? "Opslaan..." : "Opslaan"}
-              </button>
-            </>
-          }
+                try {
+                  setLoading(true);
+                  const data = await TimelineService.updateContent(updatedItem);
+                  setContent(sanitizeTiptapJson(data.content));
+                  setOpen(false);
+                } catch (e) {
+                  console.error("Update failed", e);
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            >
+              {loading ? "Opslaan..." : "Opslaan"}
+            </button>
+          </>
+        }
       >
         <div style={{ border: "1px solid #ddd", padding: 12 }}>
           <EditorContent editor={editor} />

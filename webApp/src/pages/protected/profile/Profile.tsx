@@ -55,7 +55,7 @@ const Profile: React.FC = () => {
       console.error(err);
       setError(
         err?.response?.data?.message ||
-          "Er is iets misgegaan bij het uitloggen"
+          "Er is iets misgegaan bij het uitloggen",
       );
     } finally {
       setLoading(false);
@@ -78,10 +78,7 @@ const Profile: React.FC = () => {
         <InfoRow label="Birth date" value={formatBirthDate(me.birthDate)} />
         <InfoRow label="Locale" value={showOrDash(me.locale)} />
         <InfoRow label="Time zone" value={showOrDash(me.timeZone)} />
-        <InfoRow
-          label="Privacy"
-          value={showOrDash(me.privacyDetails)}
-        />
+        <InfoRow label="Privacy" value={showOrDash(me.privacyDetails)} />
       </div>
 
       <Button
@@ -114,7 +111,7 @@ const Profile: React.FC = () => {
         ),
       },
     ],
-    [infoContent, loading]
+    [infoContent, loading],
   );
 
   return (
@@ -138,7 +135,7 @@ const Profile: React.FC = () => {
               void refreshSession().catch((err) => {
                 console.error(
                   "Failed to refresh auth session after image upload",
-                  err
+                  err,
                 );
               });
               setShowEditImageDialog(false);
@@ -158,7 +155,10 @@ const Profile: React.FC = () => {
               <div className={styles.avatar} />
             )}
 
-            <div className={styles.overlay} onClick={() => setShowEditImageDialog(true)}>
+            <div
+              className={styles.overlay}
+              onClick={() => setShowEditImageDialog(true)}
+            >
               Edit
             </div>
           </div>
@@ -169,7 +169,11 @@ const Profile: React.FC = () => {
           </div>
         </div>
 
-        <Tabs<ProfileTab> tabs={tabs} defaultValue="info" ariaLabel="Profile tabs" />
+        <Tabs<ProfileTab>
+          tabs={tabs}
+          defaultValue="info"
+          ariaLabel="Profile tabs"
+        />
       </div>
     </div>
   );

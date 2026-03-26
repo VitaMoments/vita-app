@@ -11,10 +11,6 @@ import AppRoutes from "./routes/AppRoutes";
 
 const App = () => {
   const location = useLocation();
-  const plainRoutes = ["/login", "/registration", "/blogs"];
-  const isPlainPage = plainRoutes.some(
-    (p) => location.pathname === p || location.pathname.startsWith(p + "/")
-  );
 
   const { user } = useAuth();
 

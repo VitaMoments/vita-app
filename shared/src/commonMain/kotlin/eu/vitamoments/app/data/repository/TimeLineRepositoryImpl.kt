@@ -34,11 +34,4 @@ class TimeLineRepositoryImpl(
     ): RepositoryResult<TimelineItem> {
         TODO("Not yet implemented")
     }
-
-    override suspend fun updateItem(
-        userId: Uuid,
-        item: FeedItem
-    ): RepositoryResult<TimelineItem> {
-        TODO("Not yet implemented")
-    }
 }

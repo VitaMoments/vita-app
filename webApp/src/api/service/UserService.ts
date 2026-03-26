@@ -1,6 +1,6 @@
 // UserService.ts
 import api from "../axios";
-import type { User } from "../../data/types";
+import type { UpdateMyAccountRequest, User } from "../../data/types";
 
 type PostImageOptions = {
   file: File;
@@ -15,7 +15,7 @@ const postImage = async ({ file, fields = {} }: PostImageOptions): Promise<User>
     form.append(k, v);
   }
 
-  const res = await api.post<User>("/profile/image", form);
+  const res = await api.post<User>("/media", form);
   return res.data;
 };
 
@@ -69,6 +69,11 @@ export const UserService = {
     limit: number;
   }): Promise<User.PUBLIC[]> {
     const res = await api.get<User.PUBLIC[]>("/friends/search", { params });
+    return res.data;
+  },
+
+  async updateMyAccount(payload: UpdateMyAccountRequest): Promise<User.ACCOUNT> {
+    const res = await api.put<User.ACCOUNT>("/profile", payload);
     return res.data;
   },
 };

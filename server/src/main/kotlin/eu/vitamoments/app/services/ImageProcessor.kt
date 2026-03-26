@@ -3,6 +3,8 @@ package eu.vitamoments.app.services
 import java.awt.Color
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.imageio.IIOImage
 import javax.imageio.ImageIO
@@ -14,6 +16,15 @@ class ImageProcessor(
     private val jpegQuality: Float = 0.85f,
     private val background: Color = Color.WHITE
 ) {
+    /**
+     * Lees image uit memory-bytes. Gooit IllegalArgumentException bij invalid image.
+     */
+    fun read(bytes: ByteArray): BufferedImage {
+        ByteArrayInputStream(bytes).use { input ->
+            return ImageIO.read(input) ?: throw IllegalArgumentException("Invalid image")
+        }
+    }
+
     /**
      * Lees image van disk (temp file) en decode. Gooit IllegalArgumentException bij invalid image.
      */
@@ -81,6 +92,28 @@ class ImageProcessor(
             writer.write(null, IIOImage(img, null, null), param)
             ios.close()
             writer.dispose()
+        }
+    }
+
+    /**
+     * Schrijf JPEG naar memory-bytes.
+     */
+    fun writeJpegToBytes(img: BufferedImage): ByteArray {
+        val writer = ImageIO.getImageWritersByFormatName("jpg").next()
+        ByteArrayOutputStream().use { os ->
+            val ios = ImageIO.createImageOutputStream(os)
+            writer.output = ios
+
+            val param = writer.defaultWriteParam
+            if (param.canWriteCompressed()) {
+                param.compressionMode = ImageWriteParam.MODE_EXPLICIT
+                param.compressionQuality = jpegQuality.coerceIn(0f, 1f)
+            }
+
+            writer.write(null, IIOImage(img, null, null), param)
+            ios.close()
+            writer.dispose()
+            return os.toByteArray()
         }
     }
 

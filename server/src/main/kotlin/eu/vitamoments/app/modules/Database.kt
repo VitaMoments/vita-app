@@ -9,9 +9,8 @@ import eu.vitamoments.app.config.helpers.findProjectRoot
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.models.enums.UserRole.ADMIN
 import eu.vitamoments.app.data.models.enums.UserRole.USER
-import eu.vitamoments.app.data.tables.nevo.ProductsTable
 import eu.vitamoments.app.dbHelpers.PasswordHasher
-import eu.vitamoments.app.services.importNevoCsvIntoPostgres
+import eu.vitamoments.app.services.importDailyQuestionsFromJson
 import kotlinx.datetime.LocalDateTime
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -92,7 +91,7 @@ object DatabaseFactory {
 
 
         seedUsers(database)
-//            seedNevoProducts()
+        seedDailyQuestions()
 
         database
     }
@@ -121,9 +120,19 @@ object DatabaseFactory {
                 it[email] = "falco.berendhaus@vitamoments.eu"
                 it[alias] = "Falco"
                 it[bio] = "Hello, I am Falco, co-founder of vitamoments"
-                it[imageUrl] = null
                 it[role] = ADMIN
                 it[password] = PasswordHasher.hashPassword("Falco123!")
+                it[emailVerifiedAt] = LocalDateTime.nowUtc()
+            }
+
+            UsersTable.insert {
+                it[id] = UUID.randomUUID()
+                it[username] = "Nick.Overbeek"
+                it[email] = "nick.overbeek@vitamoments.eu"
+                it[alias] = "F12"
+                it[bio] = "Hello, I am Nick, co-founder of vitamoments"
+                it[role] = ADMIN
+                it[password] = PasswordHasher.hashPassword("Nick123!")
                 it[emailVerifiedAt] = LocalDateTime.nowUtc()
             }
 
@@ -135,7 +144,6 @@ object DatabaseFactory {
                         it[email] = "user_$i@vitamoments.eu"
                         it[alias] = "User $i"
                         it[bio] = "Hello, I am a Demo User $i. Welcome to my profile"
-                        it[imageUrl] = null
                         it[role] = USER
                         it[password] = PasswordHasher.hashPassword("User123!$i")
                         it[emailVerifiedAt] = LocalDateTime.nowUtc()
@@ -145,17 +153,13 @@ object DatabaseFactory {
         }
     }
 
-    private fun seedNevoProducts() {
-        val hasAnyProduct = ProductsTable.selectAll().limit(1).any()
+    private fun seedDailyQuestions() {
+        val jsonPath: String =
+            System.getenv("DAILY_QUESTIONS_JSON_PATH")
+                ?: env["DAILY_QUESTIONS_JSON_PATH"]
+                ?: return
 
-        if (hasAnyProduct) return
-
-        val csvPath: String =
-            System.getenv("NEVO_CSV_PATH")
-                ?: env["NEVO_CSV_PATH"]
-                ?: error("Env file must have NEVO_CSV_PATH")
-
-        importNevoCsvIntoPostgres(Paths.get(csvPath), wipeExisting = true)
+        importDailyQuestionsFromJson(Paths.get(jsonPath), overwriteExisting = true)
     }
 
     fun init(): Database = db

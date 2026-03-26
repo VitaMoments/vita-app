@@ -14,9 +14,12 @@ const Terms = lazy(() => import("../pages/public/terms/Terms"));
 // Private (lazy)
 const Home = lazy(() => import("../pages/protected/home/Home"));
 const Profile = lazy(() => import("../pages/protected/profile/Profile"));
-const FriendsPage = lazy(() => import("../pages/protected/friends/FriendsPage"));
-const BlogsPage = lazy(() => import("../pages/protected/blog/BlogsPage"));
-const CreateBlogPage = lazy(() => import("../pages/protected/blog/CreateBlogPage"));
+const ProfileEdit = lazy(
+  () => import("../pages/protected/profile/ProfileEdit"),
+);
+const FriendsPage = lazy(
+  () => import("../pages/protected/friends/FriendsPage"),
+);
 
 function RootGate() {
   const { user, loading } = useAuth();
@@ -41,9 +44,8 @@ export default function AppRoutes() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/edit" element={<ProfileEdit />} />
           <Route path="/friends" element={<FriendsPage />} />
-          <Route path="/blogs" element={<BlogsPage />} />
-          <Route path="/blogs/create" element={<CreateBlogPage />} />
         </Route>
 
         <Route path="/privacy" element={<Privacy />} />

@@ -5,7 +5,6 @@ import eu.vitamoments.app.data.models.requests.friendship_requests.InviteFriends
 import eu.vitamoments.app.data.models.requests.friendship_requests.UpdateFriendshipRequest
 import eu.vitamoments.app.data.models.requests.respondRepository
 import eu.vitamoments.app.data.repository.FriendRepository
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -62,7 +61,7 @@ fun Route.friendRoutes() {
             val userId = call.requireUserId()
             val request: UpdateFriendshipRequest = call.receive()
 
-            val result = friendRepo.accept(userId, request.friendshipId)
+            val result = friendRepo.accept(userId, request.userId)
             call.respondRepository(result)
         }
 
@@ -70,7 +69,7 @@ fun Route.friendRoutes() {
             val userId = call.requireUserId()
             val request: UpdateFriendshipRequest = call.receive()
 
-            val result = friendRepo.decline(userId, request.friendshipId)
+            val result = friendRepo.decline(userId, request.userId)
             call.respondRepository(result)
         }
 
@@ -78,7 +77,7 @@ fun Route.friendRoutes() {
             val userId = call.requireUserId()
             val request: UpdateFriendshipRequest = call.receive()
 
-            val result = friendRepo.delete(userId, request.friendshipId)
+            val result = friendRepo.delete(userId, request.userId)
             call.respondRepository(result)
         }
 

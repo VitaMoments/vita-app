@@ -1,0 +1,104 @@
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 4px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative; /* 👈 nodig voor absolute child */
+}
+
+/* je had width: 1; dat is geen geldige waarde */
+.meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;            /* 👈 neemt ruimte, duwt niet maar geeft layout ruimte */
+  min-width: 0;
+}
+
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+
+
+.email {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Optioneel: styling voor rich text vanuit TipTap */
+.content p {
+  margin: 0.2rem 0;
+}
+
+.content strong {
+  font-weight: 600;
+}
+
+.content em {
+  font-style: italic;
+}
+
+.content u {
+  text-decoration: underline;
+}
+
+.content ul,
+.content ol {
+  list-style: style-type;
+  padding-left: 0;
+  margin: 0.25rem 0;
+}
+
+.content li::marker {
+  content: "";
+}
+
+.optionButtonBar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton {
+  border: 0;
+  color: var(--color-primary);
+  background: transparent;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+}
+
+.editButton svg {
+  width: 22px;          /* groter icoon */
+  height: 22px;
+}
+
+.editButton:hover {
+  background: #f3f4f6;
+}

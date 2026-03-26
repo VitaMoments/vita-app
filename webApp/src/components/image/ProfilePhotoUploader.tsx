@@ -1,24 +1,32 @@
 import React from "react";
 import Cropper, { Area } from "react-easy-crop";
-import { UserService } from "../../api/service/UserService";
-import { User } from "../../data/types";
+import { MediaService } from "../../api/service/MediaService";
+import { MediaAssetResponse, PrivacyStatus } from "../../data/types";
 import styles from "./ProfilePhotoUploader.module.css";
 
 type Props = {
-  avatarSize?: number; // default 512 (server resizet alsnog)
-  onUpdatedUser?: (user: User) => void; // handig om state te updaten
+  userId: string;
+  privacy?: PrivacyStatus;
+  avatarSize?: number;
+  onUploadedMedia?: (media: MediaAssetResponse) => void;
 };
 
-const ACCEPTED_MIME = new Set(["image/jpeg", "image/png"]);
+const ACCEPTED_MIME = new Set(["image/jpeg", "image/png", "image/jpg"]);
 
-const ProfilePhotoUploader: React.FC<Props> = ({ avatarSize = 512, onUpdatedUser }) => {
+const ProfilePhotoUploader: React.FC<Props> = ({
+  userId,
+  privacy = "PRIVATE",
+  avatarSize = 512,
+  onUploadedMedia,
+}) => {
   const [file, setFile] = React.useState<File | null>(null);
   const [imageUrl, setImageUrl] = React.useState<string | null>(null);
 
   const [crop, setCrop] = React.useState({ x: 0, y: 0 });
   const [zoom, setZoom] = React.useState(1);
-
-  const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area | null>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area | null>(
+    null,
+  );
 
   const [uploading, setUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -28,8 +36,10 @@ const ProfilePhotoUploader: React.FC<Props> = ({ avatarSize = 512, onUpdatedUser
       setImageUrl(null);
       return;
     }
+
     const url = URL.createObjectURL(file);
     setImageUrl(url);
+
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
@@ -51,7 +61,6 @@ const ProfilePhotoUploader: React.FC<Props> = ({ avatarSize = 512, onUpdatedUser
   };
 
   const onCropComplete = React.useCallback((_area: Area, areaPixels: Area) => {
-    // pixels in originele image-coördinaten
     setCroppedAreaPixels(areaPixels);
   }, []);
 
@@ -65,22 +74,26 @@ const ProfilePhotoUploader: React.FC<Props> = ({ avatarSize = 512, onUpdatedUser
     setError(null);
 
     try {
-      const updatedUser = await UserService.uploadProfilePhoto({
+      const uploadedMedia = await MediaService.uploadUserProfileImage({
         file,
-        cropX: croppedAreaPixels.x,
-        cropY: croppedAreaPixels.y,
-        cropW: croppedAreaPixels.width,
-        cropH: croppedAreaPixels.height,
-        avatarSize,
+        userId,
+        privacy,
+        extraFields: {
+          cropX: Math.round(croppedAreaPixels.x),
+          cropY: Math.round(croppedAreaPixels.y),
+          cropW: Math.round(croppedAreaPixels.width),
+          cropH: Math.round(croppedAreaPixels.height),
+          avatarSize: Math.round(avatarSize),
+        },
       });
 
-      onUpdatedUser?.(updatedUser);
+      onUploadedMedia?.(uploadedMedia);
 
-      // optioneel: reset
+      // optioneel resetten
       // setFile(null);
       // setImageUrl(null);
+      // setCroppedAreaPixels(null);
     } catch (e: any) {
-      // Axios error: backend stuurt soms string terug
       const msg =
         e?.response?.data?.message ||
         (typeof e?.response?.data === "string" ? e.response.data : null) ||

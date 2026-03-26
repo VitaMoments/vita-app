@@ -11,13 +11,15 @@ import AppRoutes from "./routes/AppRoutes";
 
 const App = () => {
   const location = useLocation();
+
   const { user } = useAuth();
+
   return (
     <div className={styles.container}>
       <Header user={user} />
-        <main>
-          <AppRoutes />
-        </main>
+      <main>
+        <AppRoutes />
+      </main>
       <Footer />
     </div>
   );

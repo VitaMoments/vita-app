@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class FeedItemType {
-    BLOG, TIMELINE
+    TIMELINE,
+    DAILY_QUESTION
 }

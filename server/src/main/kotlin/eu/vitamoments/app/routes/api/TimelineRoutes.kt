@@ -42,7 +42,7 @@ fun Route.timelineRoutes() {
         }
 
         get {
-            val params = call.pathParameters
+            val params = call.request.queryParameters
             val userId: Uuid = call.requireUserId()
             val feed = when (call.request.queryParameters["feed"]?.lowercase()) {
                 null, "", "friends" -> TimeLineFeed.FRIENDS
@@ -54,7 +54,12 @@ fun Route.timelineRoutes() {
                     "Invalid feed. Use: self, friends, discovery, groups"
                 )
             }
-            val result: RepositoryResult<List<TimelineItem>> = timeLineRepo.getTimeLine(userId, feed,params["limit"]?.toInt() ?: 100, params["offset"]?.toLong() ?: 0)
+            val result: RepositoryResult<List<FeedItem>> = timeLineRepo.getTimeLine(
+                userId,
+                feed,
+                params["limit"]?.toIntOrNull() ?: 100,
+                params["offset"]?.toLongOrNull() ?: 0
+            )
             call.handleResult(result, messageType = typeInfo<List<FeedItem>>())
         }
 

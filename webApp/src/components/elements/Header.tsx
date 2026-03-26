@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MdList, MdGroup, MdOutlineAccountCircle } from "react-icons/md";
+import { MdGroup, MdOutlineAccountCircle } from "react-icons/md";
 import type { User } from "../../data/types";
 
 import HeaderLink from "./HeaderLink";
@@ -63,13 +63,6 @@ const Header = ({ user }: HeaderProps) => {
           </>
         ) : (
           <>
-            <HeaderLink
-              to="/blogs"
-              icon={MdList}
-              text="Blogs"
-              className={styles.link} // ✅ fix
-              onClick={() => setOpen(false)}
-            />
             <HeaderLink
               to="/friends"
               icon={MdGroup}

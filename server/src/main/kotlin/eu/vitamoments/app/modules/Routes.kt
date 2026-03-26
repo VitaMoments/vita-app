@@ -11,8 +11,9 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import eu.vitamoments.app.routes.api.authRoutes
-import eu.vitamoments.app.routes.api.blogRoutes
+import eu.vitamoments.app.routes.api.dailyQuestionRoutes
 import eu.vitamoments.app.routes.api.friendRoutes
+import eu.vitamoments.app.routes.api.mediaRoutes
 import eu.vitamoments.app.routes.api.profileRoutes
 import eu.vitamoments.app.routes.api.timelineRoutes
 import eu.vitamoments.app.routes.api.userRoutes
@@ -40,8 +41,9 @@ private fun Routing.apiRoutes() {
             userRoutes()
             profileRoutes()
             timelineRoutes()
+            dailyQuestionRoutes()
             friendRoutes()
-            blogRoutes()
+            mediaRoutes()
         }
     }
 }

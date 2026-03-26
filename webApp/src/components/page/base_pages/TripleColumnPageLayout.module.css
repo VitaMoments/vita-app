@@ -1,0 +1,92 @@
+.page {
+  display: flex;
+  padding: 8px;
+  margin-top: 56px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.layout {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Links + midden */
+.hasLeft {
+  grid-template-columns: 300px minmax(0, 1fr);
+}
+
+/* Midden + rechts */
+.hasRight {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+
+/* Links + midden + rechts */
+.hasLeft.hasRight {
+  grid-template-columns: 300px minmax(0, 1fr) 300px;
+}
+
+.sidebar {
+  min-width: 0;
+}
+
+.sidebarCard {
+  min-width: 0;
+}
+
+.mainCard {
+  background-color: var(--color-surface);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-primary);
+  min-width: 0;
+}
+
+.main {
+  min-width: 0;
+}
+
+@media (max-width: 1280px) {
+  .hasLeft {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+
+  .hasRight {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+
+  .hasLeft.hasRight {
+    grid-template-columns: 280px minmax(0, 1fr) 280px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .hasLeft.hasRight {
+    grid-template-columns: 260px minmax(0, 1fr) 260px;
+  }
+
+  .hasLeft {
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+
+  .hasRight {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+}
+
+@media (max-width: 900px) {
+  .layout,
+  .hasLeft,
+  .hasRight,
+  .hasLeft.hasRight {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

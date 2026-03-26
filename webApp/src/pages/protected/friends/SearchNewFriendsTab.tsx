@@ -6,7 +6,10 @@ import { Card } from "../../../components/card/Card";
 
 import { FriendService } from "../../../api/service/FriendService";
 import { User } from "../../../data/types";
-import { getUserDisplayName } from "../../../data/ui/userHelpers";
+import {
+  getUserDisplayName,
+  getUserProfileImageUrl,
+} from "../../../data/ui/userHelpers";
 
 import { PagedList } from "../../../components/pagination/PagedList";
 
@@ -47,7 +50,7 @@ const SearchNewFriendsTab: React.FC<Props> = ({ isActive }) => {
           limit,
           offset,
         },
-        signal
+        signal,
       );
 
       // res.items kan union bevatten; UI wil PUBLIC-only
@@ -58,7 +61,7 @@ const SearchNewFriendsTab: React.FC<Props> = ({ isActive }) => {
         items: publicItems,
       };
     },
-    [query]
+    [query],
   );
 
   const inviteUser = useCallback(async (uuid: string) => {
@@ -73,7 +76,7 @@ const SearchNewFriendsTab: React.FC<Props> = ({ isActive }) => {
 
   const listInstanceKey = useMemo(
     () => `${TAB_KEY}:${query}:${reloadToken}`,
-    [query, reloadToken]
+    [query, reloadToken],
   );
 
   return (
@@ -92,34 +95,39 @@ const SearchNewFriendsTab: React.FC<Props> = ({ isActive }) => {
           placeholder="Search..."
         />
       )}
-      renderItem={(u) => (
-        <Card>
-          <div className={styles.cardContent}>
-            {u.imageUrl ? (
-              <img src={u.imageUrl} alt="" className={styles.avatar} />
-            ) : (
-              <div className={styles.avatar} />
-            )}
+      renderItem={(u) => {
+        const imageUrl = getUserProfileImageUrl(u);
+        return (
+          <Card>
+            <div className={styles.cardContent}>
+              {imageUrl ? (
+                <img src={imageUrl} alt="" className={styles.avatar} />
+              ) : (
+                <div className={styles.avatar} />
+              )}
 
-            <div className={styles.userInfo}>
-              <span className={styles.displayName}>{u.displayName}</span>
-              {u.bio ? <span className={styles.bio}>{u.bio}</span> : null}
-            </div>
+              <div className={styles.userInfo}>
+                <span className={styles.displayName}>
+                  {getUserDisplayName(u)}
+                </span>
+                {u.bio ? <span className={styles.bio}>{u.bio}</span> : null}
+              </div>
 
-            <div className={styles.actionButtonBar}>
-              <button
-                type="button"
-                disabled={actionLoadingId === u.uuid}
-                onClick={() => inviteUser(u.uuid)}
-                aria-busy={actionLoadingId === u.uuid}
-                aria-label="Add friend"
-              >
-                <MdPersonAdd className={styles.colorPrimary} />
-              </button>
+              <div className={styles.actionButtonBar}>
+                <button
+                  type="button"
+                  disabled={actionLoadingId === u.uuid}
+                  onClick={() => inviteUser(u.uuid)}
+                  aria-busy={actionLoadingId === u.uuid}
+                  aria-label="Add friend"
+                >
+                  <MdPersonAdd className={styles.colorPrimary} />
+                </button>
+              </div>
             </div>
-          </div>
-        </Card>
-      )}
+          </Card>
+        );
+      }}
     />
   );
 };

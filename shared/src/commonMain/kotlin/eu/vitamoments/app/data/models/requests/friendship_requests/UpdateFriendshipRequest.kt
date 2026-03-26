@@ -5,5 +5,5 @@ import kotlin.uuid.Uuid
 
 @Serializable
 data class UpdateFriendshipRequest(
-    val friendshipId: Uuid
+    val userId: Uuid
 )

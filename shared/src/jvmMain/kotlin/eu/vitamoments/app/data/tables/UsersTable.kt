@@ -21,8 +21,6 @@ object UsersTable : BaseUUIDTable("users") {
     val bio = varchar("bio", 255).nullable()
     val phone = varchar("phone", 32).nullable()
     val birthDate = date("birth_date").nullable()
-    val imageUrl = varchar("image_url", 255).nullable()
-    val coverImageUrl = varchar("cover_image_url", 255).nullable()
 
 //    localization
     val locale = varchar("locale", 50).nullable()

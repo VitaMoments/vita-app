@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./FeedsSection.module.css";
 import { useNavigate } from "react-router-dom";
 
-import { Button } from "../../../../components/buttons/Button"
+import { Button } from "../../../../components/buttons/Button";
 
 type Stat = {
   label: string;
@@ -38,8 +38,7 @@ const posts: FeedPost[] = [
     name: "Sophie V.",
     timeAgo: "2 uur geleden",
     category: "Beweging",
-    text:
-      "Net mijn eerste 10km hardgelopen! 🏃‍♀️ Dankzij de tips van deze community ben ik in 8 weken van 3km naar 10km gegaan.",
+    text: "Net mijn eerste 10km hardgelopen! 🏃‍♀️ Dankzij de tips van deze community ben ik in 8 weken van 3km naar 10km gegaan.",
     likes: 47,
     comments: 12,
     shares: 5,
@@ -50,8 +49,7 @@ const posts: FeedPost[] = [
     name: "Jasper K.",
     timeAgo: "5 uur geleden",
     category: "Voeding",
-    text:
-      "Mijn meal prep voor deze week 🥗 Alles plantaardig en onder 30 minuten per maaltijd. Swipe voor de recepten!",
+    text: "Mijn meal prep voor deze week 🥗 Alles plantaardig en onder 30 minuten per maaltijd. Swipe voor de recepten!",
     likes: 89,
     comments: 23,
     shares: 31,
@@ -62,8 +60,7 @@ const posts: FeedPost[] = [
     name: "Lotte M.",
     timeAgo: "gisteren",
     category: "Welzijn",
-    text:
-      "Eindelijk 8 uur slaap dankzij mijn avondroutine. Geen schermen na 21:00 + 10 min ademhalingsoefeningen. Wie doet mee? 💤",
+    text: "Eindelijk 8 uur slaap dankzij mijn avondroutine. Geen schermen na 21:00 + 10 min ademhalingsoefeningen. Wie doet mee? 💤",
     likes: 134,
     comments: 45,
     shares: 18,
@@ -84,7 +81,7 @@ function iconFor(stat: Stat["icon"]) {
 }
 
 const FeedsSection: React.FC = () => {
-        const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <section className={styles.section}>
       <div className={styles.container}>
@@ -93,7 +90,8 @@ const FeedsSection: React.FC = () => {
           <div className={styles.kicker}>SOCIAL FEED</div>
           <h2 className={styles.title}>Wat deelt de community?</h2>
           <p className={styles.subtitle}>
-            Bekijk wat anderen delen, laat je inspireren en post jouw eigen gezonde momenten.
+            Bekijk wat anderen delen, laat je inspireren en post jouw eigen
+            gezonde momenten.
           </p>
 
           <div className={styles.statsRow}>
@@ -155,7 +153,10 @@ const FeedsSection: React.FC = () => {
           </div>
 
           <div className={styles.ctaRow}>
-            <Button className={styles.primary} onClick={()=> navigate("/registration")}>
+            <Button
+              className={styles.primary}
+              onClick={() => navigate("/registration")}
+            >
               Maak je profiel <span className={styles.arrow}>→</span>
             </Button>
           </div>

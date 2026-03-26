@@ -1,24 +1,26 @@
 package eu.vitamoments.app.data.repository
 
+import eu.vitamoments.app.data.entities.DailyQuestionAnswerEntity
 import eu.vitamoments.app.data.entities.TimelineItemEntity
 import eu.vitamoments.app.data.entities.UserEntity
 import eu.vitamoments.app.data.factory.FeedItemFactory
-import eu.vitamoments.app.data.models.helpers.extension_functions.isBlankRichText
-import eu.vitamoments.app.data.models.enums.FriendshipStatus
-import eu.vitamoments.app.data.models.enums.TimeLineFeed
 import eu.vitamoments.app.data.mapper.entity.toDomain
+import eu.vitamoments.app.data.mapper.entity.toFeedDomain
 import eu.vitamoments.app.data.mapper.extension_functions.nowUtc
 import eu.vitamoments.app.data.models.domain.feed.FeedItem
 import eu.vitamoments.app.data.models.domain.feed.TimelineItem
+import eu.vitamoments.app.data.models.enums.FeedItemType
+import eu.vitamoments.app.data.models.enums.FriendshipStatus
+import eu.vitamoments.app.data.models.enums.TimeLineFeed
 import eu.vitamoments.app.data.models.helpers.extension_functions.isBlankOrNullRichText
+import eu.vitamoments.app.data.models.helpers.extension_functions.isBlankRichText
+import eu.vitamoments.app.data.tables.DailyQuestionAnswersTable
 import eu.vitamoments.app.data.tables.FeedItemsTable
-import eu.vitamoments.app.data.tables.TimelineItemsTable
 import eu.vitamoments.app.data.tables.UsersTable
 import eu.vitamoments.app.dbHelpers.dbQuery
 import eu.vitamoments.app.dbHelpers.queries.getAcceptedFriendIds
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.JsonElement
-import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -28,7 +30,6 @@ import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.UUID
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
@@ -60,7 +61,7 @@ class JVMTimeLineRepository : TimeLineRepository {
         }
 
         val entity = FeedItemFactory.newTimelineItem(
-            author= userEntity!!,
+            author = userEntity!!,
             content = content
         )
 
@@ -72,12 +73,12 @@ class JVMTimeLineRepository : TimeLineRepository {
         feed: TimeLineFeed,
         limit: Int,
         offset: Long
-    ): RepositoryResult<List<TimelineItem>> = dbQuery {
+    ): RepositoryResult<List<FeedItem>> = dbQuery {
         val viewerUuid: UUID = userId.toJavaUuid()
 
-        // ✅ basic hardening
         val safeLimit = limit.coerceIn(1, 100)
         val safeOffset = offset.coerceAtLeast(0L)
+        val fetchCount = (safeOffset + safeLimit).coerceAtMost(1000L).toInt()
 
         when (feed) {
             TimeLineFeed.GROUPS -> {
@@ -85,28 +86,36 @@ class JVMTimeLineRepository : TimeLineRepository {
             }
 
             TimeLineFeed.SELF -> {
-                val entities = fetchTimelineEntities(
+                val timelineEntities = fetchTimelineFeedEntities(
                     where = FeedItemsTable.author eq viewerUuid,
-                    limit = safeLimit,
-                    offset = safeOffset
+                    limit = fetchCount,
                 )
-                RepositoryResult.Success(entities.map { it.toDomain(userId) })
+                val answerEntities = fetchDailyAnswerEntities(
+                    where = DailyQuestionAnswersTable.userId eq viewerUuid,
+                    limit = fetchCount
+                )
+
+                val feedItems = (timelineEntities.map { it.toDomain(userId) } +
+                    answerEntities.map { it.toFeedDomain(userId) })
+                    .sortedByDescending { it.createdAt }
+                    .drop(safeOffset.toInt())
+                    .take(safeLimit)
+
+                RepositoryResult.Success(feedItems)
             }
 
             TimeLineFeed.FRIENDS -> {
                 val friendIds = getAcceptedFriendIds(viewerUuid)
 
-                // friends-feed = friends + self
                 val where = if (friendIds.isEmpty()) {
                     FeedItemsTable.author eq viewerUuid
                 } else {
                     (FeedItemsTable.author inList friendIds) or (FeedItemsTable.author eq viewerUuid)
                 }
 
-                val entities = fetchTimelineEntities(
+                val timelineEntities = fetchTimelineFeedEntities(
                     where = where,
-                    limit = safeLimit,
-                    offset = safeOffset
+                    limit = fetchCount,
                 )
 
                 val friendSet = friendIds.toHashSet()
@@ -114,7 +123,20 @@ class JVMTimeLineRepository : TimeLineRepository {
                     if (friendSet.contains(authorUuid.toJavaUuid())) FriendshipStatus.ACCEPTED else null
                 }
 
-                RepositoryResult.Success(entities.map { it.toDomain(userId, provider) })
+                val answerWhere = if (friendIds.isEmpty()) {
+                    DailyQuestionAnswersTable.userId eq viewerUuid
+                } else {
+                    (DailyQuestionAnswersTable.userId inList friendIds) or (DailyQuestionAnswersTable.userId eq viewerUuid)
+                }
+                val answerEntities = fetchDailyAnswerEntities(answerWhere, fetchCount)
+
+                val feedItems = (timelineEntities.map { it.toDomain(userId, provider) } +
+                    answerEntities.map { it.toFeedDomain(userId, provider) })
+                    .sortedByDescending { it.createdAt }
+                    .drop(safeOffset.toInt())
+                    .take(safeLimit)
+
+                RepositoryResult.Success(feedItems)
             }
 
             TimeLineFeed.DISCOVERY -> {
@@ -126,15 +148,25 @@ class JVMTimeLineRepository : TimeLineRepository {
                     (FeedItemsTable.author notInList friendIds) and (FeedItemsTable.author neq viewerUuid)
                 }
 
-                val entities = fetchTimelineEntities(
+                val timelineEntities = fetchTimelineFeedEntities(
                     where = where,
-                    limit = safeLimit,
-                    offset = safeOffset
+                    limit = fetchCount,
                 )
 
-                // Discovery = authors are NOT friends by definition (we filtered them out),
-                // so provider is always null => just map without provider.
-                RepositoryResult.Success(entities.map { it.toDomain(userId) })
+                val answerWhere = if (friendIds.isEmpty()) {
+                    DailyQuestionAnswersTable.userId neq viewerUuid
+                } else {
+                    (DailyQuestionAnswersTable.userId notInList friendIds) and (DailyQuestionAnswersTable.userId neq viewerUuid)
+                }
+                val answerEntities = fetchDailyAnswerEntities(answerWhere, fetchCount)
+
+                val feedItems = (timelineEntities.map { it.toDomain(userId) } +
+                    answerEntities.map { it.toFeedDomain(userId) })
+                    .sortedByDescending { it.createdAt }
+                    .drop(safeOffset.toInt())
+                    .take(safeLimit)
+
+                RepositoryResult.Success(feedItems)
             }
         }
     }
@@ -176,20 +208,26 @@ class JVMTimeLineRepository : TimeLineRepository {
         RepositoryResult.Success(itemEntity.toDomain(userId))
     }
 
-    private fun fetchTimelineEntities(
+    private fun fetchTimelineFeedEntities(
         where: Op<Boolean>,
         limit: Int,
-        offset: Long
-    ): List<TimelineItemEntity> = TimelineItemsTable
-            .join(
-                FeedItemsTable,
-                JoinType.INNER,
-                additionalConstraint = { TimelineItemsTable.feedItemId eq FeedItemsTable.id }
-            )
-            .select(TimelineItemsTable.columns)
-            .where { where }
+    ): List<TimelineItemEntity> {
+        val ids = FeedItemsTable
+            .select(FeedItemsTable.id)
+            .where { where and (FeedItemsTable.type eq FeedItemType.TIMELINE) }
             .orderBy(FeedItemsTable.createdAt, SortOrder.DESC)
-            .offset(start = offset)
             .limit(count = limit)
-            .map { TimelineItemEntity.wrapRow(it) }
+            .map { it[FeedItemsTable.id].value }
+
+        return ids.mapNotNull { TimelineItemEntity.findById(it) }
+    }
+
+    private fun fetchDailyAnswerEntities(
+        where: Op<Boolean>,
+        limit: Int,
+    ): List<DailyQuestionAnswerEntity> = DailyQuestionAnswerEntity
+        .find { where }
+        .orderBy(DailyQuestionAnswersTable.answeredAt to SortOrder.DESC)
+        .limit(limit)
+        .toList()
 }

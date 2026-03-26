@@ -6,7 +6,10 @@ import { Card } from "../../../components/card/Card";
 
 import { FriendService } from "../../../api/service/FriendService";
 import type { UserWithContext } from "../../../data/types";
-import { getUserDisplayName } from "../../../data/ui/userHelpers";
+import {
+  getUserDisplayName,
+  getUserProfileImageUrl,
+} from "../../../data/ui/userHelpers";
 
 import { PagedList } from "../../../components/pagination/PagedList";
 
@@ -40,9 +43,9 @@ const FriendsTab: React.FC<Props> = ({ isActive }) => {
           limit,
           offset,
         },
-        signal
+        signal,
       ),
-    [query]
+    [query],
   );
 
   const listInstanceKey = `${TAB_KEY}:${query}:${reloadToken}`;
@@ -65,12 +68,13 @@ const FriendsTab: React.FC<Props> = ({ isActive }) => {
       )}
       renderItem={(ctx) => {
         const u = ctx.user;
+        const imageUrl = getUserProfileImageUrl(u);
 
         return (
           <Card>
             <div className={styles.cardContent}>
-              {u.imageUrl ? (
-                <img src={u.imageUrl} alt="" className={styles.avatar} />
+              {imageUrl ? (
+                <img src={imageUrl} alt="" className={styles.avatar} />
               ) : (
                 <div className={styles.avatar} />
               )}

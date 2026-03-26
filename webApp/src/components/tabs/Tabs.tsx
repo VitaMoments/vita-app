@@ -30,7 +30,7 @@ function Tabs<T extends string = string>({
   const first = tabs[0]?.value as T | undefined;
 
   const [internal, setInternal] = React.useState<T>(
-    (defaultValue ?? first ?? ("" as T)) as T
+    (defaultValue ?? first ?? ("" as T)) as T,
   );
 
   const active = (isControlled ? value : internal) as T;
@@ -41,7 +41,10 @@ function Tabs<T extends string = string>({
   };
 
   const selectId = React.useId();
-  const activeIndex = Math.max(0, tabs.findIndex((t) => t.value === active));
+  const activeIndex = Math.max(
+    0,
+    tabs.findIndex((t) => t.value === active),
+  );
 
   return (
     <section className={styles.tabs}>

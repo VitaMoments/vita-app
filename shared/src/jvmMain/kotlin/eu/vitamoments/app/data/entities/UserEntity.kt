@@ -23,8 +23,6 @@ class UserEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var bio by UsersTable.bio
     var phone by UsersTable.phone
     var birthDate by UsersTable.birthDate
-    var imageUrl by UsersTable.imageUrl
-    var coverImageUrl by UsersTable.coverImageUrl
 
     // Localization
     var locale by UsersTable.locale

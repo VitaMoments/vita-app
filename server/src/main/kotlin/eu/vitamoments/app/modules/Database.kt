@@ -11,6 +11,7 @@ import eu.vitamoments.app.data.models.enums.UserRole.ADMIN
 import eu.vitamoments.app.data.models.enums.UserRole.USER
 import eu.vitamoments.app.dbHelpers.PasswordHasher
 import eu.vitamoments.app.services.importDailyQuestionsFromJson
+import eu.vitamoments.app.services.importDailyQuestionsFromStream
 import kotlinx.datetime.LocalDateTime
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -154,12 +155,18 @@ object DatabaseFactory {
     }
 
     private fun seedDailyQuestions() {
-        val jsonPath: String =
-            System.getenv("DAILY_QUESTIONS_JSON_PATH")
-                ?: env["DAILY_QUESTIONS_JSON_PATH"]
-                ?: return
+        val envPath = System.getenv("DAILY_QUESTIONS_JSON_PATH")
 
-        importDailyQuestionsFromJson(Paths.get(jsonPath), overwriteExisting = true)
+        if (envPath != null) {
+            importDailyQuestionsFromJson(Paths.get(envPath), true)
+            return
+        }
+
+        val stream = object {}.javaClass
+            .getResourceAsStream("/seed/daily-questions.sample.json")
+            ?: error("Seed file not found in resources")
+
+        importDailyQuestionsFromStream(stream, true)
     }
 
     fun init(): Database = db

@@ -20,6 +20,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.UUID
@@ -30,8 +31,19 @@ fun importDailyQuestionsFromJson(
 ) {
     require(Files.exists(jsonPath)) { "Daily questions JSON not found: $jsonPath" }
 
-    val root = Files.newBufferedReader(jsonPath).use { reader ->
-        Json { ignoreUnknownKeys = true }.parseToJsonElement(reader.readText()).jsonObject
+    Files.newInputStream(jsonPath).use { inputStream ->
+        importDailyQuestionsFromStream(inputStream, overwriteExisting)
+    }
+}
+
+fun importDailyQuestionsFromStream(
+    inputStream: InputStream,
+    overwriteExisting: Boolean = true
+) {
+    val root = inputStream.bufferedReader().use { reader ->
+        Json { ignoreUnknownKeys = true }
+            .parseToJsonElement(reader.readText())
+            .jsonObject
     }
 
     val questions = root["questions"]?.jsonArray

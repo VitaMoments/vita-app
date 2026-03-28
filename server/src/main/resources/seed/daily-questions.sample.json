@@ -1,166 +1,166 @@
 {
   "questions": [
-    {
-      "id": "1fe19b81-e0dc-4f5e-b54e-f68e0a4be5d8",
-      "question": "vraag 1",
-      "type": "multiple_choice",
-      "minTime": "09:00",
-      "maxTime": "12:00",
-      "answers": ["alles komt goed", "even een to-do lijstje maken", "volledige chaos"],
-      "categories": ["Mental Health"]
-    },
-    {
-      "id": "9f6e1651-a4d8-4864-bb8e-e2c394ea15bd",
-      "question": "vraag 2",
-      "type": "open",
-      "minTime": "15:00",
-      "maxTime": "22:00",
-      "answers": null,
-      "categories": ["Mental Health"]
-    },
-    {
-      "id": "73985eb1-f6e9-453c-a9ef-6dca3c2c1ad0",
-      "question": "vraag 3",
-      "type": "multiple_choice",
-      "minTime": "12:00",
-      "maxTime": "17:00",
-      "answers": ["ja", "nee"],
-      "categories": ["Mental Health"]
-    },
-    {
-      "id": "71b46416-4855-4f57-a68e-6158f8a9505c",
-      "question": "vraag 4",
-      "type": "open",
-      "minTime": "12:00",
-      "maxTime": "17:00",
-      "answers": null,
-      "categories": ["Physical Health"]
-    },
-    {
-      "id": "6a2df4f6-ec48-4885-bf77-3ce3d58e76c7",
-      "question": "vraag 5",
-      "type": "open",
-      "minTime": "17:00",
-      "maxTime": null,
-      "answers": null,
-      "categories": ["Physical Health"]
-    },
-    {
-      "id": "e0012b47-60df-489a-ac6f-0b2018d47ca3",
-      "question": "vraag 6",
-      "type": "open",
-      "minTime": "17:00",
-      "maxTime": null,
-      "answers": null,
-      "categories": ["Physical Health"]
-    },
-    {
-      "id": "f43e24f1-eef4-4d7f-af65-34686bd8748c",
-      "question": "vraag 7",
-      "type": "open",
-      "minTime": "16:00",
-      "maxTime": "22:00",
-      "answers": null,
-      "categories": ["Physical Health"]
-    },
-    {
-      "id": "2fd24a0b-0f0a-45bb-8908-0d20f4b7b6e0",
-      "question": "vraag 8",
-      "type": "open",
-      "minTime": "12:00",
-      "maxTime": "17:00",
-      "answers": ["1-3", "4-6", "6-8", "9-10"],
-      "categories": ["Food & Nutrition"]
-    },
-    {
-      "id": "08cd87cd-2c54-4f4e-a682-1641f9398a5b",
-      "question": "vraag 9",
-      "type": "open",
-      "minTime": "17:00",
-      "maxTime": null,
-      "answers": null,
-      "categories": ["Food & Nutrition"]
-    },
-    {
-      "id": "61ca5dde-fb0e-455b-8558-f0b80323327d",
-      "question": "vraag 10",
-      "type": "multiple_choice",
-      "minTime": "20:00",
-      "maxTime": "22:00",
-      "answers": ["0-100", "100-200", "200-500", "500+"],
-      "categories": ["Food & Nutrition"]
-    },
-    {
-      "id": "72f0fdff-6441-4a56-90ff-1d84eb972d3a",
-      "question": "vraag 11",
-      "type": "multiple_choice",
-      "minTime": "11:00",
-      "maxTime": "13:00",
-      "answers": ["nooit meer pizza", "nooit meer friet"],
-      "categories": ["Food & Nutrition"]
-    },
-    {
-      "id": "47c192b3-5b84-471c-941f-f6e85dff9872",
-      "question": "vraag 12",
-      "type": "open",
-      "minTime": null,
-      "maxTime": null,
-      "answers": null,
-      "categories": ["Habits & Routines"]
-    },
-    {
-      "id": "d75808dd-a827-4ff8-a159-8527d9979ec8",
-      "question": "vraag 13",
-      "type": "open",
-      "minTime": "08:00",
-      "maxTime": "10:00",
-      "answers": null,
-      "categories": ["Sleep & Rest"]
-    },
-    {
-      "id": "706aab02-f94a-442b-8d51-5538584c8308",
-      "question": "vraag 14",
-      "type": "multiple_choice",
-      "minTime": "08:00",
-      "maxTime": "10:00",
-      "answers": ["plafonddienst", "hazenslaapjes", "geslapen als een roos"],
-      "categories": ["Sleep & Rest"]
-    },
-    {
-      "id": "915e1f93-5e3e-4de4-8715-4c142d24ec55",
-      "question": "vraag 15",
-      "type": "multiple_choice",
-      "minTime": "19:00",
-      "maxTime": "22:00",
-      "answers": ["ja, ik ben lekker veel buiten geweest", "mwoah, wel een beetje buiten geweest", "nee, ik heb alleen maar binnengezeten"],
-      "categories": ["Sleep & Rest"]
-    },
-    {
-      "id": "d9f81409-e410-4fe4-806a-ae6d5d24bdcb",
-      "question": "vraag 16",
-      "type": "open",
-      "minTime": "14:00",
-      "maxTime": "17:00",
-      "answers": null,
-      "categories": ["Relationships"]
-    },
-    {
-      "id": "2c715eec-c3c8-45ef-a4ac-1fd5828f209f",
-      "question": "vraag 17",
-      "type": "open",
-      "minTime": "20:00",
-      "maxTime": "21:00",
-      "answers": null,
-      "categories": ["Personal Growth"]
-    },
-    {
-      "id": "d5d7db16-7ad8-4c6b-8781-a65ac9ce327e",
-      "question": "vraag 18",
-      "type": "open",
-      "minTime": "20:00",
-      "maxTime": "21:00",
-      "answers": null,
-      "categories": ["Reflection"]
-    }
+	{
+	  "id": "1fe19b81-e0dc-4f5e-b54e-f68e0a4be5d8",
+	  "question": "Adem rustig in en adem rustig uit. Hoe is jouw stresslevel op dit moment?",
+	  "type": "multiple_choice",
+	  "minTime": "09:00",
+	  "maxTime": "12:00",
+	  "answers": ["alles komt goed", "even een to-do lijstje maken", "volledige chaos"],
+	  "categories": ["Mental Health"]
+	},
+	{
+	  "id": "9f6e1651-a4d8-4864-bb8e-e2c394ea15bd",
+	  "question": "Welke actie gaf jou vandaag een goed gevoel?",
+	  "type": "open",
+	  "minTime": "15:00",
+	  "maxTime": "22:00",
+	  "answers": null,
+	  "categories": ["Mental Health"]
+	},
+	{
+	  "id": "73985eb1-f6e9-453c-a9ef-6dca3c2c1ad0",
+	  "question": "Heb jij je collega vandaag al een complimentje gegeven?",
+	  "type": "multiple_choice",
+	  "minTime": "12:00",
+	  "maxTime": "17:00",
+	  "answers": ["ja", "nee"],
+	  "categories": ["Mental Health"]
+	},
+	{
+	  "id": "71b46416-4855-4f57-a68e-6158f8a9505c",
+	  "question": "Heb je vandaag al bewust 10 minuten achter elkaar bewogen? Zo niet: wanneer ga je dit doen?",
+	  "type": "open",
+	  "minTime": "12:00",
+	  "maxTime": "17:00",
+	  "answers": null,
+	  "categories": ["Physical Health"]
+	},
+	{
+	  "id": "6a2df4f6-ec48-4885-bf77-3ce3d58e76c7",
+	  "question": "Wat was je meest actieve moment van de dag?",
+	  "type": "open",
+	  "minTime": "17:00",
+	  "maxTime": null,
+	  "answers": null,
+	  "categories": ["Physical Health"]
+	},
+	{
+	  "id": "e0012b47-60df-489a-ac6f-0b2018d47ca3",
+	  "question": "Deel een foto van jouw gezonde moment van vandaag!",
+	  "type": "open",
+	  "minTime": "17:00",
+	  "maxTime": null,
+	  "answers": null,
+	  "categories": ["Physical Health"]
+	},
+	{
+	  "id": "f43e24f1-eef4-4d7f-af65-34686bd8748c",
+	  "question": "Hoeveel stappen heb jij vandaag gezet?",
+	  "type": "open",
+	  "minTime": "16:00",
+	  "maxTime": "22:00",
+	  "answers": null,
+	  "categories": ["Physical Health"]
+	},
+	{
+	  "id": "2fd24a0b-0f0a-45bb-8908-0d20f4b7b6e0",
+	  "question": "Hoeveel glazen water heb jij vandaag gedronken (1 glas = 200ml)?",
+	  "type": "open",
+	  "minTime": "12:00",
+	  "maxTime": "17:00",
+	  "answers": ["1-3", "4-6", "6-8", "9-10"],
+	  "categories": ["Food & Nutrition"]
+	},
+	{
+	  "id": "08cd87cd-2c54-4f4e-a682-1641f9398a5b",
+	  "question": "Waaruit bestond je ontbijt?",
+	  "type": "open",
+	  "minTime": "17:00",
+	  "maxTime": null,
+	  "answers": null,
+	  "categories": ["Food & Nutrition"]
+	},
+	{
+	  "id": "61ca5dde-fb0e-455b-8558-f0b80323327d",
+	  "question": "Hoeveel gram groente heb jij vandaag binnen gekregen?",
+	  "type": "multiple_choice",
+	  "minTime": "20:00",
+	  "maxTime": "22:00",
+	  "answers": ["0-100", "100-200", "200-500", "500+"],
+	  "categories": ["Food & Nutrition"]
+	},
+	{
+	  "id": "72f0fdff-6441-4a56-90ff-1d84eb972d3a",
+	  "question": "Dilemma Dinsdag: nooit meer pizza of nooit meer friet?",
+	  "type": "multiple_choice",
+	  "minTime": "11:00",
+	  "maxTime": "13:00",
+	  "answers": ["nooit meer pizza", "nooit meer friet"],
+	  "categories": ["Food & Nutrition"]
+	},
+	{
+	  "id": "47c192b3-5b84-471c-941f-f6e85dff9872",
+	  "question": "Welke gewoonte probeer je deze week te verbeteren?",
+	  "type": "open",
+	  "minTime": null,
+	  "maxTime": null,
+	  "answers": null,
+	  "categories": ["Habits & Routines"]
+	},
+	{
+	  "id": "d75808dd-a827-4ff8-a159-8527d9979ec8",
+	  "question": "Hoe was jouw nachtrust?",
+	  "type": "open",
+	  "minTime": "08:00",
+	  "maxTime": "10:00",
+	  "answers": null,
+	  "categories": ["Sleep & Rest"]
+	},
+	{
+	  "id": "706aab02-f94a-442b-8d51-5538584c8308",
+	  "question": "Had jij vannacht plafonddienst of sliep je als een roos?",
+	  "type": "multiple_choice",
+	  "minTime": "08:00",
+	  "maxTime": "10:00",
+	  "answers": ["plafonddienst", "hazenslaapjes", "geslapen als een roos"],
+	  "categories": ["Sleep & Rest"]
+	},
+	{
+	  "id": "915e1f93-5e3e-4de4-8715-4c142d24ec55",
+	  "question": "Heb jij vandaag genoeg daglicht gezien?",
+	  "type": "multiple_choice",
+	  "minTime": "19:00",
+	  "maxTime": "22:00",
+	  "answers": ["ja, ik ben lekker veel buiten geweest", "mwoah, wel een beetje buiten geweest", "nee, ik heb alleen maar binnengezeten"],
+	  "categories": ["Sleep & Rest"]
+	},
+	{
+	  "id": "d9f81409-e410-4fe4-806a-ae6d5d24bdcb",
+	  "question": "Met wie ga jij deze week een koffietje doen om even bij te praten?",
+	  "type": "open",
+	  "minTime": "14:00",
+	  "maxTime": "17:00",
+	  "answers": null,
+	  "categories": ["Relationships"]
+	},
+	{
+	  "id": "2c715eec-c3c8-45ef-a4ac-1fd5828f209f",
+	  "question": "Heb jij vandaag al gelezen? Zo ja: welk boek?",
+	  "type": "open",
+	  "minTime": "20:00",
+	  "maxTime": "21:00",
+	  "answers": null,
+	  "categories": ["Personal Growth"]
+	},
+	{
+	  "id": "d5d7db16-7ad8-4c6b-8781-a65ac9ce327e",
+	  "question": "Wat had jij vandaag anders kunnen doen?",
+	  "type": "open",
+	  "minTime": "20:00",
+	  "maxTime": "21:00",
+	  "answers": null,
+	  "categories": ["Reflection"]
+	}
   ]
 }
